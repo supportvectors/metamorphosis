@@ -1,0 +1,6 @@
+---
+description: When the Cursor IDE opens a project.
+globs: 
+alwaysApply: false
+---
+On startup, always read the whole project codebase, to get an understanding of the project.

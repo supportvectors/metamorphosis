@@ -1,0 +1,110 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: |-
+  Enforces Design-by-Contract, fail-fast validation, and low cognitive
+  complexity across the codebase. Applies to every file unless explicitly
+  overridden.
+glob: "**/*.*"
+alwaysApply: true
+---
+
+# Design-by-Contract & Low-Complexity Coding Standard (v1)
+
+## Rationale
+Keep public APIs self-documenting, prevent error propagation, and ensure that
+all business logic stays readable, testable, and maintainable. The rule merges
+classic *Design-by-Contract* principles with modern **cognitive-complexity**
+thresh­olds so that "KISS" remains the default across the project.
+
+## Preferred Tooling
+- **icontract** (`@require`, `@ensure`, `@invariant`) for language-agnostic
+  pre-/post-conditions and class invariants.
+- **Pydantic 2.x** (`@validate_call`, `@field_validator`, `@model_validator`)
+  when you already depend on Pydantic (e.g. FastAPI).
+- Native language primitives (`assert`, `typing.Annotated`, Rust contracts,
+  etc.) are acceptable if they meet the hard limits.
+
+## HARD LIMITS
+1. **Cyclomatic complexity** per function/method ≤ **10**.
+2. **Maximum nesting depth** ≤ **2** indentation levels.
+3. **Pre-condition validation** is mandatory on every public function or method:
+   - Use decorators/guard clauses so checks do *not* add extra nesting.
+   - Raise a clearly typed exception (`ValueError`, custom `ContractError`, …)
+     at the first violation (*fail-fast*).
+4. **Post-condition checks** must verify that return values respect declared
+   constraints **when the check is O(1)**; skip only if the cost is proven high.
+5. **Class invariants**: if an object can enter an illegal state, annotate the
+   invariant with `@invariant` (icontract) or an always-run validator.
+6. **Deep loops** that exceed nesting depth may exist **only** for
+   performance-critical tensor/array kernels **and** must include the comment
+   `NOTE: deep_loop_exception`.
+7. **No clever boolean golf**—spell out conditions so a new engineer understands
+   them instantly.
+8. Any intentional violation **must** be annotated with one of:
+   - `# allow_complexity` (exceeds CC or depth)
+   - `# skip_postcondition` (post-condition too costly)
+   Each tag requires a one-sentence justification.
+
+## SOFT GUIDANCE
+- Prefer **early returns**/guard clauses to flatten indentation.
+- Extract logic into **small, cohesive helpers** when CC grows beyond 7 or
+  nesting beyond 1.
+- Couple each extracted helper with a corresponding small unit test.
+- Disable heavy contracts in prod if latency-critical by guarding with
+  an env-flag (e.g. `ICONTRACT_ENABLED=0`).
+
+## EXAMPLE — icontract (Pre/Post & Invariant)
+```python
+from icontract import require, ensure, invariant
+
+@invariant(lambda self: self.balance >= 0, "Balance never negative")
+class Account:
+    def __init__(self, balance: float = 0):
+        self.balance = balance
+
+    @require(lambda self, amt: amt > 0, "Deposit must be positive")
+    def deposit(self, amt: float) -> None:
+        self.balance += amt
+
+    @require(lambda self, amt: 0 < amt <= self.balance,
+             "Cannot withdraw more than current balance")
+    @ensure(lambda self, RESULT: self.balance >= 0,
+            "Balance stays non-negative")
+    def withdraw(self, amt: float) -> float:
+        self.balance -= amt
+        return amt
+```
+
+## EXAMPLE — Pydantic `@validate_call` & Return Model
+```python
+from pydantic import BaseModel, validate_call, PositiveInt, field_validator
+
+class MassOut(BaseModel):
+    mass: float
+
+    @field_validator("mass")
+    def must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError("mass must be positive")
+        return v
+
+@validate_call
+def parcel_mass(length: PositiveInt, width: PositiveInt,
+                height: PositiveInt, density: float = 0.3) -> MassOut:
+    return MassOut(mass=length * width * height * density)
+```
+
+## LINTER/CI INTEGRATION
+- **Python**: `radon -a -n C`, `flake8-cognitive-complexity`,
+  `pylint --max-nested-blocks=2`.
+- **Java**: SonarQube `cognitiveComplexity`, PMD `CyclomaticComplexity`.
+- **CI gate**: fail the build if any HARD LIMIT is breached or undocumented tag
+  is found.
+
+---
+**Revision history**
+- v1 (2025-05-05): Initial release combining DbC and low-complexity guidance.

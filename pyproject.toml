@@ -15,6 +15,7 @@ dependencies = [
     "svlearn-bootcamp>=0.1.7",
     "uvicorn>=0.35.0",
     "wordcloud>=1.9.4",
+    "loguru>=0.7.2",
 ]
 
 [build-system]
