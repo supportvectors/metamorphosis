@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.116.1",
+    "fastmcp>=2.11.3",
     "langchain[openai]>=0.3.27",
     "langgraph>=0.6.6",
     "langsmith>=0.4.20",
