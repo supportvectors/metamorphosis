@@ -11,6 +11,7 @@ dependencies = [
     "langgraph>=0.6.6",
     "langsmith>=0.4.20",
     "spacy>=3.8.7",
+    "stylecloud>=0.5.2",
     "svlearn-bootcamp>=0.1.7",
     "uvicorn>=0.35.0",
     "wordcloud>=1.9.4",
