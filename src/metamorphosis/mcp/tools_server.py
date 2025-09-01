@@ -55,7 +55,7 @@ def create_word_cloud(text: Annotated[str, Field(min_length=1)]) -> str:
     print(f"Creating word cloud for text: {text}")
     word_cloud = WordCloud().generate(text)
     #save the word cloud to a unique file
-    word_cloud_path = f"word_cloud_{uuid.uuid4()}.png"
+    word_cloud_path = f"./word_clouds/word_cloud_{uuid.uuid4()}.png"
     word_cloud.to_file(word_cloud_path)
     return word_cloud_path
 
