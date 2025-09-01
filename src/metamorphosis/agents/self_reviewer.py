@@ -9,9 +9,8 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
-from typing import Annotated, Optional
-from langchain_core.messages import AnyMessage
-from langgraph.graph.message import add_messages
+from typing import Optional
+from langgraph.checkpoint.memory import InMemorySaver
 import asyncio
 import json
 from rich import print as rprint
@@ -30,13 +29,11 @@ class GraphState(TypedDict):
         copy_edited_text (Optional[str]): The copy-edited text
         summary (Optional[str]): The abstractive summary of the text
         word_cloud_path (Optional[str]): Path to the generated word cloud image file
-        messages (Annotated[list, add_messages]): Conversation messages that get appended to the state
     """
     original_text: str
     copy_edited_text: Optional[str]
     summary: Optional[str]
     word_cloud_path: Optional[str]
-    messages: Annotated[list[AnyMessage], add_messages]
 
 # Set up MCP client
 client = MultiServerMCPClient(
@@ -60,7 +57,7 @@ async def initialize_components():
 
 async def copy_editor_node(state: GraphState) -> GraphState:
     """Copy editor node."""
-    original_text = state["messages"][-1].content
+    original_text = state["original_text"]
     
     # Find the copy_edit tool from the available tools
     copy_edit_tool = next((tool for tool in tools if tool.name == "copy_edit"), None)
@@ -73,7 +70,7 @@ async def copy_editor_node(state: GraphState) -> GraphState:
     # Parse the JSON result
     result_data = json.loads(result)
     copy_edited_text = result_data["copy_edited_text"]
-    return {"original_text": original_text, "copy_edited_text": copy_edited_text}
+    return {"copy_edited_text": copy_edited_text}
 
 async def summarizer_node(state: GraphState) -> GraphState:
     """Summarizer node."""
@@ -124,8 +121,11 @@ async def build_graph():
     builder.add_edge("summarizer", END)
     builder.add_edge("wordcloud", END)  
 
-    # Compile the graph
-    graph = builder.compile()
+    # Configure persistence: checkpoint per thread_id for state management
+    memory = InMemorySaver()
+    
+    # Compile the graph with the checkpointing system
+    graph = builder.compile(checkpointer=memory)
     
     # save the graph to a file
     graph.get_graph().draw_mermaid_png(output_file_path="self_reviewer_graph.png")
@@ -133,19 +133,49 @@ async def build_graph():
     return graph
 
 async def test_graph():
-    # Build the graph (which initializes components)
-    graph = await build_graph()
-    
     # Test the graph with different types of queries
     self_review_response = await graph.ainvoke(
         {
-            "messages": [{"role": "user", "content": 
+            "original_text": 
             '''I had an eventful cycle this summer.  Learnt agentic workflows and implemented a self-reviewer agent
-            for the periodic employee self-review process.  It significantly improved employee productivity for the organization.'''}],
-            "tools_completed": []
-        }
+            for the periodic employee self-review process.  It significantly improved employee productivity for the organization.''',            
+        },
+        config={"configurable": {"thread_id": "default"}}
     )
     return self_review_response
+
+async def run_graph(graph: StateGraph, review_text: str, thread_id: str = "main"):
+    """
+    Executes the LangGraph workflow asynchronously.
+    
+    This function runs the complete workflow for a given review text and returns
+    the results. It uses thread_id for state
+    persistence across multiple executions.
+    
+    Args:
+        graph (StateGraph): The compiled graph to execute
+        review_text (str): The review text to process
+        thread_id (str): Unique identifier for state persistence (default: "main")
+        
+    Returns:
+        GraphState: Processed results, or None if error occurs
+    """
+    try:
+        # Execute the graph asynchronously with the given topic
+        # The thread_id ensures state persistence across multiple runs
+        result: GraphState = await graph.ainvoke(
+        {
+            "original_text": review_text,            
+        },
+        config={"configurable": {"thread_id": thread_id}}
+    )
+        return result
+        
+    except Exception as e:
+        print(f"Error running graph: {e}")
+        return None
+
+graph = asyncio.run(build_graph())
 
 # test the graph and print the results
 if __name__ == "__main__":
