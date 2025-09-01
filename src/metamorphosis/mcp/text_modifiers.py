@@ -12,11 +12,13 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from pydantic import BaseModel, ConfigDict, Field, validate_call
+from pydantic import BaseModel, ConfigDict, Field
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def _read_text_file(file_path: Path) -> str:

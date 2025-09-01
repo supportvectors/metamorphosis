@@ -16,6 +16,7 @@ dependencies = [
     "uvicorn>=0.35.0",
     "wordcloud>=1.9.4",
     "loguru>=0.7.2",
+    "langchain-mcp-adapters>=0.1.9",
 ]
 
 [build-system]
