@@ -9,7 +9,8 @@
 
 from __future__ import annotations
 
-from pydantic import validate_call
+from typing import Annotated
+from pydantic import Field, validate_call
 from fastmcp import FastMCP, tool
 from wordcloud import WordCloud
 
@@ -18,7 +19,7 @@ from .text_modifiers import CopyEditedText, SummarizedText, get_text_modifiers
 
 @tool("copy_edit")
 @validate_call
-def copy_edit(text: str) -> CopyEditedText:
+def copy_edit(text: Annotated[str, Field(min_length=1)]) -> CopyEditedText:
     """Copy edit the provided text.
 
     Args:
@@ -28,17 +29,15 @@ def copy_edit(text: str) -> CopyEditedText:
         CopyEditedText: Structured result containing the edited text and metadata.
 
     Raises:
-        ValueError: If text is empty or only whitespace.
+        pydantic.ValidationError: If input fails validation.
     """
-    if text is None or not isinstance(text, str) or not text.strip():
-        raise ValueError("text must be a non-empty string")
     modifiers = get_text_modifiers()
     return modifiers.copy_edit(text=text)
 
 
 @tool("word_cloud")
 @validate_call
-def create_word_cloud(text: str) -> WordCloud:
+def create_word_cloud(text: Annotated[str, Field(min_length=1)]) -> WordCloud:
     """Create a word cloud from the text.
 
     Args:
@@ -48,16 +47,17 @@ def create_word_cloud(text: str) -> WordCloud:
         WordCloud: Generated word cloud object.
 
     Raises:
-        ValueError: If text is empty or only whitespace.
+        pydantic.ValidationError: If input fails validation.
     """
-    if text is None or not isinstance(text, str) or not text.strip():
-        raise ValueError("text must be a non-empty string")
     return WordCloud().generate(text)
 
 
 @tool("abstractive_summarize")
 @validate_call
-def abstractive_summarize(text: str, max_words: int = 300) -> SummarizedText:
+def abstractive_summarize(
+    text: Annotated[str, Field(min_length=1)],
+    max_words: Annotated[int, Field(gt=0)] = 300,
+) -> SummarizedText:
     """Summarize the text abstractively.
 
     Args:
@@ -68,12 +68,8 @@ def abstractive_summarize(text: str, max_words: int = 300) -> SummarizedText:
         SummarizedText: Structured result containing the summary and metadata.
 
     Raises:
-        ValueError: If text is empty or only whitespace or max_words < 1.
+        pydantic.ValidationError: If input fails validation.
     """
-    if text is None or not isinstance(text, str) or not text.strip():
-        raise ValueError("text must be a non-empty string")
-    if not isinstance(max_words, int) or max_words < 1:
-        raise ValueError("max_words must be a positive integer")
     modifiers = get_text_modifiers()
     return modifiers.summarize(text=text, max_words=max_words)
 
