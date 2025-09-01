@@ -120,7 +120,8 @@ async def build_graph():
     # add the edges to the graph
     builder.add_edge(START, "copy_editor")
     builder.add_edge("copy_editor", "summarizer")
-    builder.add_edge("summarizer", "wordcloud")
+    builder.add_edge("copy_editor", "wordcloud")
+    builder.add_edge("summarizer", END)
     builder.add_edge("wordcloud", END)  
 
     # Compile the graph
