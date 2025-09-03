@@ -9,12 +9,25 @@
 
 from __future__ import annotations
 
+import os
+import uuid
+from pathlib import Path
 from typing import Annotated
+
 from pydantic import Field, validate_call
 from fastmcp import FastMCP
 from wordcloud import WordCloud
-import uuid
+from dotenv import load_dotenv
+from loguru import logger
+
+load_dotenv()
+
 from metamorphosis.mcp.text_modifiers import CopyEditedText, SummarizedText, get_text_modifiers
+from metamorphosis.exceptions import (
+    PostconditionError,
+    FileOperationError,
+    raise_postcondition_error,
+)
 
 # Create a basic server instance with a name identifier
 mcp = FastMCP(name="text_modifier_mcp_server")
@@ -32,10 +45,19 @@ def copy_edit(text: Annotated[str, Field(min_length=1)]) -> CopyEditedText:
 
     Raises:
         pydantic.ValidationError: If input fails validation.
+        ValueError: If postcondition validation fails.
     """
-    print(f"Copy-editing text: {text}")
+    logger.info("copy_edit: received text length={}.", len(text))
     modifiers = get_text_modifiers()
-    return modifiers.copy_edit(text=text)
+    result = modifiers.copy_edit(text=text)
+    # Postcondition (O(1)): ensure structured output sanity
+    if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
+        raise_postcondition_error(
+            "Copy edit output validation failed",
+            context={"result_type": type(result).__name__, "has_text": bool(getattr(result, 'copy_edited_text', None))},
+            operation="copy_edit_tool_validation"
+        )
+    return result
 
 
 @mcp.tool("word_cloud")
@@ -51,13 +73,31 @@ def create_word_cloud(text: Annotated[str, Field(min_length=1)]) -> str:
 
     Raises:
         pydantic.ValidationError: If input fails validation.
+        ValueError: If postcondition validation fails.
+        OSError: If word cloud directory creation or file save fails.
     """
-    print(f"Creating word cloud for text: {text}")
+    logger.info("word_cloud: generating for text length={}.", len(text))
     word_cloud = WordCloud().generate(text)
-    #save the word cloud to a unique file
-    word_cloud_path = f"./word_clouds/word_cloud_{uuid.uuid4()}.png"
-    word_cloud.to_file(word_cloud_path)
-    return word_cloud_path
+    
+    # Ensure word_clouds directory exists
+    output_dir = Path("./word_clouds")
+    output_dir.mkdir(exist_ok=True)
+    
+    # Generate unique filename
+    word_cloud_path = output_dir / f"word_cloud_{uuid.uuid4()}.png"
+    word_cloud.to_file(str(word_cloud_path))
+    
+    # Postcondition (O(1)): ensure file was created
+    if not word_cloud_path.exists():
+        raise FileOperationError(
+            "Word cloud file was not created",
+            file_path=str(word_cloud_path),
+            operation_type="create",
+            operation="word_cloud_generation",
+            error_code="FILE_NOT_CREATED"
+        )
+    
+    return str(word_cloud_path)
 
 
 @mcp.tool("abstractive_summarize")
@@ -77,11 +117,24 @@ def abstractive_summarize(
 
     Raises:
         pydantic.ValidationError: If input fails validation.
+        ValueError: If postcondition validation fails.
     """
-    print(f"Summarizing text: {text}")
+    logger.info(
+        "abstractive_summarize: text length={}, max_words={}.", len(text), max_words
+    )
     modifiers = get_text_modifiers()
-    return modifiers.summarize(text=text, max_words=max_words)
+    result = modifiers.summarize(text=text, max_words=max_words)
+    # Postcondition (O(1)): ensure structured output sanity
+    if not isinstance(result, SummarizedText) or not result.summarized_text:
+        raise_postcondition_error(
+            "Summarization output validation failed",
+            context={"result_type": type(result).__name__, "has_text": bool(getattr(result, 'summarized_text', None))},
+            operation="summarize_tool_validation"
+        )
+    return result
 
 if __name__ == "__main__":
-    # Run the MCP server with HTTP transport on localhost at port 3333
-    mcp.run(transport="http", host="127.0.0.1", port=3333)
+    host = os.getenv("MCP_SERVER_HOST", "127.0.0.1")
+    port = int(os.getenv("MCP_SERVER_PORT", "3333"))
+    logger.info("Starting MCP tools server at {}:{}", host, port)
+    mcp.run(transport="http", host=host, port=port)

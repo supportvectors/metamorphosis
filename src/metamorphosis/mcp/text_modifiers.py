@@ -12,103 +12,167 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
+from typing import Annotated
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, validate_call
 from dotenv import load_dotenv
+from loguru import logger
 
 load_dotenv()
 
-
-def _read_text_file(file_path: Path) -> str:
-    """Read a UTF-8 text file, raising ValueError if not found or empty.
-
-    This helper is intentionally simple to keep cognitive complexity low.
-    """
-    if not file_path.exists() or not file_path.is_file():
-        raise ValueError(f"Prompt file not found: {file_path}")
-    content = file_path.read_text(encoding="utf-8").strip()
-    if not content:
-        raise ValueError(f"Prompt file is empty: {file_path}")
-    return content
+# Import custom exceptions and utilities
+from metamorphosis.exceptions import (
+    ConfigurationError,
+    PostconditionError,
+    raise_configuration_error,
+    raise_postcondition_error,
+)
+from metamorphosis.utilities import read_text_file, get_project_root
 
 
 class SummarizedText(BaseModel):
     """Structured summary output."""
-
+    
     model_config = ConfigDict(extra="forbid")
-
-    summarized_text: str = Field(..., description="The summarized text")
-    original_text: str = Field(..., description="The original text provided")
-    size: int = Field(..., description="The size of the summarized text")
+    summarized_text: str
 
 
 class CopyEditedText(BaseModel):
-    """Structured copy-edit output."""
-
+    """Structured copy-edited output."""
+    
     model_config = ConfigDict(extra="forbid")
-
-    copy_edited_text: str = Field(..., description="The copy edited text")
-    original_text: str = Field(..., description="The original text provided")
-    is_modified: bool = Field(..., description="Whether the text was modified")
+    copy_edited_text: str
 
 
 class TextModifiers:
-    """Builds summarization and copy-edit chains using a single LLM instance.
+    """LLM-backed text processing utilities with structured outputs.
 
-    A single instance is cached to avoid repeatedly loading prompts and models.
+    This class provides text processing capabilities including summarization
+    and copy editing using OpenAI's language models. All methods return
+    structured Pydantic models for type safety and validation.
+
+    The class uses prompt templates loaded from external files and leverages
+    LangChain's structured output capabilities for reliable parsing.
     """
 
     def __init__(self) -> None:
-        openai_api_key = os.getenv("OPENAI_API_KEY")
-        if not openai_api_key:
-            raise ValueError("OPENAI_API_KEY environment variable is required")
+        """Initialize the TextModifiers with LLM chains and prompt templates.
 
-        self.llm = ChatOpenAI(model="gpt-5", temperature=0, api_key=openai_api_key)
+        Raises:
+            ConfigurationError: If required environment variables are missing.
+            FileOperationError: If prompt files cannot be loaded.
+        """
+        logger.debug("Initializing TextModifiers")
 
-        project_root = Path(__file__).resolve().parents[3]
+        # Initialize LLM with environment-based configuration
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise_configuration_error(
+                "OPENAI_API_KEY environment variable is required",
+                context={"env_vars_checked": ["OPENAI_API_KEY"]},
+                operation="llm_initialization"
+            )
+
+        self.llm = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0.1,
+            api_key=api_key,
+        )
+
+        # Load prompt templates from files using utility functions
+        project_root = get_project_root()
         prompts_dir = project_root / "prompts"
+        logger.debug("Using prompts directory: {}", prompts_dir)
 
-        summarizer_prompt_text = _read_text_file(prompts_dir / "summarizer.md")
-        copy_editor_prompt_text = _read_text_file(prompts_dir / "copy_editor.md")
+        summarizer_prompt_text = read_text_file(prompts_dir / "summarizer.md")
+        copy_editor_prompt_text = read_text_file(prompts_dir / "copy_editor.md")
 
         # Compose prompts with input placeholders for clarity.
         self.summarizer = (
             ChatPromptTemplate.from_template(
-                f"{summarizer_prompt_text}\n\nTarget maximum words: {{max_words}}\n\nText:\n{{text}}"
+                f"{summarizer_prompt_text}\\n\\nTarget maximum words: {{max_words}}\\n\\nText:\\n{{text}}"
             )
             | self.llm.with_structured_output(SummarizedText)
         )
         self.copy_editor = (
-            ChatPromptTemplate.from_template(f"{copy_editor_prompt_text}\n\nText:\n{{text}}")
+            ChatPromptTemplate.from_template(f"{copy_editor_prompt_text}\\n\\nText:\\n{{text}}")
             | self.llm.with_structured_output(CopyEditedText)
         )
 
-    def summarize(self, *, text: str, max_words: int = 300) -> SummarizedText:
-        """Summarize text using the configured LLM chain."""
-        if text is None or not isinstance(text, str) or not text.strip():
-            raise ValueError("text must be a non-empty string")
-        if not isinstance(max_words, int) or max_words < 1:
-            raise ValueError("max_words must be a positive integer")
+        logger.debug("TextModifiers initialized successfully")
+
+    @validate_call
+    def summarize(
+        self,
+        *,
+        text: Annotated[str, Field(min_length=1)],
+        max_words: Annotated[int, Field(gt=0)] = 300,
+    ) -> SummarizedText:
+        """Summarize text using the configured LLM chain.
+
+        Args:
+            text: The input text to summarize.
+            max_words: Maximum number of words in the summary.
+
+        Returns:
+            SummarizedText: Structured summary with the summarized text.
+
+        Raises:
+            PostconditionError: If the output validation fails.
+        """
+        logger.debug("summarize: processing text (length={}, max_words={})", len(text), max_words)
+
         result = self.summarizer.invoke({"text": text, "max_words": max_words})
-        if not result.summarized_text or not isinstance(result.summarized_text, str):
-            raise ValueError("summarized_text must be a non-empty string")
-        if result.size < 0:
-            raise ValueError("size must be non-negative")
+
+        # Postcondition (O(1)): ensure structured output is valid
+        if not isinstance(result, SummarizedText) or not result.summarized_text:
+            raise_postcondition_error(
+                "Summarization output validation failed",
+                context={"result_type": type(result).__name__, "has_text": bool(getattr(result, 'summarized_text', None))},
+                operation="summarize_validation"
+            )
+
+        logger.debug("summarize: completed successfully (output_length={})", len(result.summarized_text))
         return result
 
-    def copy_edit(self, *, text: str) -> CopyEditedText:
-        """Copy edit text using the configured LLM chain."""
-        if text is None or not isinstance(text, str) or not text.strip():
-            raise ValueError("text must be a non-empty string")
+    @validate_call
+    def copy_edit(
+        self, *, text: Annotated[str, Field(min_length=1)]
+    ) -> CopyEditedText:
+        """Copy edit text using the configured LLM chain.
+
+        Args:
+            text: The input text to copy edit.
+
+        Returns:
+            CopyEditedText: Structured output with the copy-edited text.
+
+        Raises:
+            PostconditionError: If the output validation fails.
+        """
+        logger.debug("copy_edit: processing text (length={})", len(text))
+
         result = self.copy_editor.invoke({"text": text})
-        if not result.copy_edited_text or not isinstance(result.copy_edited_text, str):
-            raise ValueError("copy_edited_text must be a non-empty string")
+
+        # Postcondition (O(1)): ensure structured output is valid
+        if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
+            raise_postcondition_error(
+                "Copy editing output validation failed",
+                context={"result_type": type(result).__name__, "has_text": bool(getattr(result, 'copy_edited_text', None))},
+                operation="copy_edit_validation"
+            )
+
+        logger.debug("copy_edit: completed successfully (output_length={})", len(result.copy_edited_text))
         return result
 
 
 @lru_cache(maxsize=1)
 def get_text_modifiers() -> TextModifiers:
-    """Return a cached `TextModifiers` instance for reuse by callers."""
+    """Get a cached TextModifiers instance.
+
+    Returns:
+        TextModifiers: Singleton instance of the text processing utilities.
+    """
     return TextModifiers()
