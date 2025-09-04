@@ -55,4 +55,15 @@ def _load_config() -> dict[str, Any]:
 # Public configuration object for convenience.
 config: dict[str, Any] = _load_config()
 
-__all__ = ["config"]
+from functools import lru_cache  # noqa: E402
+
+
+@lru_cache(maxsize=1)
+def get_model_registry():
+    """Return the singleton `ModelRegistry` instance (lazy import to avoid cycles)."""
+    from metamorphosis.model_registry import ModelRegistry  # local import
+
+    return ModelRegistry()
+
+
+__all__ = ["config", "get_model_registry"]

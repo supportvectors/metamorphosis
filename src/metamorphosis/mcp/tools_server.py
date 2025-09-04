@@ -22,7 +22,9 @@ from loguru import logger
 
 load_dotenv()
 
-from metamorphosis.mcp.text_modifiers import CopyEditedText, SummarizedText, get_text_modifiers
+from functools import lru_cache
+from metamorphosis.mcp.text_modifiers import TextModifiers
+from metamorphosis.datamodel import CopyEditedText, SummarizedText
 from metamorphosis.exceptions import (
     PostconditionError,
     FileOperationError,
@@ -48,7 +50,7 @@ def copy_edit(text: Annotated[str, Field(min_length=1)]) -> CopyEditedText:
         ValueError: If postcondition validation fails.
     """
     logger.info("copy_edit: received text length={}.", len(text))
-    modifiers = get_text_modifiers()
+    modifiers = _get_modifiers()
     result = modifiers.copy_edit(text=text)
     # Postcondition (O(1)): ensure structured output sanity
     if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
@@ -122,7 +124,7 @@ def abstractive_summarize(
     logger.info(
         "abstractive_summarize: text length={}, max_words={}.", len(text), max_words
     )
-    modifiers = get_text_modifiers()
+    modifiers = _get_modifiers()
     result = modifiers.summarize(text=text, max_words=max_words)
     # Postcondition (O(1)): ensure structured output sanity
     if not isinstance(result, SummarizedText) or not result.summarized_text:
@@ -138,3 +140,9 @@ if __name__ == "__main__":
     port = int(os.getenv("MCP_SERVER_PORT", "3333"))
     logger.info("Starting MCP tools server at {}:{}", host, port)
     mcp.run(transport="http", host=host, port=port)
+
+
+@lru_cache(maxsize=1)
+def _get_modifiers() -> TextModifiers:
+    """Lazy, cached TextModifiers accessor for the MCP server."""
+    return TextModifiers()

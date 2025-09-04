@@ -46,6 +46,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from metamorphosis.agents.self_reviewer import graph, run_graph
+from metamorphosis.datamodel import InvokeRequest, StreamRequest, InvokeResponse
 
 from metamorphosis.exceptions import (
     MCPToolError,
@@ -61,54 +62,7 @@ from metamorphosis.exceptions import (
 # DATA MODELS AND SCHEMAS
 # =============================================================================
 
-class InvokeRequest(BaseModel):
-    """Request model for synchronous self-review processing.
-    
-    This model defines the structure and validation rules for incoming requests
-    to the /invoke endpoint. It ensures that all required data is present and
-    properly formatted before processing begins.
-    """
-    
-    model_config = ConfigDict(extra="forbid")
-    
-    review_text: Annotated[str, Field(min_length=1, description="The review text to process through the LangGraph")] = Field(
-        ...,
-        example="I had an eventful cycle this summer. Learnt agentic workflows and implemented a self-reviewer agent for the periodic employee self-review process. It significantly improved employee productivity for the organization."
-    )
-    thread_id: Annotated[str | None, Field(description="Optional thread ID for state persistence. If not provided, a new UUID will be generated.")] = Field(
-        None,
-        example="thread_123"
-    )
-
-
-class StreamRequest(BaseModel):
-    """Request model for streaming self-review processing via Server-Sent Events (SSE).
-    
-    This model defines the structure for real-time streaming requests that provide
-    live updates of the workflow execution.
-    """
-    
-    model_config = ConfigDict(extra="forbid")
-    
-    review_text: Annotated[str, Field(min_length=1, description="The review text to process through the LangGraph")]
-    thread_id: Annotated[str, Field(min_length=1, description="Unique identifier for the conversation thread")]
-    mode: Annotated[str, Field(pattern=r"^(values|updates)$", description="Streaming mode - 'updates' for state changes only, 'values' for full state each step")] = "values"
-
-
-class InvokeResponse(BaseModel):
-    """Response model for synchronous self-review processing results.
-    
-    This model defines the structure of the complete processing results returned
-    by the /invoke endpoint. It mirrors the GraphState structure from the LangGraph
-    workflow, ensuring consistent data representation across the API layer.
-    """
-    
-    model_config = ConfigDict(extra="forbid")
-    
-    original_text: str = Field(..., description="The original review text")
-    copy_edited_text: str | None = Field(None, description="The copy-edited text")
-    summary: str | None = Field(None, description="The summary of the copy-edited text")
-    word_cloud_path: str | None = Field(None, description="The path to the word cloud image")
+## Models moved to metamorphosis.datamodel
 
 
 # =============================================================================

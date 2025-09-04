@@ -9,14 +9,10 @@
 
 from __future__ import annotations
 
-import os
-from functools import lru_cache
-from pathlib import Path
 from typing import Annotated
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
-from pydantic import BaseModel, ConfigDict, Field, validate_call
+from pydantic import Field, validate_call
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -24,27 +20,12 @@ load_dotenv()
 
 # Import custom exceptions and utilities
 from metamorphosis.exceptions import (
-    ConfigurationError,
     PostconditionError,
-    raise_configuration_error,
     raise_postcondition_error,
 )
 from metamorphosis.utilities import read_text_file, get_project_root
-
-
-class SummarizedText(BaseModel):
-    """Structured summary output."""
-    
-    model_config = ConfigDict(extra="forbid")
-    summarized_text: str
-
-
-class CopyEditedText(BaseModel):
-    """Structured copy-edited output."""
-    
-    model_config = ConfigDict(extra="forbid")
-    copy_edited_text: str
-
+from metamorphosis.datamodel import SummarizedText, CopyEditedText
+from metamorphosis import get_model_registry
 
 class TextModifiers:
     """LLM-backed text processing utilities with structured outputs.
@@ -66,20 +47,10 @@ class TextModifiers:
         """
         logger.debug("Initializing TextModifiers")
 
-        # Initialize LLM with environment-based configuration
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise_configuration_error(
-                "OPENAI_API_KEY environment variable is required",
-                context={"env_vars_checked": ["OPENAI_API_KEY"]},
-                operation="llm_initialization"
-            )
-
-        self.llm = ChatOpenAI(
-            model="gpt-4o-mini",
-            temperature=0.1,
-            api_key=api_key,
-        )
+        # Acquire LLM clients from the central registry
+        registry = get_model_registry()
+        summarizer_llm = registry.summarizer_llm
+        copy_editor_llm = registry.copy_editor_llm
 
         # Load prompt templates from files using utility functions
         project_root = get_project_root()
@@ -94,11 +65,11 @@ class TextModifiers:
             ChatPromptTemplate.from_template(
                 f"{summarizer_prompt_text}\\n\\nTarget maximum words: {{max_words}}\\n\\nText:\\n{{text}}"
             )
-            | self.llm.with_structured_output(SummarizedText)
+            | summarizer_llm.with_structured_output(SummarizedText)
         )
         self.copy_editor = (
             ChatPromptTemplate.from_template(f"{copy_editor_prompt_text}\\n\\nText:\\n{{text}}")
-            | self.llm.with_structured_output(CopyEditedText)
+            | copy_editor_llm.with_structured_output(CopyEditedText)
         )
 
         logger.debug("TextModifiers initialized successfully")
@@ -168,11 +139,4 @@ class TextModifiers:
         return result
 
 
-@lru_cache(maxsize=1)
-def get_text_modifiers() -> TextModifiers:
-    """Get a cached TextModifiers instance.
-
-    Returns:
-        TextModifiers: Singleton instance of the text processing utilities.
-    """
-    return TextModifiers()
+# Note: As per project preference, do not expose module-level factory functions here.
