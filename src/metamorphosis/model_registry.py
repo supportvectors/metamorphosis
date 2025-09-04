@@ -15,6 +15,7 @@ import threading
 from typing import Any
 
 from loguru import logger
+from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, validate_call
 from langchain_openai import ChatOpenAI
 
@@ -64,12 +65,26 @@ class ModelRegistry:
 
         logger.debug("Initializing ModelRegistry from configuration")
 
+        # Load project .env explicitly to avoid cwd/parent ambiguity
+        try:
+            from metamorphosis.utilities import get_project_root  # local import to avoid cycles
+            project_root = get_project_root()
+            load_dotenv(dotenv_path=project_root / ".env", override=True)
+        except Exception as error:  # noqa: BLE001
+            logger.warning("Failed to load .env explicitly: {}", error)
+
         # Fail-fast on API key
-        if not os.getenv("OPENAI_API_KEY"):
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
             raise_configuration_error(
                 "OPENAI_API_KEY environment variable is required",
                 context={"env_vars_checked": ["OPENAI_API_KEY"]},
                 operation="llm_api_key_validation",
+            )
+        # Optional basic sanity check (does not log the key)
+        if not api_key.startswith("sk-"):
+            logger.warning(
+                "OPENAI_API_KEY does not start with expected prefix; double-check your key"
             )
 
         cfg = self._load_text_modifier_section()
@@ -77,8 +92,8 @@ class ModelRegistry:
         summarizer_cfg = _LLMSettings(**cfg.get("summarizer", {}))
         copy_editor_cfg = _LLMSettings(**cfg.get("copy_editor", {}))
 
-        self.summarizer_llm = self._build_chat_openai(summarizer_cfg)
-        self.copy_editor_llm = self._build_chat_openai(copy_editor_cfg)
+        self.summarizer_llm = self._build_chat_openai(summarizer_cfg, api_key)
+        self.copy_editor_llm = self._build_chat_openai(copy_editor_cfg, api_key)
 
         self._initialized = True
         logger.debug("ModelRegistry initialized successfully")
@@ -113,9 +128,9 @@ class ModelRegistry:
 
     @staticmethod
     @validate_call
-    def _build_chat_openai(settings: _LLMSettings) -> ChatOpenAI:
+    def _build_chat_openai(settings: _LLMSettings, api_key: str) -> ChatOpenAI:
         """Construct a `ChatOpenAI` client from validated settings."""
-        params: dict[str, Any] = {"model": settings.model}
+        params: dict[str, Any] = {"model": settings.model, "openai_api_key": api_key}
 
         if settings.temperature is not None:
             params["temperature"] = settings.temperature

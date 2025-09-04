@@ -49,27 +49,28 @@ class TextModifiers:
 
         # Acquire LLM clients from the central registry
         registry = get_model_registry()
-        summarizer_llm = registry.summarizer_llm
-        copy_editor_llm = registry.copy_editor_llm
+        self.summarizer_llm = registry.summarizer_llm
+        self.copy_editor_llm = registry.copy_editor_llm
 
         # Load prompt templates from files using utility functions
         project_root = get_project_root()
         prompts_dir = project_root / "prompts"
         logger.debug("Using prompts directory: {}", prompts_dir)
 
-        summarizer_prompt_text = read_text_file(prompts_dir / "summarizer.md")
+        # Load as-is; no VOICE placeholder expected in the template
+        self.summarizer_system_prompt = read_text_file(prompts_dir / "summarizer.md")
+        self.summarizer_user_prompt = read_text_file(prompts_dir / "summarizer_user_prompt.md")
         copy_editor_prompt_text = read_text_file(prompts_dir / "copy_editor.md")
 
         # Compose prompts with input placeholders for clarity.
-        self.summarizer = (
-            ChatPromptTemplate.from_template(
-                f"{summarizer_prompt_text}\\n\\nTarget maximum words: {{max_words}}\\n\\nText:\\n{{text}}"
-            )
-            | summarizer_llm.with_structured_output(SummarizedText)
-        )
+        
+        
+        
+        
+       
         self.copy_editor = (
             ChatPromptTemplate.from_template(f"{copy_editor_prompt_text}\\n\\nText:\\n{{text}}")
-            | copy_editor_llm.with_structured_output(CopyEditedText)
+            | self.copy_editor_llm.with_structured_output(CopyEditedText)
         )
 
         logger.debug("TextModifiers initialized successfully")
@@ -94,8 +95,19 @@ class TextModifiers:
             PostconditionError: If the output validation fails.
         """
         logger.debug("summarize: processing text (length={}, max_words={})", len(text), max_words)
+        
+        messages = [
+            ("system", self.summarizer_system_prompt),
+            ("user",self.summarizer_user_prompt.format(review=text)),
+        ]
+        prompt = ChatPromptTemplate.from_messages(messages)
+        logger.debug("summarizer_llm: {}", self.summarizer_llm)
+        summarizer = prompt | self.summarizer_llm.with_structured_output(SummarizedText)
 
-        result = self.summarizer.invoke({"text": text, "max_words": max_words})
+        result = summarizer.invoke({})
+
+        logger.debug("summarize: completed successfully (output_length={})", len(result.summarized_text))
+        return result
 
         # Postcondition (O(1)): ensure structured output is valid
         if not isinstance(result, SummarizedText) or not result.summarized_text:

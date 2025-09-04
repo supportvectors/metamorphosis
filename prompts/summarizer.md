@@ -20,8 +20,6 @@ Reads as a single coherent narrative for HR and managers.
 
 # Style
 
-{VOICE:=first_person} (choose “first_person” or “third_person”).
-
 Concise, executive; no bullets.
 
 Past tense for completed work; present/future for ongoing goals.

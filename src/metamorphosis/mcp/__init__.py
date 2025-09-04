@@ -9,13 +9,13 @@
 
 from __future__ import annotations
 
-from .text_modifiers import CopyEditedText, SummarizedText, TextModifiers, get_text_modifiers
+from .text_modifiers import TextModifiers
+from metamorphosis.datamodel import CopyEditedText, SummarizedText
 
 __all__ = [
     "CopyEditedText",
     "SummarizedText",
     "TextModifiers",
-    "get_text_modifiers",
 ]
 
 
