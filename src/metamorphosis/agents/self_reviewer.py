@@ -39,6 +39,7 @@ from rich import print as rprint
 from pydantic import Field, validate_call
 from loguru import logger
 from dotenv import load_dotenv
+from metamorphosis.datamodel import AchievementsList, ReviewScorecard
 
 from metamorphosis.exceptions import (
     raise_mcp_tool_error,
@@ -65,6 +66,8 @@ class GraphState(TypedDict):
     copy_edited_text: Optional[str]
     summary: Optional[str]
     word_cloud_path: Optional[str]
+    achievements: Optional[AchievementsList]
+    review_scorecard: Optional[ReviewScorecard]
 
 
 # =============================================================================
@@ -237,6 +240,81 @@ async def summarizer_node(
 
     return {"summary": summary}
 
+@validate_call
+async def achievements_extractor_node(
+    state: Annotated[dict, Field(description="Current workflow state")],
+) -> dict:
+    """Achievements extractor node for extracting key achievements from the text.
+
+    This node extracts key achievements from the copy-edited text.
+
+    Args:
+        state: Current workflow state containing copy_edited_text.
+
+    Returns:
+        dict: Updated state with achievements field populated.
+
+    Raises:
+        ValueError: If extract_achievements tool is not available or postcondition fails.
+        json.JSONDecodeError: If tool response is not valid JSON.
+    """
+    copy_edited_text = state["copy_edited_text"]
+    logger.info("achievements_extractor_node: processing text (length={})", len(copy_edited_text))
+
+    achievements_extractor_tool = _find_tool("extract_achievements")
+    result = await achievements_extractor_tool.ainvoke({"text": copy_edited_text})
+
+    result_data = json.loads(result)
+    # Create AchievementsList object from result_data
+    achievements = AchievementsList(**result_data)
+
+    # Postcondition (O(1)): ensure valid output
+    if not achievements or not isinstance(achievements, AchievementsList):
+        raise_postcondition_error(
+            "Achievements extractor output validation failed",
+            context={"has_achievements": bool(achievements), "achievements_type": type(achievements).__name__},
+            operation="achievements_extractor_validation",
+        )
+
+    return {"achievements": achievements}
+
+@validate_call
+async def review_text_evaluator_node(
+    state: Annotated[dict, Field(description="Current workflow state")],
+) -> dict:
+    """Review text evaluator node for evaluating the copy-edited text.
+
+    This node evaluates the review text.
+
+    Args:
+        state: Current workflow state containing copy_edited_text.
+
+    Returns:
+        dict: Updated state with review_scorecard field populated.
+
+    Raises:
+        ValueError: If evaluate_review_text tool is not available or postcondition fails.
+        json.JSONDecodeError: If tool response is not valid JSON.
+    """
+    copy_edited_text = state["copy_edited_text"]
+    logger.info("review_text_evaluator_node: processing text (length={})", len(copy_edited_text))
+
+    review_text_evaluator_tool = _find_tool("evaluate_review_text")
+    result = await review_text_evaluator_tool.ainvoke({"text": copy_edited_text})
+
+    result_data = json.loads(result)
+    # Create ReviewScorecard object from result_data
+    review_scorecard = ReviewScorecard(**result_data)
+
+    # Postcondition (O(1)): ensure valid output
+    if not review_scorecard or not isinstance(review_scorecard, ReviewScorecard):
+        raise_postcondition_error(
+            "Review text evaluator output validation failed",
+            context={"has_review_scorecard": bool(review_scorecard), "review_scorecard_type": type(review_scorecard).__name__},
+            operation="review_text_evaluator_validation",
+        )
+
+    return {"review_scorecard": review_scorecard}
 
 @validate_call
 async def wordcloud_node(
@@ -300,13 +378,19 @@ async def build_graph() -> StateGraph:
     # Add processing nodes to the graph
     builder.add_node("copy_editor", copy_editor_node)
     builder.add_node("summarizer", summarizer_node)
+    builder.add_node("achievements_extractor", achievements_extractor_node)
+    builder.add_node("review_text_evaluator", review_text_evaluator_node)
     builder.add_node("wordcloud", wordcloud_node)
 
     # Define the workflow edges (execution flow)
     builder.add_edge(START, "copy_editor")
     builder.add_edge("copy_editor", "summarizer")
+    builder.add_edge("copy_editor", "achievements_extractor")
+    builder.add_edge("copy_editor", "review_text_evaluator")
     builder.add_edge("copy_editor", "wordcloud")
     builder.add_edge("summarizer", END)
+    builder.add_edge("achievements_extractor", END)
+    builder.add_edge("review_text_evaluator", END)
     builder.add_edge("wordcloud", END)
 
     memory = InMemorySaver()

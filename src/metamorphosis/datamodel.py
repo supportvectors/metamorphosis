@@ -149,3 +149,5 @@ class InvokeResponse(BaseModel):
     copy_edited_text: str | None = Field(None, description="The copy-edited text")
     summary: str | None = Field(None, description="The summary of the copy-edited text")
     word_cloud_path: str | None = Field(None, description="The path to the word cloud image")
+    achievements: AchievementsList | None = Field(None, description="The achievements list")
+    review_scorecard: ReviewScorecard | None = Field(None, description="The review scorecard")

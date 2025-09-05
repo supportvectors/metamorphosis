@@ -20,19 +20,24 @@ from wordcloud import WordCloud
 from dotenv import load_dotenv
 from loguru import logger
 
-load_dotenv()
-
 from functools import lru_cache
 from metamorphosis.mcp.text_modifiers import TextModifiers
-from metamorphosis.datamodel import CopyEditedText, SummarizedText
+from metamorphosis.datamodel import CopyEditedText, SummarizedText, AchievementsList, ReviewScorecard
 from metamorphosis.exceptions import (
     FileOperationError,
     raise_postcondition_error,
 )
 
+load_dotenv()
+
+
 # Create a basic server instance with a name identifier
 mcp = FastMCP(name="text_modifier_mcp_server")
 
+@lru_cache(maxsize=1)
+def _get_modifiers() -> TextModifiers:
+    """Lazy, cached TextModifiers accessor for the MCP server."""
+    return TextModifiers()
 
 @mcp.tool("copy_edit")
 @validate_call
@@ -51,7 +56,7 @@ def copy_edit(text: Annotated[str, Field(min_length=1)]) -> CopyEditedText:
     """
     logger.info("copy_edit: received text length={}.", len(text))
     modifiers = _get_modifiers()
-    result = modifiers.rationalize(text=text)
+    result = modifiers.rationalize_text(text=text)
     # Postcondition (O(1)): ensure structured output sanity
     if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
         raise_postcondition_error(
@@ -139,6 +144,71 @@ def abstractive_summarize(
         )
     return result
 
+@mcp.tool("extract_achievements")
+@validate_call
+def extract_achievements(
+    text: Annotated[str, Field(min_length=1)],
+) -> AchievementsList:
+    """Extract the achievements from the text.
+
+    Args:
+        text: Input text to extract the achievements from.
+
+    Returns:
+        AchievementsList: Structured result containing the achievements and metadata.
+
+    Raises:
+        pydantic.ValidationError: If input fails validation.
+        ValueError: If postcondition validation fails.
+    """
+    logger.info("extract_achievements: text length={}.", len(text))
+    modifiers = _get_modifiers()
+    result = modifiers.extract_achievements(text=text)
+    # Postcondition (O(1)): ensure structured output sanity
+    if not isinstance(result, AchievementsList) or not result.items or len(result.items) == 0:
+        raise_postcondition_error(
+            "Achievements extraction output validation failed",
+            context={
+                "result_type": type(result).__name__,
+                "has_items": bool(getattr(result, "items", None)),
+                "items_count": len(result.items),
+            },
+            operation="extract_achievements_tool_validation",
+        )
+    return result
+
+@mcp.tool("evaluate_review_text")
+@validate_call
+def evaluate_review_text(
+    text: Annotated[str, Field(min_length=1)],
+) -> ReviewScorecard:
+    """Evaluate the review text.
+
+    Args:
+        text: Input text to evaluate.
+
+    Returns:
+        ReviewScorecard: Structured result containing the review scorecard and metadata.
+
+    Raises:
+        pydantic.ValidationError: If input fails validation.
+        ValueError: If postcondition validation fails.
+    """
+    logger.info("evaluate_review_text: text length={}.", len(text))
+    modifiers = _get_modifiers()
+    result = modifiers.evaluate_review_text(text=text)
+    # Postcondition (O(1)): ensure structured output sanity
+    if not isinstance(result, ReviewScorecard) or not result.metrics or len(result.metrics) == 0:
+        raise_postcondition_error(
+            "Review text evaluation output validation failed",
+            context={
+                "result_type": type(result).__name__,
+                "has_metrics": bool(getattr(result, "metrics", None)),
+                "metrics_count": len(result.metrics),
+            },
+            operation="evaluate_review_text_tool_validation",
+        )
+    return result
 
 if __name__ == "__main__":
     host = os.getenv("MCP_SERVER_HOST", "127.0.0.1")
@@ -146,8 +216,3 @@ if __name__ == "__main__":
     logger.info("Starting MCP tools server at {}:{}", host, port)
     mcp.run(transport="http", host=host, port=port)
 
-
-@lru_cache(maxsize=1)
-def _get_modifiers() -> TextModifiers:
-    """Lazy, cached TextModifiers accessor for the MCP server."""
-    return TextModifiers()

@@ -40,15 +40,11 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import validate_call
 from loguru import logger
 from dotenv import load_dotenv
-
-load_dotenv()
-
 from metamorphosis.agents.self_reviewer import graph, run_graph
 from metamorphosis.datamodel import InvokeRequest, StreamRequest, InvokeResponse
-
+load_dotenv()
 
 
 # =============================================================================
@@ -162,7 +158,6 @@ async def _generate_stream_events(
     response_description="The result of processing the self-review text through the graph",
     response_model=InvokeResponse,
 )
-@validate_call
 async def invoke(payload: InvokeRequest) -> JSONResponse:
     """Main endpoint for synchronous processing of self-review text.
 
@@ -170,6 +165,8 @@ async def invoke(payload: InvokeRequest) -> JSONResponse:
     1. Copy editing: Grammar and clarity improvements
     2. Summarization: Abstractive summary generation (parallel)
     3. Word cloud: Visual representation generation (parallel)
+    4. Achievements extraction: Key achievements extraction (parallel)
+    5. Review text evaluation: Review text evaluation (parallel)
 
     Args:
         payload: Validated request containing review_text and optional thread_id.
@@ -202,7 +199,6 @@ async def invoke(payload: InvokeRequest) -> JSONResponse:
 
 
 @app.post("/stream")
-@validate_call
 async def stream(request: Request, payload: StreamRequest) -> StreamingResponse:
     """Server-Sent Events (SSE) streaming endpoint for real-time graph execution monitoring.
 

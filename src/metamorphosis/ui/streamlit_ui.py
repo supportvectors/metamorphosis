@@ -260,7 +260,7 @@ def extract_values_from_event(ev: Dict[str, Any]) -> Dict[str, Any] | None:
     # Pattern B: Custom server format - state is at TOP LEVEL
     # This handles cases where the server sends the state directly without wrapping
     # Define expected keys that indicate this is a GraphState object
-    expected_keys = {"original_text", "copy_edited_text", "summary", "word_cloud_path"}
+    expected_keys = {"original_text", "copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"}
     # If any of these expected keys exist, treat the whole event as the current state
     # Using set intersection for efficient key checking
     if expected_keys.intersection(ev.keys()):
