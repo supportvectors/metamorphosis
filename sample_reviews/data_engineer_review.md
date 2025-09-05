@@ -1,10 +1,3 @@
-Great instinct. For a first‑time audience, it *does* help to show a version that’s clearly “raw notes → polished review.” You can keep it realistic by framing the sloppy text as **pre‑HR draft notes pasted from personal docs/Slack**. That’s common in the wild and won’t feel contrived.
-
-Below is an **“intentionally messy but plausible”** self‑review for a **Data Engineer** (H1 2025). It preserves the same facts/metrics as the earlier version so your **summarizer** and **key‑highlights extractor** still shine—while giving the **rationalizer** plenty to fix.
-
----
-
-## Data Engineer Self‑Review — *Raw Draft (intentionally sloppy)*
 
 **role**: data engineer (IC / sorta TechLead sometimes)
 **period**: Q1–Q2 / H1 2025

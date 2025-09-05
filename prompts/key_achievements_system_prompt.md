@@ -70,7 +70,7 @@ metric_strings must appear verbatim in the review text; if none, leave it empty.
 
 If no defensible achievements exist, return:
 
-{"items": [], "size": 0, "unit": "tokens"}
+{{"items": [], "size": 0, "unit": "tokens"}}
 
 Hidden Internal Planning (do not reveal)
 
@@ -163,7 +163,7 @@ Examples (for guidance only — do not include in output)
 
 Good item
 
-{
+{{
   "title": "Cut checkout p95 latency",
   "outcome": "Reduced checkout p95 from 480ms to 190ms by redesigning the caching layer, improving conversion for peak traffic.",
   "impact_area": "performance",
@@ -171,24 +171,24 @@ Good item
   "timeframe": "H1 2025",
   "ownership_scope": "TechLead",
   "collaborators": ["Payments", "SRE"]
-}
+}}
 
 
 Bad item (why):
 
 Title vague; outcome is activity‑focused; invented number and timeframe.
 
-{
+{{
   "title": "Worked hard on performance",
   "outcome": "Improved things a lot this year with many optimizations.",
   "impact_area": "performance",
   "metric_strings": ["~50%"],    // not in review → ❌
   "timeframe": "2025",           // inferred → ❌
   "ownership_scope": "Org-wide"  // not explicit → ❌
-}
+}}
 
 Language & Fallbacks
 
 Output language = language of the review; if mixed, default to the review’s majority language or English.
 
-If no clear achievements: return {"items": [], "size": 0, "unit":"tokens"}.
+If no clear achievements: return {{"items": [], "size": 0, "unit":"tokens"}}.

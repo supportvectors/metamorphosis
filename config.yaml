@@ -28,9 +28,9 @@ text_modifier_models:
 
   # ---------------------------------------------------------
   key_achievements:
-    model: gpt-5  # same reasoning model as summarizer
+    model: gpt-4o  # Use non-reasoning model for better structured output performance
     temperature: 0.0
-    max_tokens: 4000
+    max_tokens: 4000  # Sufficient for structured JSON output
     timeout: 300
 
 

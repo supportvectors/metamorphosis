@@ -231,11 +231,124 @@ class TextModifiers:
                     len(result.copy_edited_text), result.is_edited)
         return result
 
+    # =========================================================================
+
+    @validate_call
+    def extract_achievements(
+        self, *, text: Annotated[str, Field(min_length=1)]
+    ) -> AchievementsList:
+        """Extract key achievements from employee self-review text.
+
+        This method analyzes employee self-review text and extracts up to 5 key achievements
+        with structured metadata including impact areas, metrics, timeframes, and
+        collaboration details. The extraction focuses on identifying concrete outcomes
+        and business impact rather than activities or tasks.
+
+        The method uses an LLM-based achievement extractor that follows strict guidelines
+        to identify and rank achievements by:
+        - Business/customer impact (revenue, cost, risk, user outcomes)
+        - Reliability/quality/security improvements (SLO/MTTR/incidents/defects)
+        - Breadth of ownership (Cross-team/Org-wide > TechLead > IC)
+        - Adoption/usage and external validation
+        - Recency (tie-breaker)
+
+        **Achievement Structure:**
+        Each extracted achievement includes:
+        - **title**: Concise, outcome-oriented label (≤12 words)
+        - **outcome**: Impact/result description (≤40 words)
+        - **impact_area**: Categorized impact type (reliability, performance, security, etc.)
+        - **metric_strings**: Verbatim numbers/units from the review text
+        - **timeframe**: Explicit time period if stated (e.g., "Q2 2025", "H1")
+        - **ownership_scope**: Leadership level if explicit (IC, TechLead, Manager, etc.)
+        - **collaborators**: Named people/teams if mentioned
+
+        **Quality Guarantees:**
+        - No invented metrics, dates, or collaborators - only explicit information
+        - Numbers and units copied exactly as they appear in the review
+        - Achievements are deduplicated and ranked by impact
+        - Maximum of 5 achievements returned, fewer if insufficient quality achievements exist
+
+        Args:
+            text: The employee self-review text to analyze. Must be non-empty string
+                containing the review content from which to extract achievements.
+                Typically contains mixed content (tasks, outcomes, anecdotes) that
+                needs to be parsed for concrete accomplishments.
+
+        Returns:
+            AchievementsList: A structured response containing:
+                - items: List of up to 5 Achievement objects ranked by impact
+                - size: Token estimate of concatenated titles and outcomes
+                - unit: Always "tokens"
+
+        Raises:
+            ValidationError: If the input text is empty or invalid.
+            PostconditionError: If the LLM output validation fails or the structured
+                response cannot be parsed correctly.
+            ConfigurationError: If the key achievements LLM is not properly configured.
+
+        Example:
+            >>> modifier = TextModifiers()
+            >>> result = modifier.extract_achievements(
+            ...     text="I reduced checkout p95 latency from 480ms to 190ms in H1 2025 "
+            ...          "by redesigning the caching layer with the Payments and SRE teams. "
+            ...          "This improved conversion rates during peak traffic periods."
+            ... )
+            >>> print(result.items[0].title)
+            "Cut checkout p95 latency"
+            >>> print(result.items[0].impact_area)
+            "performance"
+            >>> print(result.items[0].metric_strings)
+            ["480ms", "190ms"]
+
+        Note:
+            This method uses the key_achievements_system_prompt.md and
+            key_achievements_user_prompt.md templates to guide the LLM's behavior.
+            The extraction is performed by the key_achievements_llm configured
+            in the model registry.
+        """
+        logger.debug("extract_achievements: processing text (length={})", len(text))
+        # Log the model details as a simple table for traceability and debugging.
+        self._log_model_details_table("extract_achievements")
+
+        # Construct the prompt using the key achievements templates
+        messages = [
+            ("system", self.key_achievements_system_prompt),
+            ("user", self.key_achievements_user_prompt.format(EMPLOYEE_REVIEW_TEXT=text)),
+        ]
+        prompt = ChatPromptTemplate.from_messages(messages)
+        
+        # Create the achievement extraction chain with structured output
+        extractor = prompt | self.key_achievements_llm.with_structured_output(AchievementsList)
+        
+        # Invoke the chain with exception handling
+        try:
+            result = extractor.invoke({})
+        except Exception as e:
+            logger.error("extract_achievements: LLM invocation failed - {}", str(e))
+            raise PostconditionError(
+                "Achievement extraction LLM invocation failed",
+                operation="extract_achievements_llm_invocation"
+            ) from e
+
+        # Postcondition (O(1)): ensure structured output is valid
+        if not isinstance(result, AchievementsList):
+            raise_postcondition_error(
+                "Achievement extraction output validation failed",
+                context={"result_type": type(result).__name__, "has_items": bool(getattr(result, 'items', None))},
+                operation="extract_achievements_validation"
+            )
+
+        logger.debug("extract_achievements: completed successfully (items_count={}, total_size={})", 
+                    len(result.items), result.size)
+        return result
+
+    # =========================================================================
+
     def get_model_info(self, method: str) -> dict[str, Any] | None:
         """Get model configuration information for a specific method.
 
         Args:
-            method: The method name (e.g., "summarize", "rationalize_text", "key_achievements").
+            method: The method name (e.g., "summarize", "rationalize_text", "extract_achievements").
 
         Returns:
             Dictionary containing model configuration or None if not found.
@@ -243,7 +356,7 @@ class TextModifiers:
         method_to_llm = {
             "summarize": self.summarizer_llm,
             "rationalize_text": self.copy_editor_llm,
-            "key_achievements": self.key_achievements_llm,
+            "extract_achievements": self.key_achievements_llm,
         }
         
         llm = method_to_llm.get(method)
