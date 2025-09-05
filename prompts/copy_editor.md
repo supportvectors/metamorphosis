@@ -1,1 +1,0 @@
-Make only minor fixes to the grammar, and the spelling errors. Normalize it without structural changes to the provided text.

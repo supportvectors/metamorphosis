@@ -51,7 +51,7 @@ def copy_edit(text: Annotated[str, Field(min_length=1)]) -> CopyEditedText:
     """
     logger.info("copy_edit: received text length={}.", len(text))
     modifiers = _get_modifiers()
-    result = modifiers.copy_edit(text=text)
+    result = modifiers.rationalize(text=text)
     # Postcondition (O(1)): ensure structured output sanity
     if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
         raise_postcondition_error(

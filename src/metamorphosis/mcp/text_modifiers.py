@@ -9,7 +9,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import Field, validate_call
@@ -24,7 +24,7 @@ from metamorphosis.exceptions import (
     raise_postcondition_error,
 )
 from metamorphosis.utilities import read_text_file, get_project_root
-from metamorphosis.datamodel import SummarizedText, CopyEditedText
+from metamorphosis.datamodel import SummarizedText, CopyEditedText, AchievementsList
 from metamorphosis import get_model_registry
 
 class TextModifiers:
@@ -51,6 +51,7 @@ class TextModifiers:
         registry = get_model_registry()
         self.summarizer_llm = registry.summarizer_llm
         self.copy_editor_llm = registry.copy_editor_llm
+        self.key_achievements_llm = registry.key_achievements_llm
 
         # Load prompt templates from files using utility functions
         project_root = get_project_root()
@@ -58,20 +59,17 @@ class TextModifiers:
         logger.debug("Using prompts directory: {}", prompts_dir)
 
         # Load as-is; no VOICE placeholder expected in the template
-        self.summarizer_system_prompt = read_text_file(prompts_dir / "summarizer.md")
+        self.summarizer_system_prompt = read_text_file(prompts_dir / "summarizer_system_prompt.md")
         self.summarizer_user_prompt = read_text_file(prompts_dir / "summarizer_user_prompt.md")
-        copy_editor_prompt_text = read_text_file(prompts_dir / "copy_editor.md")
-
+        
+        self.key_achievements_system_prompt = read_text_file(prompts_dir / "key_achievements_system_prompt.md")
+        self.key_achievements_user_prompt = read_text_file(prompts_dir / "key_achievements_user_prompt.md")
+        
+        self.text_rationalization_system_prompt = read_text_file(prompts_dir / "text_rationalization_system_prompt.md")
+        self.text_rationalization_user_prompt = read_text_file(prompts_dir / "text_rationalization_user_prompt.md")
+        
+     
         # Compose prompts with input placeholders for clarity.
-        
-        
-        
-        
-       
-        self.copy_editor = (
-            ChatPromptTemplate.from_template(f"{copy_editor_prompt_text}\\n\\nText:\\n{{text}}")
-            | self.copy_editor_llm.with_structured_output(CopyEditedText)
-        )
 
         logger.debug("TextModifiers initialized successfully")
 
@@ -95,6 +93,8 @@ class TextModifiers:
             PostconditionError: If the output validation fails.
         """
         logger.debug("summarize: processing text (length={}, max_words={})", len(text), max_words)
+        # Log the model details as a simple table for traceability and debugging.
+        self._log_model_details_table("summarize")
         
         messages = [
             ("system", self.summarizer_system_prompt),
@@ -104,10 +104,14 @@ class TextModifiers:
         logger.debug("summarizer_llm: {}", self.summarizer_llm)
         summarizer = prompt | self.summarizer_llm.with_structured_output(SummarizedText)
 
-        result = summarizer.invoke({})
-
-        logger.debug("summarize: completed successfully (output_length={})", len(result.summarized_text))
-        return result
+        try:
+            result = summarizer.invoke({})
+        except Exception as e:
+            logger.error("summarize: LLM invocation failed - {}", str(e))
+            raise PostconditionError(
+                "Summarization LLM invocation failed",
+                operation="summarize_llm_invocation"
+            ) from e
 
         # Postcondition (O(1)): ensure structured output is valid
         if not isinstance(result, SummarizedText) or not result.summarized_text:
@@ -121,34 +125,181 @@ class TextModifiers:
         return result
 
     @validate_call
-    def copy_edit(
+    def rationalize_text(
         self, *, text: Annotated[str, Field(min_length=1)]
     ) -> CopyEditedText:
-        """Copy edit text using the configured LLM chain.
+        """Rationalize text by correcting grammar, spelling, and formatting errors.
+
+        This method performs text rationalization using an LLM-based copy editor that makes
+        minor, localized corrections to improve the professional quality of text while
+        preserving the original meaning, structure, and content. The rationalization process
+        focuses on fixing:
+
+        - Spelling errors and typos (e.g., "teh" → "the", "recieved" → "received")
+        - Grammar issues (subject-verb agreement, tense consistency, articles)
+        - Punctuation normalization (quotes, commas, dashes, parentheses)
+        - Capitalization consistency (proper nouns, product names, teams)
+        - Whitespace and formatting standardization
+        - Casual shorthand replacement with formal equivalents (e.g., "w/" → "with")
+
+        The method is specifically designed for employee self-reviews and similar business
+        documents that may contain informal language, typos, or inconsistent formatting
+        from being pasted from drafts or messaging platforms.
+
+        **Preservation Guarantees:**
+        - Original paragraph structure and ordering are maintained exactly
+        - Numerical values and units remain identical (only formatting may be normalized)
+        - Bullet points, headings, and section order are preserved
+        - Author's voice and intent (first/third person) are retained
+        - No content is added, removed, or significantly rewritten
+
+        **Style Transformations:**
+        - Converts informal shorthand to professional language when unambiguous
+        - Normalizes product/tool names for consistency
+        - Standardizes punctuation and spacing around units and symbols
+        - Removes casual interjections while preserving meaning
+        - Corrects double negatives in reduction statements (e.g., "reduced by -38%" → "reduced by 38%")
 
         Args:
-            text: The input text to copy edit.
+            text: The input text to rationalize. Must be non-empty string containing
+                the content to be copy-edited. Typically employee self-review text
+                or similar business documents that need professional polish.
 
         Returns:
-            CopyEditedText: Structured output with the copy-edited text.
+            CopyEditedText: A structured response containing:
+                - copy_edited_text: The rationalized text with corrections applied
+                - size: Estimated token count of the rationalized text
+                - is_edited: Boolean indicating whether any changes were made
 
         Raises:
-            PostconditionError: If the output validation fails.
-        """
-        logger.debug("copy_edit: processing text (length={})", len(text))
+            ValidationError: If the input text is empty or invalid.
+            PostconditionError: If the LLM output validation fails or the structured
+                response cannot be parsed correctly.
+            ConfigurationError: If the copy editor LLM is not properly configured.
 
-        result = self.copy_editor.invoke({"text": text})
+        Example:
+            >>> modifier = TextModifiers()
+            >>> result = modifier.rationalize_text(
+            ...     text="I migrated teh system w/ better performance. "
+            ...          "Latency dropped by -38% after optimizations."
+            ... )
+            >>> print(result.copy_edited_text)
+            "I migrated the system with better performance. "
+            "Latency dropped by 38% after optimizations."
+            >>> print(result.is_edited)
+            True
+
+        Note:
+            This method uses the text_rationalization_system_prompt.md and
+            text_rationalization_user_prompt.md templates to guide the LLM's
+            behavior. The rationalization is performed by the copy_editor_llm
+            configured in the model registry.
+        """
+        logger.debug("rationalize_text: processing text (length={})", len(text))
+        # Log the model details as a simple table for traceability and debugging.
+        self._log_model_details_table("rationalize_text")
+
+        # Construct the prompt using the text rationalization templates
+        messages = [
+            ("system", self.text_rationalization_system_prompt),
+            ("user", self.text_rationalization_user_prompt.format(EMPLOYEE_REVIEW_TEXT=text)),
+        ]
+        prompt = ChatPromptTemplate.from_messages(messages)
+        
+        # Create the rationalization chain with structured output
+        rationalizer = prompt | self.copy_editor_llm.with_structured_output(CopyEditedText)
+        
+        # Invoke the chain with exception handling
+        try:
+            result = rationalizer.invoke({})
+        except Exception as e:
+            logger.error("rationalize_text: LLM invocation failed - {}", str(e))
+            raise PostconditionError(
+                "Text rationalization LLM invocation failed",
+                operation="rationalize_text_llm_invocation"
+            ) from e
 
         # Postcondition (O(1)): ensure structured output is valid
         if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
             raise_postcondition_error(
-                "Copy editing output validation failed",
+                "Text rationalization output validation failed",
                 context={"result_type": type(result).__name__, "has_text": bool(getattr(result, 'copy_edited_text', None))},
-                operation="copy_edit_validation"
+                operation="rationalize_text_validation"
             )
 
-        logger.debug("copy_edit: completed successfully (output_length={})", len(result.copy_edited_text))
+        logger.debug("rationalize_text: completed successfully (output_length={}, edited={})", 
+                    len(result.copy_edited_text), result.is_edited)
         return result
+
+    def get_model_info(self, method: str) -> dict[str, Any] | None:
+        """Get model configuration information for a specific method.
+
+        Args:
+            method: The method name (e.g., "summarize", "rationalize_text", "key_achievements").
+
+        Returns:
+            Dictionary containing model configuration or None if not found.
+        """
+        method_to_llm = {
+            "summarize": self.summarizer_llm,
+            "rationalize_text": self.copy_editor_llm,
+            "key_achievements": self.key_achievements_llm,
+        }
+        
+        llm = method_to_llm.get(method)
+        if not llm:
+            return None
+            
+        # Extract configuration from the LLM instance
+        model_info = {
+            "model": getattr(llm, "model_name", "N/A"),
+            "temperature": getattr(llm, "temperature", "N/A"),
+            "max_tokens": getattr(llm, "max_tokens", "N/A"),
+            "timeout": getattr(llm, "request_timeout", "N/A"),
+        }
+        
+        # Add optional parameters if they exist
+        for attr in ("top_p", "frequency_penalty", "presence_penalty"):
+            value = getattr(llm, attr, None)
+            if value is not None:
+                model_info[attr] = value
+                
+        return model_info
+
+    def _log_model_details_table(self, method: str) -> None:
+        """Log the LLM model details as a table for the given TextModifiers method.
+
+        Args:
+            method: The name of the method (e.g., "summarize", "rationalize_text").
+        """
+        # Defensive: ensure the model config is present and has expected keys
+        model_info = self.get_model_info(method)
+        if not model_info:
+            logger.warning("No model info found for method '{}'", method)
+            return
+
+        # Prepare table rows
+        rows = [
+            ("Model", model_info.get("model", "N/A")),
+            ("Temperature", model_info.get("temperature", "N/A")),
+            ("Max Tokens", model_info.get("max_tokens", "N/A")),
+            ("Timeout", model_info.get("timeout", "N/A")),
+        ]
+        # Optional fields
+        for key in ("top_p", "frequency_penalty", "presence_penalty"):
+            if key in model_info:
+                rows.append((key.replace("_", " ").title(), model_info[key]))
+
+        # Format as table
+        col_width = max(len(str(k)) for k, _ in rows) + 2
+        table_lines = [
+            f"{'Parameter'.ljust(col_width)}| Value",
+            f"{'-' * (col_width)}|{'-' * 20}",
+        ]
+        for k, v in rows:
+            table_lines.append(f"{str(k).ljust(col_width)}| {v}")
+
+        logger.info("LLM Model Details for '{}':\n{}", method, "\n".join(table_lines))
 
 
 # Note: As per project preference, do not expose module-level factory functions here.

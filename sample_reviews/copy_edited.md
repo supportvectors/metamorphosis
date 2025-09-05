@@ -1,0 +1,17 @@
+**Role**: Data Engineer (IC / Sorta Tech Lead Sometimes)
+**Period**: Q1–Q2 / H1 2025
+Teams Touched: Data Platform, SRE, Payments, ML Platform, Marketing DS, Finance, Legal/Sec
+
+So… this half I mostly lived inside the checkout data pipeline. We had this old nightly batch ETL (slow + flaky + $$$). Pushed it to an **incremental** CDC flow (Debezium and Kafka). Main Airflow DAG used to take **7h20m** (sometimes worse), now it’s **1h05m** end-to-end when green. Freshness SLA from **24h → 2h**, which finally unblocked marketing analytics and finance recs. Brought down **p95** job failures from **3.8%** to **0.6%** after sane retries and moved a couple of long queries to Presto with a saner partitioning strategy. S3 storage cost is down **$18.7k/month** (object pruning, deleted stale intermediates, lifecycle → Glacier @ 90d). I know I’ve said this in standups, but there was a lot of yak-shaving/backfills, so calling it out again.
+
+Data Quality: Rolled out Great Expectations (maybe **overzealously** at first). Added **186 tests** across ~top 30 tables; test coverage **22% → 81%** for “priority” datasets. Incidents from bad partitions/missing columns fell **11 → 3** / month and MTTR **4h12m → 1h08m** after we wrote fix playbooks. Still had a few Friday pages while on-call (sorry SRE). They also helped harden Airflow workers—thanks team!
+
+ML Side: Built small **Feast**-based feature store (yeah, we debated buy vs. build). Goal was de-risking online features for real-time offers. Materialization and Redis online store got feature compute latency from **14m** to **2m** avg. Offline/online consistency errors **72%** after standardizing feature views and data contracts. We have **3** prod models on it now (churn, LTV, promos ranking). Marketing claims **+3.2%** conversion uplift for promo eligibility once features stabilized (their metric). Partnered with ML Platform for CI on feature defs and with Fraud on sanity checks.
+
+Infra/Cost: Tuned **Trino** autoscaling (and some coordinator GC). Query cost **28%** vs. prior baseline; cluster hours **3,120 → 2,250** over last 8 weeks. S3 I/O **19%** (repartitioning and predicate pushdown). Finance stopped asking why every query vacuumed “the whole lake,” which was nice. Not 100% happy with queuing under spiky loads but better.
+
+Compliance: Wrote GDPR delete pipeline (no consistent end-to-end path before). Avg completion time **48h → 6h** using batched tombstones and idempotent path. Partnered with Legal & Sec. We passed SOC2 Type II with **0 data retention exceptions** in my areas. Also added S3 lifecycle rules (30-day → cheaper storage) saving **$4.6k/month** on historical logs.
+
+Team/Process: Mentored **2** interns and **2** new hires; onboarding docs need fewer “call me” pings now. Wrote dbt style guide and PR template. Build breakages from test name collisions down **43%** (rough estimate but CI is calmer). Packaged a tiny **Airflow operator** library (templated S3 → Trino → dbt refresh) so people don’t copy/paste boilerplate; new DAG dev time **3 days → 1 day** and **12 teams** using it. I’m not a manager but tried to act as Tech Lead when cross-team work needed.
+
+Things That Didn’t Go to Plan: Underestimated CDC backfills (also spammed SRE metrics—oops). First GE suites too strict → false positives, loosened later. For H2 2025 want to automate lineage impact so schema changes don’t crater downstream, and move to error budgets for freshness (the pager fatigue is real). Also received feedback to publish design docs earlier, will do (definitely).

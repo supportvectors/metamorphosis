@@ -1,16 +1,16 @@
 
 # The list of models used
 llm_models:
-  mini: gpt-5-mini
+  mini: gpt-5-mini-2025-08-07
   reasoning: gpt-5
-  non-reasoning: gpt-4.1
+  non-reasoning: gpt-5
 
 # ---------------------------------------------------------
 # The list of models used for text modifiers
 # ---------------------------------------------------------
 text_modifier_models:
   copy_editor: 
-    model: gpt-5-mini
+    model: gpt-4o
     temperature: 0.1
     max_tokens: 4000
     top_p: 1
@@ -22,6 +22,13 @@ text_modifier_models:
   # ---------------------------------------------------------
   summarizer:
     model: gpt-5  # we need reasoning here
+    temperature: 0.0
+    max_tokens: 4000
+    timeout: 300
+
+  # ---------------------------------------------------------
+  key_achievements:
+    model: gpt-5  # same reasoning model as summarizer
     temperature: 0.0
     max_tokens: 4000
     timeout: 300

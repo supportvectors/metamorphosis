@@ -34,9 +34,15 @@ def summarize_raw_review(max_words: Annotated[PositiveInt, Field(gt=0)] = 200) -
     raw_path = project_root / "sample_reviews" / "raw_review.md"
     logger.info("Reading review from: {}", raw_path)
 
-    raw_text = read_text_file(raw_path)
+    # -------------------------------------------------------------------------
 
+    # Create TextModifiers instance
     modifiers = TextModifiers()
+    
+    # Log model details for summarizer before running
+    modifiers._log_model_details_table(method="summarize")
+
+    raw_text = read_text_file(raw_path)
     logger.info("Running summarization (max_words={})", max_words)
     result = modifiers.summarize(text=raw_text, max_words=int(max_words))
 

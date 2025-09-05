@@ -43,8 +43,8 @@ class _LLMSettings(BaseModel):
 class ModelRegistry:
     """Singleton that provides configured LLM clients.
 
-    The registry reads the project's configuration and constructs two
-    `ChatOpenAI` clients: `summarizer_llm` and `copy_editor_llm`.
+    The registry reads the project's configuration and constructs three
+    `ChatOpenAI` clients: `summarizer_llm`, `copy_editor_llm`, and `key_achievements_llm`.
     """
 
     _instance: "ModelRegistry | None" = None
@@ -91,9 +91,11 @@ class ModelRegistry:
 
         summarizer_cfg = _LLMSettings(**cfg.get("summarizer", {}))
         copy_editor_cfg = _LLMSettings(**cfg.get("copy_editor", {}))
+        key_achievements_cfg = _LLMSettings(**cfg.get("key_achievements", {}))
 
         self.summarizer_llm = self._build_chat_openai(summarizer_cfg, api_key)
         self.copy_editor_llm = self._build_chat_openai(copy_editor_cfg, api_key)
+        self.key_achievements_llm = self._build_chat_openai(key_achievements_cfg, api_key)
 
         self._initialized = True
         logger.debug("ModelRegistry initialized successfully")
