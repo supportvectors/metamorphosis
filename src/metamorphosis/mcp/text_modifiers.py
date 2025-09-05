@@ -24,7 +24,7 @@ from metamorphosis.exceptions import (
     raise_postcondition_error,
 )
 from metamorphosis.utilities import read_text_file, get_project_root
-from metamorphosis.datamodel import SummarizedText, CopyEditedText, AchievementsList
+from metamorphosis.datamodel import SummarizedText, CopyEditedText, AchievementsList, ReviewScorecard
 from metamorphosis import get_model_registry
 
 class TextModifiers:
@@ -52,6 +52,7 @@ class TextModifiers:
         self.summarizer_llm = registry.summarizer_llm
         self.copy_editor_llm = registry.copy_editor_llm
         self.key_achievements_llm = registry.key_achievements_llm
+        self.review_text_evaluator_llm = registry.review_text_evaluator_llm
 
         # Load prompt templates from files using utility functions
         project_root = get_project_root()
@@ -67,6 +68,9 @@ class TextModifiers:
         
         self.text_rationalization_system_prompt = read_text_file(prompts_dir / "text_rationalization_system_prompt.md")
         self.text_rationalization_user_prompt = read_text_file(prompts_dir / "text_rationalization_user_prompt.md")
+        
+        self.text_evaluator_system_prompt = read_text_file(prompts_dir / "text_evaluator_system_prompt.md")
+        self.text_evaluator_user_prompt = read_text_file(prompts_dir / "text_evaluator_user_prompt.md")
         
      
         # Compose prompts with input placeholders for clarity.
@@ -344,11 +348,124 @@ class TextModifiers:
 
     # =========================================================================
 
+    @validate_call
+    def evaluate_review_text(
+        self, *, text: Annotated[str, Field(min_length=1)]
+    ) -> ReviewScorecard:
+        """Evaluate the writing quality of employee self-review text.
+
+        This method analyzes employee self-review text and provides a comprehensive
+        assessment of writing quality across six key dimensions. The evaluation
+        focuses on the quality of the writing itself, not job performance, to help
+        HR partners and engineering leaders quickly assess review quality.
+
+        The method uses an LLM-based evaluator that scores the review on:
+        - **OutcomeOverActivity** (25%): Emphasis on concrete outcomes vs. task lists
+        - **QuantitativeSpecificity** (25%): Use of metrics, numbers, and baselines
+        - **ClarityCoherence** (15%): Logical flow and readability
+        - **Conciseness** (15%): Efficient, non-redundant expression
+        - **OwnershipLeadership** (10%): Clear ownership and leadership signals
+        - **Collaboration** (10%): Evidence of cross-team work and partnerships
+
+        **Scoring System:**
+        Each dimension is scored 0-100 using anchor levels (20/40/60/80/95) with
+        specific rubrics. The overall score is a weighted average that determines
+        the verdict: excellent (≥85), strong (70-84), mixed (50-69), weak (<50).
+
+        **Output Structure:**
+        - Individual scores and rationales for each dimension
+        - Specific, actionable improvement suggestions
+        - Weighted overall score and verdict classification
+        - Optional flags for common issues (e.g., no_numbers_detected, short_review)
+        - Radar chart data for visualization
+
+        Args:
+            text: The employee self-review text to evaluate. Must be non-empty string
+                containing the review content to be assessed for writing quality.
+                Typically contains mixed content about achievements, projects, and
+                activities that needs quality assessment.
+
+        Returns:
+            ReviewScorecard: A structured assessment containing:
+                - metrics: List of 6 MetricScore objects with scores, rationales, suggestions
+                - overall: Weighted average score (0-100)
+                - verdict: Quality classification (excellent/strong/mixed/weak)
+                - notes: Optional flags for specific issues detected
+                - radar_labels: Metric names for chart visualization
+                - radar_values: Corresponding scores for chart visualization
+
+        Raises:
+            ValidationError: If the input text is empty or invalid.
+            PostconditionError: If the LLM output validation fails or the structured
+                response cannot be parsed correctly.
+            ConfigurationError: If the review text evaluator LLM is not properly configured.
+
+        Example:
+            >>> modifier = TextModifiers()
+            >>> result = modifier.evaluate_review_text(
+            ...     text="I reduced latency from 480ms to 190ms by optimizing the cache. "
+            ...          "This improved user experience and reduced server costs by 15%."
+            ... )
+            >>> print(result.overall)
+            75
+            >>> print(result.verdict)
+            "strong"
+            >>> print(result.metrics[0].name)
+            "OutcomeOverActivity"
+
+        Note:
+            This method uses the text_evaluator_system_prompt.md and
+            text_evaluator_user_prompt.md templates to guide the LLM's behavior.
+            The evaluation is performed by the review_text_evaluator_llm configured
+            in the model registry.
+        """
+        logger.debug("evaluate_review_text: processing text (length={})", len(text))
+        # Log the model details as a simple table for traceability and debugging.
+        self._log_model_details_table("evaluate_review_text")
+
+        # Construct the prompt using the text evaluator templates
+        messages = [
+            ("system", self.text_evaluator_system_prompt),
+            ("user", self.text_evaluator_user_prompt.format(EMPLOYEE_REVIEW_TEXT=text)),
+        ]
+        prompt = ChatPromptTemplate.from_messages(messages)
+        
+        # Create the evaluation chain with structured output
+        evaluator = prompt | self.review_text_evaluator_llm.with_structured_output(ReviewScorecard)
+        
+        # Invoke the chain with exception handling
+        try:
+            result = evaluator.invoke({})
+        except Exception as e:
+            logger.error("evaluate_review_text: LLM invocation failed - {}", str(e))
+            raise PostconditionError(
+                "Review text evaluation LLM invocation failed",
+                operation="evaluate_review_text_llm_invocation"
+            ) from e
+
+        # Postcondition (O(1)): ensure structured output is valid
+        if not isinstance(result, ReviewScorecard) or not result.metrics or len(result.metrics) != 6:
+            raise_postcondition_error(
+                "Review text evaluation output validation failed",
+                context={
+                    "result_type": type(result).__name__, 
+                    "has_metrics": bool(getattr(result, 'metrics', None)),
+                    "metrics_count": len(getattr(result, 'metrics', []))
+                },
+                operation="evaluate_review_text_validation"
+            )
+
+        logger.debug("evaluate_review_text: completed successfully (overall_score={}, verdict={})", 
+                    result.overall, result.verdict)
+        return result
+
+    # =========================================================================
+
     def get_model_info(self, method: str) -> dict[str, Any] | None:
         """Get model configuration information for a specific method.
 
         Args:
-            method: The method name (e.g., "summarize", "rationalize_text", "extract_achievements").
+            method: The method name (e.g., "summarize", "rationalize_text", "extract_achievements", "evaluate_review_text").
 
         Returns:
             Dictionary containing model configuration or None if not found.
@@ -357,6 +474,7 @@ class TextModifiers:
             "summarize": self.summarizer_llm,
             "rationalize_text": self.copy_editor_llm,
             "extract_achievements": self.key_achievements_llm,
+            "evaluate_review_text": self.review_text_evaluator_llm,
         }
         
         llm = method_to_llm.get(method)

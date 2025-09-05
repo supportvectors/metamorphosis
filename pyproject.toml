@@ -21,6 +21,7 @@ dependencies = [
     "streamlit>=1.28.0",
     "requests>=2.31.0",
     "rich>=13.0.0",
+    "plotly>=5.17.0",
 ]
 
 [build-system]
