@@ -14,6 +14,7 @@ This script demonstrates how to:
 1. Load a sample employee review from the sample_reviews directory
 2. Extract key achievements using the TextModifiers class
 3. Display the results in a beautiful rich table format
+4. Save the structured achievements data to a JSONL file
 
 Run this script from the project root:
     python -m src.examples.extract_achievements_usage
@@ -21,6 +22,7 @@ Run this script from the project root:
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 from typing import List
@@ -131,6 +133,25 @@ def create_achievements_table(achievements_list: AchievementsList) -> Table:
     return table
 
 
+def write_achievements_to_jsonl(achievements_list: AchievementsList, output_path: Path) -> None:
+    """Write the achievements to a JSONL file.
+    
+    Args:
+        achievements_list: The AchievementsList object containing extracted achievements.
+        output_path: Path to the output JSONL file.
+    """
+    # Create the directory if it doesn't exist
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Convert the AchievementsList to dict and write to JSONL
+    with output_path.open("w", encoding="utf-8") as f:
+        # Write the full AchievementsList object as one JSON line
+        achievements_dict = achievements_list.model_dump()
+        f.write(json.dumps(achievements_dict, ensure_ascii=False) + "\n")
+    
+    logger.debug("Wrote achievements to JSONL file: {}", output_path)
+
+
 def create_summary_panel(achievements_list: AchievementsList) -> Panel:
     """Create a summary panel with statistics about the achievements.
     
@@ -216,6 +237,13 @@ def main() -> None:
         
         console.print(f"✅ Extracted {len(achievements.items)} achievements")
         
+        # Write achievements to JSONL file
+        console.print("\n📝 Writing achievements to JSONL file...")
+        project_root = get_project_root()
+        jsonl_output_path = project_root / "sample_reviews" / "key_achievements.jsonl"
+        write_achievements_to_jsonl(achievements, jsonl_output_path)
+        console.print(f"✅ Saved achievements to: {jsonl_output_path}")
+        
         # Display results
         console.print("\n")
         console.print(create_summary_panel(achievements))
@@ -228,7 +256,8 @@ def main() -> None:
             "💡 Tip: The achievements are returned as structured Pydantic objects\n"
             "that can be easily serialized to JSON or integrated into other systems.\n\n"
             "Each Achievement object contains: title, outcome, impact_area,\n"
-            "metric_strings, timeframe, ownership_scope, and collaborators.",
+            "metric_strings, timeframe, ownership_scope, and collaborators.\n\n"
+            f"📄 The complete data has been saved to: {jsonl_output_path.name}",
             title="ℹ️  Integration Notes",
             style="dim cyan"
         ))
