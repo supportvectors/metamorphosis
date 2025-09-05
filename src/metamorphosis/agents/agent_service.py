@@ -115,6 +115,26 @@ def _create_error_response(error_message: str, status_code: int = 500) -> JSONRe
     return JSONResponse({"error": error_message}, status_code=status_code)
 
 
+def _convert_pydantic_to_dict(data: dict) -> dict:
+    """Convert Pydantic objects in a dictionary to plain dictionaries for JSON serialization.
+
+    Args:
+        data: Dictionary that may contain Pydantic objects as values.
+
+    Returns:
+        dict: Dictionary with all Pydantic objects converted to dictionaries.
+    """
+    from pydantic import BaseModel
+    
+    result = {}
+    for key, value in data.items():
+        if isinstance(value, BaseModel):
+            result[key] = value.model_dump()
+        else:
+            result[key] = value
+    return result
+
+
 async def _generate_stream_events(
     review_text: str, thread_id: str, mode: str, request: Request
 ) -> AsyncIterator[bytes]:
@@ -192,7 +212,10 @@ async def invoke(payload: InvokeRequest) -> JSONResponse:
             return _create_error_response("Invalid result structure from graph")
 
         logger.info("Successfully processed review (thread_id={})", thread_id)
-        return JSONResponse(result)
+        
+        # Convert Pydantic objects to dictionaries for JSON serialization
+        serializable_result = _convert_pydantic_to_dict(result)
+        return JSONResponse(serializable_result)
 
     except Exception as e:
         return _create_error_response(f"Graph execution failed: {str(e)}")
