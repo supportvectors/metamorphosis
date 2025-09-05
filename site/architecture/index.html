@@ -1,0 +1,1532 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A simple example with AI Agents" name="description"/>
+<meta content="SupportVectors" name="author"/>
+<link href="https://supportvectors.ai/metamorphosis/architecture/" rel="canonical"/>
+<link href=".." rel="prev"/>
+<link href="../metamorphosis/" rel="next"/>
+<link href="../images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.18" name="generator"/>
+<title>Architecture - SupportVectors MetaMorphosis</title>
+<link href="../assets/stylesheets/main.7e37652d.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Lora:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Lora";--md-code-font:"Roboto Mono"}</style>
+<link href="../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../stylesheets/supportvectors.css" rel="stylesheet"/>
+<link href="../css/ansi-colours.css" rel="stylesheet"/>
+<link href="../css/jupyter-cells.css" rel="stylesheet"/>
+<link href="../css/pandas-dataframe.css" rel="stylesheet"/>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="gray" data-md-color-primary="light-blue" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#system-architecture">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="SupportVectors MetaMorphosis" class="md-header__button md-logo" data-md-component="logo" href=".." title="SupportVectors MetaMorphosis">
+<img alt="logo" src="../images/overlapping_logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            SupportVectors MetaMorphosis
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Architecture
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="gray" data-md-color-media="" data-md-color-primary="light-blue" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="SupportVectors MetaMorphosis" class="md-nav__button md-logo" data-md-component="logo" href=".." title="SupportVectors MetaMorphosis">
+<img alt="logo" src="../images/overlapping_logo.png"/>
+</a>
+    SupportVectors MetaMorphosis
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Architecture
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Architecture
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#high-level-architecture">
+<span class="md-ellipsis">
+      High-Level Architecture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#component-architecture">
+<span class="md-ellipsis">
+      Component Architecture
+    </span>
+</a>
+<nav aria-label="Component Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-classes-and-relationships">
+<span class="md-ellipsis">
+      Core Classes and Relationships
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-flow-architecture">
+<span class="md-ellipsis">
+      Data Flow Architecture
+    </span>
+</a>
+<nav aria-label="Data Flow Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#processing-pipeline">
+<span class="md-ellipsis">
+      Processing Pipeline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#state-management-flow">
+<span class="md-ellipsis">
+      State Management Flow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#design-patterns">
+<span class="md-ellipsis">
+      Design Patterns
+    </span>
+</a>
+<nav aria-label="Design Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#singleton-pattern-model-registry">
+<span class="md-ellipsis">
+      Singleton Pattern (Model Registry)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factory-pattern-configuration-loading">
+<span class="md-ellipsis">
+      Factory Pattern (Configuration Loading)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#strategy-pattern-text-processing">
+<span class="md-ellipsis">
+      Strategy Pattern (Text Processing)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#observer-pattern-streaming-events">
+<span class="md-ellipsis">
+      Observer Pattern (Streaming Events)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decorator-pattern-validation">
+<span class="md-ellipsis">
+      Decorator Pattern (Validation)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#security-architecture">
+<span class="md-ellipsis">
+      Security Architecture
+    </span>
+</a>
+<nav aria-label="Security Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#api-security">
+<span class="md-ellipsis">
+      API Security
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-security">
+<span class="md-ellipsis">
+      Configuration Security
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-architecture">
+<span class="md-ellipsis">
+      Performance Architecture
+    </span>
+</a>
+<nav aria-label="Performance Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#caching-strategy">
+<span class="md-ellipsis">
+      Caching Strategy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalability-considerations">
+<span class="md-ellipsis">
+      Scalability Considerations
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-handling-architecture">
+<span class="md-ellipsis">
+      Error Handling Architecture
+    </span>
+</a>
+<nav aria-label="Error Handling Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exception-hierarchy">
+<span class="md-ellipsis">
+      Exception Hierarchy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-flow">
+<span class="md-ellipsis">
+      Error Flow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-and-observability">
+<span class="md-ellipsis">
+      Monitoring and Observability
+    </span>
+</a>
+<nav aria-label="Monitoring and Observability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logging-architecture">
+<span class="md-ellipsis">
+      Logging Architecture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics-collection">
+<span class="md-ellipsis">
+      Metrics Collection
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deployment-architecture">
+<span class="md-ellipsis">
+      Deployment Architecture
+    </span>
+</a>
+<nav aria-label="Deployment Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#container-architecture">
+<span class="md-ellipsis">
+      Container Architecture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-dependencies">
+<span class="md-ellipsis">
+      Service Dependencies
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#future-architecture-considerations">
+<span class="md-ellipsis">
+      Future Architecture Considerations
+    </span>
+</a>
+<nav aria-label="Future Architecture Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extensibility-points">
+<span class="md-ellipsis">
+      Extensibility Points
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalability-enhancements">
+<span class="md-ellipsis">
+      Scalability Enhancements
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Package Documentation
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            Package Documentation
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    MCP Package
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
+            MCP Package
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/mcp/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/mcp/TextModifiers/">
+<span class="md-ellipsis">
+    TextModifiers
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Agents Package
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            Agents Package
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/agents/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Core Modules
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            Core Modules
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/datamodel/">
+<span class="md-ellipsis">
+    Data Models
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/exceptions.md">
+<span class="md-ellipsis">
+    Exceptions
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/utilities.md">
+<span class="md-ellipsis">
+    Utilities
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metamorphosis/model_registry.md">
+<span class="md-ellipsis">
+    Model Registry
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Examples
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Basic Processing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_2">
+<span class="md-nav__icon md-icon"></span>
+            Basic Processing
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/summarizer_usage.md">
+<span class="md-ellipsis">
+    Summarizer Usage
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/rationalize_usage.md">
+<span class="md-ellipsis">
+    Copy Editor Usage
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Advanced Processing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
+<span class="md-nav__icon md-icon"></span>
+            Advanced Processing
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/extract_achievements_usage/">
+<span class="md-ellipsis">
+    Achievement Extraction
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/review_text_evaluator_usage.md">
+<span class="md-ellipsis">
+    Quality Evaluation
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Visualization
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_4">
+<span class="md-nav__icon md-icon"></span>
+            Visualization
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/visualize_evaluation_radar.md">
+<span class="md-ellipsis">
+    Radar Charts
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    Project Guide
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Project Guide
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+<span class="md-ellipsis">
+    Tips &amp; Tricks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_1_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_1">
+<span class="md-nav__icon md-icon"></span>
+            Tips &amp; Tricks
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../project-guide/tips-and-tricks/cuda-hell/">
+<span class="md-ellipsis">
+    CUDA Issues
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    Notebooks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            Notebooks
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../notebooks/supportvectors-common/">
+<span class="md-ellipsis">
+    Common Patterns
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#high-level-architecture">
+<span class="md-ellipsis">
+      High-Level Architecture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#component-architecture">
+<span class="md-ellipsis">
+      Component Architecture
+    </span>
+</a>
+<nav aria-label="Component Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-classes-and-relationships">
+<span class="md-ellipsis">
+      Core Classes and Relationships
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-flow-architecture">
+<span class="md-ellipsis">
+      Data Flow Architecture
+    </span>
+</a>
+<nav aria-label="Data Flow Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#processing-pipeline">
+<span class="md-ellipsis">
+      Processing Pipeline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#state-management-flow">
+<span class="md-ellipsis">
+      State Management Flow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#design-patterns">
+<span class="md-ellipsis">
+      Design Patterns
+    </span>
+</a>
+<nav aria-label="Design Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#singleton-pattern-model-registry">
+<span class="md-ellipsis">
+      Singleton Pattern (Model Registry)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factory-pattern-configuration-loading">
+<span class="md-ellipsis">
+      Factory Pattern (Configuration Loading)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#strategy-pattern-text-processing">
+<span class="md-ellipsis">
+      Strategy Pattern (Text Processing)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#observer-pattern-streaming-events">
+<span class="md-ellipsis">
+      Observer Pattern (Streaming Events)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decorator-pattern-validation">
+<span class="md-ellipsis">
+      Decorator Pattern (Validation)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#security-architecture">
+<span class="md-ellipsis">
+      Security Architecture
+    </span>
+</a>
+<nav aria-label="Security Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#api-security">
+<span class="md-ellipsis">
+      API Security
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-security">
+<span class="md-ellipsis">
+      Configuration Security
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-architecture">
+<span class="md-ellipsis">
+      Performance Architecture
+    </span>
+</a>
+<nav aria-label="Performance Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#caching-strategy">
+<span class="md-ellipsis">
+      Caching Strategy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalability-considerations">
+<span class="md-ellipsis">
+      Scalability Considerations
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-handling-architecture">
+<span class="md-ellipsis">
+      Error Handling Architecture
+    </span>
+</a>
+<nav aria-label="Error Handling Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exception-hierarchy">
+<span class="md-ellipsis">
+      Exception Hierarchy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-flow">
+<span class="md-ellipsis">
+      Error Flow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-and-observability">
+<span class="md-ellipsis">
+      Monitoring and Observability
+    </span>
+</a>
+<nav aria-label="Monitoring and Observability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logging-architecture">
+<span class="md-ellipsis">
+      Logging Architecture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics-collection">
+<span class="md-ellipsis">
+      Metrics Collection
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deployment-architecture">
+<span class="md-ellipsis">
+      Deployment Architecture
+    </span>
+</a>
+<nav aria-label="Deployment Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#container-architecture">
+<span class="md-ellipsis">
+      Container Architecture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-dependencies">
+<span class="md-ellipsis">
+      Service Dependencies
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#future-architecture-considerations">
+<span class="md-ellipsis">
+      Future Architecture Considerations
+    </span>
+</a>
+<nav aria-label="Future Architecture Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extensibility-points">
+<span class="md-ellipsis">
+      Extensibility Points
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalability-enhancements">
+<span class="md-ellipsis">
+      Scalability Enhancements
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="system-architecture">System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">¶</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The Metamorphosis system implements a sophisticated AI-powered text processing architecture using modern Python frameworks and design patterns. This document provides a comprehensive view of the system's architecture, component relationships, and data flow.</p>
+<h2 id="high-level-architecture">High-Level Architecture<a class="headerlink" href="#high-level-architecture" title="Permanent link">¶</a></h2>
+<div class="mermaid">graph TB
+    subgraph "Presentation Layer"
+        UI[Streamlit UI]
+        API[FastAPI REST API]
+        CLI[Command Line Tools]
+    end
+
+    subgraph "Orchestration Layer"
+        LG[LangGraph Workflows]
+        AG[Agent Coordinator]
+        SM[State Manager]
+    end
+
+    subgraph "Processing Layer"
+        MCP[MCP Tools Server]
+        TM[TextModifiers Core]
+        WF[Workflow Nodes]
+    end
+
+    subgraph "Model Layer"
+        MR[Model Registry]
+        LLM1[Summarizer LLM]
+        LLM2[Copy Editor LLM]
+        LLM3[Achievements LLM]
+        LLM4[Evaluator LLM]
+    end
+
+    subgraph "Data Layer"
+        DM[Pydantic Models]
+        ST[State Storage]
+        FS[File System]
+    end
+
+    subgraph "External Services"
+        OPENAI[OpenAI API]
+        WC[Word Cloud Service]
+    end
+
+    UI --&gt; API
+    CLI --&gt; MCP
+    API --&gt; LG
+    LG --&gt; AG
+    AG --&gt; SM
+    SM --&gt; WF
+    WF --&gt; TM
+    TM --&gt; MCP
+    MCP --&gt; MR
+    MR --&gt; LLM1
+    MR --&gt; LLM2
+    MR --&gt; LLM3
+    MR --&gt; LLM4
+    LLM1 --&gt; OPENAI
+    LLM2 --&gt; OPENAI
+    LLM3 --&gt; OPENAI
+    LLM4 --&gt; OPENAI
+    WF --&gt; WC
+    TM --&gt; DM
+    SM --&gt; ST
+    ST --&gt; FS
+</div>
+<h2 id="component-architecture">Component Architecture<a class="headerlink" href="#component-architecture" title="Permanent link">¶</a></h2>
+<h3 id="core-classes-and-relationships">Core Classes and Relationships<a class="headerlink" href="#core-classes-and-relationships" title="Permanent link">¶</a></h3>
+<div class="mermaid">classDiagram
+    class TextModifiers {
+        -summarizer_llm: ChatOpenAI
+        -copy_editor_llm: ChatOpenAI
+        -key_achievements_llm: ChatOpenAI
+        -review_text_evaluator_llm: ChatOpenAI
+        +summarize(text, max_words) SummarizedText
+        +rationalize_text(text) CopyEditedText
+        +extract_achievements(text) AchievementsList
+        +evaluate_review_text(text) ReviewScorecard
+        +get_model_info(method) dict
+        -_log_model_details_table(method)
+    }
+
+    class ModelRegistry {
+        -_instance: ModelRegistry
+        -_initialized: bool
+        +summarizer_llm: ChatOpenAI
+        +copy_editor_llm: ChatOpenAI
+        +key_achievements_llm: ChatOpenAI
+        +review_text_evaluator_llm: ChatOpenAI
+        +__new__() ModelRegistry
+        -_build_chat_openai(config, api_key) ChatOpenAI
+    }
+
+    class GraphState {
+        +review_text: str
+        +copy_edited_text: str | None
+        +summary: str | None
+        +word_cloud_path: str | None
+    }
+
+    class FastAPIApp {
+        +invoke(request) InvokeResponse
+        +stream(request) StreamingResponse
+        +health() dict
+    }
+
+    class StreamlitUI {
+        +patch_state(dst, delta) dict
+        +stream_from_server(url, data) Iterator
+        +extract_values_from_event(event) dict
+    }
+
+    class SummarizedText {
+        +summarized_text: str
+        +size: int
+        +unit: str
+    }
+
+    class CopyEditedText {
+        +copy_edited_text: str
+        +size: int
+        +is_edited: bool
+    }
+
+    class AchievementsList {
+        +items: List[Achievement]
+        +size: int
+        +unit: str
+    }
+
+    class ReviewScorecard {
+        +metrics: List[MetricScore]
+        +overall: int
+        +verdict: Verdict
+        +notes: List[str]
+        +radar_labels: List[str]
+        +radar_values: List[int]
+    }
+
+    class Achievement {
+        +title: str
+        +outcome: str
+        +impact_area: ImpactArea
+        +metric_strings: List[str]
+        +timeframe: Optional[str]
+        +ownership_scope: Optional[OwnershipScope]
+        +collaborators: List[str]
+    }
+
+    class MetricScore {
+        +name: str
+        +score: int
+        +rationale: str
+        +suggestion: str
+    }
+
+    TextModifiers --&gt; ModelRegistry : uses
+    TextModifiers --&gt; SummarizedText : creates
+    TextModifiers --&gt; CopyEditedText : creates
+    TextModifiers --&gt; AchievementsList : creates
+    TextModifiers --&gt; ReviewScorecard : creates
+    AchievementsList --&gt; Achievement : contains
+    ReviewScorecard --&gt; MetricScore : contains
+    FastAPIApp --&gt; GraphState : manages
+    StreamlitUI --&gt; FastAPIApp : communicates
+    GraphState --&gt; TextModifiers : processes_with
+</div>
+<h2 id="data-flow-architecture">Data Flow Architecture<a class="headerlink" href="#data-flow-architecture" title="Permanent link">¶</a></h2>
+<h3 id="processing-pipeline">Processing Pipeline<a class="headerlink" href="#processing-pipeline" title="Permanent link">¶</a></h3>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant UI as Streamlit UI
+    participant API as FastAPI Service
+    participant LG as LangGraph
+    participant TM as TextModifiers
+    participant LLM as OpenAI API
+    participant FS as File System
+
+    User-&gt;&gt;UI: Enter review text
+    UI-&gt;&gt;API: POST /stream {text, thread_id}
+    API-&gt;&gt;API: Generate thread_id
+    API-&gt;&gt;LG: run_graph(text, thread_id)
+
+    LG-&gt;&gt;TM: rationalize_text(text)
+    TM-&gt;&gt;LLM: Copy editing request
+    LLM-&gt;&gt;TM: Edited text
+    TM-&gt;&gt;LG: CopyEditedText
+    LG-&gt;&gt;API: Stream event {copy_edited_text}
+    API-&gt;&gt;UI: SSE event
+
+    par Parallel Processing
+        LG-&gt;&gt;TM: summarize(edited_text)
+        TM-&gt;&gt;LLM: Summarization request
+        LLM-&gt;&gt;TM: Summary
+        TM-&gt;&gt;LG: SummarizedText
+        LG-&gt;&gt;API: Stream event {summary}
+        API-&gt;&gt;UI: SSE event
+    and
+        LG-&gt;&gt;FS: create_word_cloud(edited_text)
+        FS-&gt;&gt;LG: Word cloud path
+        LG-&gt;&gt;API: Stream event {word_cloud_path}
+        API-&gt;&gt;UI: SSE event
+    end
+
+    UI-&gt;&gt;User: Display results
+</div>
+<h3 id="state-management-flow">State Management Flow<a class="headerlink" href="#state-management-flow" title="Permanent link">¶</a></h3>
+<div class="mermaid">stateDiagram-v2
+    [*] --&gt; Initialized
+    Initialized --&gt; Processing: User submits text
+    Processing --&gt; CopyEditing: Start workflow
+    CopyEditing --&gt; ParallelProcessing: Text edited
+
+    state ParallelProcessing {
+        [*] --&gt; Summarizing
+        [*] --&gt; WordCloudGen
+        Summarizing --&gt; SummaryComplete
+        WordCloudGen --&gt; WordCloudComplete
+        SummaryComplete --&gt; [*]
+        WordCloudComplete --&gt; [*]
+    }
+
+    ParallelProcessing --&gt; Complete: All tasks done
+    Complete --&gt; [*]: Results delivered
+
+    Processing --&gt; Error: Exception occurred
+    Error --&gt; [*]: Error handled
+</div>
+<h2 id="design-patterns">Design Patterns<a class="headerlink" href="#design-patterns" title="Permanent link">¶</a></h2>
+<h3 id="singleton-pattern-model-registry">Singleton Pattern (Model Registry)<a class="headerlink" href="#singleton-pattern-model-registry" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ModelRegistry</span><span class="p">:</span>
+    <span class="n">_instance</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+            <span class="c1"># Initialize LLM clients</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_llms</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+<h3 id="factory-pattern-configuration-loading">Factory Pattern (Configuration Loading)<a class="headerlink" href="#factory-pattern-configuration-loading" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_model_registry</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ModelRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Factory function for ModelRegistry singleton."""</span>
+    <span class="k">return</span> <span class="n">ModelRegistry</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_config</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Factory for configuration loading with fallbacks."""</span>
+    <span class="c1"># Configuration loading logic</span>
+    <span class="k">return</span> <span class="n">config_data</span>
+</code></pre></div>
+<h3 id="strategy-pattern-text-processing">Strategy Pattern (Text Processing)<a class="headerlink" href="#strategy-pattern-text-processing" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TextModifiers</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Different strategies for different processing types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'summarize'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_summarizer_chain</span><span class="p">(),</span>
+            <span class="s1">'copy_edit'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_copy_editor_chain</span><span class="p">(),</span>
+            <span class="s1">'extract_achievements'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_achievements_chain</span><span class="p">(),</span>
+            <span class="s1">'evaluate'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_evaluator_chain</span><span class="p">()</span>
+        <span class="p">}</span>
+</code></pre></div>
+<h3 id="observer-pattern-streaming-events">Observer Pattern (Streaming Events)<a class="headerlink" href="#observer-pattern-streaming-events" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_generate_stream_events</span><span class="p">(</span><span class="n">review_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thread_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Observer pattern for streaming workflow events."""</span>
+    <span class="k">async</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">run_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">review_text</span><span class="p">,</span> <span class="n">thread_id</span><span class="p">):</span>
+        <span class="c1"># Notify observers (UI clients) of state changes</span>
+        <span class="k">yield</span> <span class="sa">f</span><span class="s2">"data: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="decorator-pattern-validation">Decorator Pattern (Validation)<a class="headerlink" href="#decorator-pattern-validation" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nd">@validate_call</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span>
+    <span class="n">max_words</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SummarizedText</span><span class="p">:</span>
+    <span class="c1"># Method implementation with automatic validation</span>
+</code></pre></div>
+<h2 id="security-architecture">Security Architecture<a class="headerlink" href="#security-architecture" title="Permanent link">¶</a></h2>
+<h3 id="api-security">API Security<a class="headerlink" href="#api-security" title="Permanent link">¶</a></h3>
+<div class="mermaid">graph LR
+    subgraph "Security Layers"
+        A[CORS Middleware]
+        B[Input Validation]
+        C[Rate Limiting]
+        D[Error Sanitization]
+    end
+
+    subgraph "Data Protection"
+        E[Environment Variables]
+        F[Secret Management]
+        G[Input Sanitization]
+    end
+
+    Request --&gt; A
+    A --&gt; B
+    B --&gt; C
+    C --&gt; D
+    D --&gt; Processing
+
+    Processing --&gt; E
+    E --&gt; F
+    F --&gt; G
+</div>
+<h3 id="configuration-security">Configuration Security<a class="headerlink" href="#configuration-security" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>API Key Management</strong>: Environment variable isolation</li>
+<li><strong>Input Validation</strong>: Pydantic model validation</li>
+<li><strong>Error Handling</strong>: Sanitized error responses</li>
+<li><strong>CORS Configuration</strong>: Restricted origins in production</li>
+</ul>
+<h2 id="performance-architecture">Performance Architecture<a class="headerlink" href="#performance-architecture" title="Permanent link">¶</a></h2>
+<h3 id="caching-strategy">Caching Strategy<a class="headerlink" href="#caching-strategy" title="Permanent link">¶</a></h3>
+<div class="mermaid">graph TB
+    subgraph "Caching Layers"
+        A[LLM Client Cache<br/>Singleton Registry]
+        B[Prompt Template Cache<br/>File System]
+        C[Processing Results Cache<br/>LRU Cache]
+    end
+
+    subgraph "Performance Optimizations"
+        D[Parallel Processing<br/>AsyncIO]
+        E[Connection Pooling<br/>HTTP Clients]
+        F[Resource Management<br/>Memory Cleanup]
+    end
+
+    Request --&gt; A
+    A --&gt; B
+    B --&gt; C
+    C --&gt; D
+    D --&gt; E
+    E --&gt; F
+    F --&gt; Response
+</div>
+<h3 id="scalability-considerations">Scalability Considerations<a class="headerlink" href="#scalability-considerations" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Horizontal Scaling</strong>: Stateless service design</li>
+<li><strong>Load Balancing</strong>: Multiple service instances</li>
+<li><strong>Resource Optimization</strong>: Efficient memory usage</li>
+<li><strong>Connection Management</strong>: HTTP connection pooling</li>
+</ul>
+<h2 id="error-handling-architecture">Error Handling Architecture<a class="headerlink" href="#error-handling-architecture" title="Permanent link">¶</a></h2>
+<h3 id="exception-hierarchy">Exception Hierarchy<a class="headerlink" href="#exception-hierarchy" title="Permanent link">¶</a></h3>
+<div class="mermaid">classDiagram
+    class Exception {
+        +message: str
+        +args: tuple
+    }
+
+    class ReviewError {
+        +message: str
+        +context: dict
+        +operation: str
+        +error_code: str
+    }
+
+    class ValidationError {
+        +validation_context: dict
+    }
+
+    class PostconditionError {
+        +postcondition_context: dict
+    }
+
+    class ConfigurationError {
+        +config_context: dict
+    }
+
+    class MCPToolError {
+        +tool_context: dict
+    }
+
+    class FileOperationError {
+        +file_context: dict
+    }
+
+    Exception &lt;|-- ReviewError
+    ReviewError &lt;|-- ValidationError
+    ReviewError &lt;|-- PostconditionError
+    ReviewError &lt;|-- ConfigurationError
+    ReviewError &lt;|-- MCPToolError
+    ReviewError &lt;|-- FileOperationError
+</div>
+<h3 id="error-flow">Error Flow<a class="headerlink" href="#error-flow" title="Permanent link">¶</a></h3>
+<div class="mermaid">sequenceDiagram
+    participant Client
+    participant API
+    participant Service
+    participant LLM
+
+    Client-&gt;&gt;API: Request
+    API-&gt;&gt;Service: Process
+    Service-&gt;&gt;LLM: LLM Call
+    LLM-&gt;&gt;Service: Error Response
+    Service-&gt;&gt;Service: Create PostconditionError
+    Service-&gt;&gt;API: Structured Error
+    API-&gt;&gt;API: Log Error Context
+    API-&gt;&gt;Client: JSON Error Response
+</div>
+<h2 id="monitoring-and-observability">Monitoring and Observability<a class="headerlink" href="#monitoring-and-observability" title="Permanent link">¶</a></h2>
+<h3 id="logging-architecture">Logging Architecture<a class="headerlink" href="#logging-architecture" title="Permanent link">¶</a></h3>
+<div class="mermaid">graph TB
+    subgraph "Logging Sources"
+        A[TextModifiers]
+        B[Model Registry]
+        C[FastAPI Service]
+        D[LangGraph Workflows]
+    end
+
+    subgraph "Log Processing"
+        E[Loguru Logger]
+        F[Structured Logging]
+        G[Log Aggregation]
+    end
+
+    subgraph "Output Destinations"
+        H[Console Output]
+        I[File Logs]
+        J[Debug Logs]
+    end
+
+    A --&gt; E
+    B --&gt; E
+    C --&gt; E
+    D --&gt; E
+    E --&gt; F
+    F --&gt; G
+    G --&gt; H
+    G --&gt; I
+    G --&gt; J
+</div>
+<h3 id="metrics-collection">Metrics Collection<a class="headerlink" href="#metrics-collection" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Processing Metrics</strong>: Token usage, processing time</li>
+<li><strong>Error Metrics</strong>: Error rates, failure patterns  </li>
+<li><strong>Performance Metrics</strong>: Response times, throughput</li>
+<li><strong>Resource Metrics</strong>: Memory usage, CPU utilization</li>
+</ul>
+<h2 id="deployment-architecture">Deployment Architecture<a class="headerlink" href="#deployment-architecture" title="Permanent link">¶</a></h2>
+<h3 id="container-architecture">Container Architecture<a class="headerlink" href="#container-architecture" title="Permanent link">¶</a></h3>
+<div class="mermaid">graph TB
+    subgraph "Application Container"
+        A[Python 3.12 Runtime]
+        B[FastAPI Service]
+        C[Streamlit UI]
+        D[MCP Tools]
+    end
+
+    subgraph "Configuration"
+        E[Environment Variables]
+        F[Config Files]
+        G[Prompt Templates]
+    end
+
+    subgraph "External Dependencies"
+        H[OpenAI API]
+        I[File System Storage]
+    end
+
+    A --&gt; B
+    A --&gt; C
+    A --&gt; D
+    E --&gt; A
+    F --&gt; A
+    G --&gt; A
+    B --&gt; H
+    D --&gt; I
+</div>
+<h3 id="service-dependencies">Service Dependencies<a class="headerlink" href="#service-dependencies" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Runtime</strong>: Python 3.12+</li>
+<li><strong>Core Dependencies</strong>: FastAPI, LangChain, Pydantic, Streamlit</li>
+<li><strong>AI Services</strong>: OpenAI API</li>
+<li><strong>Utilities</strong>: Rich, Plotly, Loguru</li>
+<li><strong>Development</strong>: Ruff, Pytest, Radon</li>
+</ul>
+<h2 id="future-architecture-considerations">Future Architecture Considerations<a class="headerlink" href="#future-architecture-considerations" title="Permanent link">¶</a></h2>
+<h3 id="extensibility-points">Extensibility Points<a class="headerlink" href="#extensibility-points" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>New Processing Types</strong>: Additional text processing capabilities</li>
+<li><strong>Multiple LLM Providers</strong>: Support for different AI services</li>
+<li><strong>Enhanced Workflows</strong>: More complex multi-agent workflows</li>
+<li><strong>Real-time Processing</strong>: WebSocket-based real-time updates</li>
+<li><strong>Batch Processing</strong>: Large-scale document processing</li>
+</ol>
+<h3 id="scalability-enhancements">Scalability Enhancements<a class="headerlink" href="#scalability-enhancements" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Microservices</strong>: Split into smaller, focused services</li>
+<li><strong>Message Queues</strong>: Asynchronous processing with queues</li>
+<li><strong>Caching Layer</strong>: Redis or similar for distributed caching</li>
+<li><strong>Database Integration</strong>: Persistent storage for results</li>
+<li><strong>Load Balancing</strong>: Multiple service instances</li>
+</ol>
+<hr/>
+<p><em>This architecture documentation is maintained in sync with the system implementation and updated as the system evolves.</em></p>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../assets/javascripts/bundle.92b07e13.min.js"></script>
+<script src="../javascripts/mathjax.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+mermaid.initialize({});</script></body>
+</html>

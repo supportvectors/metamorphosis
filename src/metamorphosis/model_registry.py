@@ -20,7 +20,6 @@ from pydantic import BaseModel, ConfigDict, Field, PositiveInt, validate_call
 from langchain_openai import ChatOpenAI
 
 from metamorphosis.exceptions import (
-    ConfigurationError,
     raise_configuration_error,
 )
 
@@ -69,6 +68,7 @@ class ModelRegistry:
         # Load project .env explicitly to avoid cwd/parent ambiguity
         try:
             from metamorphosis.utilities import get_project_root  # local import to avoid cycles
+
             project_root = get_project_root()
             load_dotenv(dotenv_path=project_root / ".env", override=True)
         except Exception as error:  # noqa: BLE001
@@ -157,5 +157,3 @@ class ModelRegistry:
 
 
 __all__ = ["ModelRegistry"]
-
-

@@ -25,13 +25,11 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import List
 
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import box
 from loguru import logger
 
@@ -39,82 +37,85 @@ from loguru import logger
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from metamorphosis.mcp.text_modifiers import TextModifiers
-from metamorphosis.datamodel import ReviewScorecard, MetricScore
+from metamorphosis.datamodel import ReviewScorecard
 from metamorphosis.utilities import get_project_root
 
 
 def load_sample_review() -> str:
     """Load the sample copy-edited review from sample_reviews directory.
-    
+
     Returns:
         The content of the copy_edited.md file.
-        
+
     Raises:
         FileNotFoundError: If the sample review file doesn't exist.
     """
     project_root = get_project_root()
     sample_file = project_root / "sample_reviews" / "copy_edited.md"
-    
+
     if not sample_file.exists():
         raise FileNotFoundError(f"Sample review file not found: {sample_file}")
-    
+
     return sample_file.read_text(encoding="utf-8")
 
 
 def write_evaluation_to_jsonl(scorecard: ReviewScorecard, output_path: Path) -> None:
     """Write the evaluation results to a JSONL file.
-    
+
     Args:
         scorecard: The ReviewScorecard object containing evaluation results.
         output_path: Path to the output JSONL file.
     """
     # Create the directory if it doesn't exist
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Convert the ReviewScorecard to dict and write to JSONL
     with output_path.open("w", encoding="utf-8") as f:
         # Write the full ReviewScorecard object as one JSON line
         scorecard_dict = scorecard.model_dump()
         f.write(json.dumps(scorecard_dict, ensure_ascii=False) + "\n")
-    
+
     logger.debug("Wrote evaluation results to JSONL file: {}", output_path)
 
 
 def create_metrics_table(scorecard: ReviewScorecard) -> Table:
     """Create a rich table displaying the evaluation metrics.
-    
+
     Args:
         scorecard: The ReviewScorecard object containing evaluation results.
-        
+
     Returns:
         A rich Table object formatted for display.
     """
     # Create the main table
     table = Table(
-        title=f"📊 Review Quality Evaluation (Overall: {scorecard.overall}/100 - {scorecard.verdict.title()})",
+        title=(
+            f"📊 Review Quality Evaluation "
+            f"(Overall: {scorecard.overall}/100 - {scorecard.verdict.title()})"
+        ),
         box=box.ROUNDED,
         show_header=True,
         header_style="bold magenta",
         title_style="bold blue",
-        expand=True
+        expand=True,
     )
-    
+
     # Add columns
     table.add_column("Metric", style="bold cyan", width=20)
     table.add_column("Score", style="bold white", justify="center", width=8)
     table.add_column("Rationale", style="white", width=50)
     table.add_column("Suggestion", style="bold yellow", width=40)
-    
+
     # Define weights for display
     weights = {
         "OutcomeOverActivity": "25%",
-        "QuantitativeSpecificity": "25%", 
+        "QuantitativeSpecificity": "25%",
         "ClarityCoherence": "15%",
         "Conciseness": "15%",
         "OwnershipLeadership": "10%",
-        "Collaboration": "10%"
+        "Collaboration": "10%",
     }
-    
+
     # Color coding based on score ranges
     def get_score_color(score: int) -> str:
         if score >= 85:
@@ -125,54 +126,49 @@ def create_metrics_table(scorecard: ReviewScorecard) -> Table:
             return "yellow"
         else:
             return "red"
-    
+
     # Add rows for each metric
     for metric in scorecard.metrics:
         weight = weights.get(metric.name, "")
         metric_name = f"{metric.name}\n({weight})"
-        
+
         score_color = get_score_color(metric.score)
         score_text = Text(f"{metric.score}/100", style=score_color)
-        
+
         # Add the row
-        table.add_row(
-            metric_name,
-            score_text,
-            metric.rationale,
-            metric.suggestion
-        )
-    
+        table.add_row(metric_name, score_text, metric.rationale, metric.suggestion)
+
     return table
 
 
 def create_summary_panel(scorecard: ReviewScorecard) -> Panel:
     """Create a summary panel with overall evaluation statistics.
-    
+
     Args:
         scorecard: The ReviewScorecard object containing evaluation results.
-        
+
     Returns:
         A rich Panel object with summary statistics.
     """
     # Verdict styling
     verdict_colors = {
         "excellent": "bright_green",
-        "strong": "green", 
+        "strong": "green",
         "mixed": "yellow",
-        "weak": "red"
+        "weak": "red",
     }
     verdict_color = verdict_colors.get(scorecard.verdict, "white")
-    
+
     # Calculate score statistics
     scores = [metric.score for metric in scorecard.metrics]
     avg_score = sum(scores) / len(scores)
     max_score = max(scores)
     min_score = min(scores)
-    
+
     # Find best and worst performing metrics
     best_metric = max(scorecard.metrics, key=lambda m: m.score)
     worst_metric = min(scorecard.metrics, key=lambda m: m.score)
-    
+
     # Format the summary text
     summary_lines = [
         f"🎯 Overall Score: {scorecard.overall}/100",
@@ -183,27 +179,27 @@ def create_summary_panel(scorecard: ReviewScorecard) -> Panel:
         "",
         f"🏷️  Quality Flags: {len(scorecard.notes)} detected",
     ]
-    
+
     # Add flags if any
     if scorecard.notes:
         summary_lines.append("   • " + ", ".join(scorecard.notes))
     else:
         summary_lines.append("   • No quality issues detected")
-    
+
     return Panel(
         "\n".join(summary_lines),
         title="📋 Evaluation Summary",
         style=f"dim {verdict_color}",
-        box=box.SIMPLE
+        box=box.SIMPLE,
     )
 
 
 def create_radar_chart_info(scorecard: ReviewScorecard) -> Panel:
     """Create an info panel with radar chart data.
-    
+
     Args:
         scorecard: The ReviewScorecard object containing evaluation results.
-        
+
     Returns:
         A rich Panel object with radar chart information.
     """
@@ -211,56 +207,53 @@ def create_radar_chart_info(scorecard: ReviewScorecard) -> Panel:
     radar_data = []
     for label, value in zip(scorecard.radar_labels, scorecard.radar_values):
         radar_data.append(f"  • {label}: {value}/100")
-    
+
     radar_text = "📡 Radar Chart Data (for visualization):\n\n" + "\n".join(radar_data)
-    
-    return Panel(
-        radar_text,
-        title="📈 Visualization Data",
-        style="dim blue",
-        box=box.SIMPLE
-    )
+
+    return Panel(radar_text, title="📈 Visualization Data", style="dim blue", box=box.SIMPLE)
 
 
 def main() -> None:
     """Main function that demonstrates review text evaluation."""
     console = Console()
-    
+
     try:
         # Display header
         console.print("\n")
-        console.print(Panel.fit(
-            "📊 Review Text Quality Evaluation Demo\n\n"
-            "This example loads a sample employee review and evaluates\n"
-            "its writing quality using the TextModifiers.evaluate_review_text method.",
-            title="Metamorphosis Text Processing",
-            style="bold blue"
-        ))
-        
+        console.print(
+            Panel.fit(
+                "📊 Review Text Quality Evaluation Demo\n\n"
+                "This example loads a sample employee review and evaluates\n"
+                "its writing quality using the TextModifiers.evaluate_review_text method.",
+                title="Metamorphosis Text Processing",
+                style="bold blue",
+            )
+        )
+
         # Load the sample review
         console.print("\n📖 Loading sample review from sample_reviews/copy_edited.md...")
         review_text = load_sample_review()
         console.print(f"✅ Loaded review text ({len(review_text):,} characters)")
-        
+
         # Initialize TextModifiers
         console.print("\n🤖 Initializing TextModifiers with LLM clients...")
         modifier = TextModifiers()
         console.print("✅ TextModifiers initialized successfully")
-        
+
         # Evaluate review text
         console.print("\n📊 Evaluating review text quality...")
         with console.status("[bold green]Processing with LLM..."):
             evaluation = modifier.evaluate_review_text(text=review_text)
-        
-        console.print(f"✅ Evaluation completed successfully!")
-        
+
+        console.print("✅ Evaluation completed successfully!")
+
         # Write evaluation to JSONL file
         console.print("\n📝 Writing evaluation results to JSONL file...")
         project_root = get_project_root()
         jsonl_output_path = project_root / "sample_reviews" / "text_evaluator_results.jsonl"
         write_evaluation_to_jsonl(evaluation, jsonl_output_path)
         console.print(f"✅ Saved evaluation results to: {jsonl_output_path}")
-        
+
         # Display results
         console.print("\n")
         console.print(create_summary_panel(evaluation))
@@ -268,19 +261,22 @@ def main() -> None:
         console.print(create_metrics_table(evaluation))
         console.print("\n")
         console.print(create_radar_chart_info(evaluation))
-        
+
         # Display integration notes
         console.print("\n")
-        console.print(Panel(
-            "💡 Tip: The evaluation results are returned as structured Pydantic objects\n"
-            "that can be easily integrated into HR systems or quality dashboards.\n\n"
-            "Each MetricScore contains: name, score (0-100), rationale, and suggestion.\n"
-            "The ReviewScorecard includes: metrics, overall score, verdict, notes, and radar data.\n\n"
-            f"📄 The complete evaluation data has been saved to: {jsonl_output_path.name}",
-            title="ℹ️  Integration Notes",
-            style="dim cyan"
-        ))
-        
+        console.print(
+            Panel(
+                "💡 Tip: The evaluation results are returned as structured Pydantic objects\n"
+                "that can be easily integrated into HR systems or quality dashboards.\n\n"
+                "Each MetricScore contains: name, score (0-100), rationale, and suggestion.\n"
+                "The ReviewScorecard includes: metrics, overall score, verdict, notes, "
+                "and radar data.\n\n"
+                f"📄 The complete evaluation data has been saved to: {jsonl_output_path.name}",
+                title="ℹ️  Integration Notes",
+                style="dim cyan",
+            )
+        )
+
     except FileNotFoundError as e:
         console.print(f"❌ Error: {e}", style="bold red")
         sys.exit(1)

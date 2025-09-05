@@ -41,3 +41,18 @@ include = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/metamorphosis"]
+
+[dependency-groups]
+dev = [
+    "radon>=6.0.1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

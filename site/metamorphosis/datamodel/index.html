@@ -1,0 +1,1684 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A simple example with AI Agents" name="description"/>
+<meta content="SupportVectors" name="author"/>
+<link href="https://supportvectors.ai/metamorphosis/metamorphosis/datamodel/" rel="canonical"/>
+<link href="../agents/" rel="prev"/>
+<link href="../../examples/" rel="next"/>
+<link href="../../images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.18" name="generator"/>
+<title>Data Models - SupportVectors MetaMorphosis</title>
+<link href="../../assets/stylesheets/main.7e37652d.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Lora:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Lora";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../stylesheets/supportvectors.css" rel="stylesheet"/>
+<link href="../../css/ansi-colours.css" rel="stylesheet"/>
+<link href="../../css/jupyter-cells.css" rel="stylesheet"/>
+<link href="../../css/pandas-dataframe.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="gray" data-md-color-primary="light-blue" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#data-models">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="SupportVectors MetaMorphosis" class="md-header__button md-logo" data-md-component="logo" href="../.." title="SupportVectors MetaMorphosis">
+<img alt="logo" src="../../images/overlapping_logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            SupportVectors MetaMorphosis
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Data Models
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="gray" data-md-color-media="" data-md-color-primary="light-blue" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="SupportVectors MetaMorphosis" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="SupportVectors MetaMorphosis">
+<img alt="logo" src="../../images/overlapping_logo.png"/>
+</a>
+    SupportVectors MetaMorphosis
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../architecture/">
+<span class="md-ellipsis">
+    Architecture
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Package Documentation
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            Package Documentation
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    MCP Package
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
+            MCP Package
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mcp/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mcp/TextModifiers/">
+<span class="md-ellipsis">
+    TextModifiers
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Agents Package
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            Agents Package
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../agents/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Core Modules
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            Core Modules
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Data Models
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Data Models
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel">
+<span class="md-ellipsis">
+      datamodel
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.CopyEditedText">
+<span class="md-ellipsis">
+      CopyEditedText
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.InvokeRequest">
+<span class="md-ellipsis">
+      InvokeRequest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.InvokeResponse">
+<span class="md-ellipsis">
+      InvokeResponse
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.StreamRequest">
+<span class="md-ellipsis">
+      StreamRequest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.SummarizedText">
+<span class="md-ellipsis">
+      SummarizedText
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-processing-models">
+<span class="md-ellipsis">
+      Core Processing Models
+    </span>
+</a>
+<nav aria-label="Core Processing Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#text-processing-results">
+<span class="md-ellipsis">
+      Text Processing Results
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#enumeration-types">
+<span class="md-ellipsis">
+      Enumeration Types
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#api-models">
+<span class="md-ellipsis">
+      API Models
+    </span>
+</a>
+<nav aria-label="API Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#request-models">
+<span class="md-ellipsis">
+      Request Models
+    </span>
+</a>
+<nav aria-label="Request Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invokerequest">
+<span class="md-ellipsis">
+      InvokeRequest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#streamrequest">
+<span class="md-ellipsis">
+      StreamRequest
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#response-models">
+<span class="md-ellipsis">
+      Response Models
+    </span>
+</a>
+<nav aria-label="Response Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invokeresponse">
+<span class="md-ellipsis">
+      InvokeResponse
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workflowstate">
+<span class="md-ellipsis">
+      WorkflowState
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage-examples">
+<span class="md-ellipsis">
+      Usage Examples
+    </span>
+</a>
+<nav aria-label="Usage Examples" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#processing-results">
+<span class="md-ellipsis">
+      Processing Results
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#achievement-extraction">
+<span class="md-ellipsis">
+      Achievement Extraction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quality-evaluation">
+<span class="md-ellipsis">
+      Quality Evaluation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validation-features">
+<span class="md-ellipsis">
+      Validation Features
+    </span>
+</a>
+<nav aria-label="Validation Features" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#automatic-validation">
+<span class="md-ellipsis">
+      Automatic Validation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#field-constraints">
+<span class="md-ellipsis">
+      Field Constraints
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#custom-validators">
+<span class="md-ellipsis">
+      Custom Validators
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#serialization">
+<span class="md-ellipsis">
+      Serialization
+    </span>
+</a>
+<nav aria-label="Serialization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#json-serialization">
+<span class="md-ellipsis">
+      JSON Serialization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jsonl-output">
+<span class="md-ellipsis">
+      JSONL Output
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      Configuration
+    </span>
+</a>
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-configuration">
+<span class="md-ellipsis">
+      Model Configuration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#field-documentation">
+<span class="md-ellipsis">
+      Field Documentation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing">
+<span class="md-ellipsis">
+      Testing
+    </span>
+</a>
+<nav aria-label="Testing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-validation-tests">
+<span class="md-ellipsis">
+      Model Validation Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#serialization-tests">
+<span class="md-ellipsis">
+      Serialization Tests
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#migration-guide">
+<span class="md-ellipsis">
+      Migration Guide
+    </span>
+</a>
+<nav aria-label="Migration Guide" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-v0x-to-v10">
+<span class="md-ellipsis">
+      From v0.x to v1.0
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
+      See Also
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../exceptions.md">
+<span class="md-ellipsis">
+    Exceptions
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../utilities.md">
+<span class="md-ellipsis">
+    Utilities
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../model_registry.md">
+<span class="md-ellipsis">
+    Model Registry
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Examples
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Basic Processing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_2">
+<span class="md-nav__icon md-icon"></span>
+            Basic Processing
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/summarizer_usage.md">
+<span class="md-ellipsis">
+    Summarizer Usage
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/rationalize_usage.md">
+<span class="md-ellipsis">
+    Copy Editor Usage
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Advanced Processing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
+<span class="md-nav__icon md-icon"></span>
+            Advanced Processing
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/extract_achievements_usage/">
+<span class="md-ellipsis">
+    Achievement Extraction
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/review_text_evaluator_usage.md">
+<span class="md-ellipsis">
+    Quality Evaluation
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Visualization
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_4">
+<span class="md-nav__icon md-icon"></span>
+            Visualization
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/visualize_evaluation_radar.md">
+<span class="md-ellipsis">
+    Radar Charts
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    Project Guide
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Project Guide
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+<span class="md-ellipsis">
+    Tips &amp; Tricks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_1_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_1">
+<span class="md-nav__icon md-icon"></span>
+            Tips &amp; Tricks
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../project-guide/tips-and-tricks/cuda-hell/">
+<span class="md-ellipsis">
+    CUDA Issues
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    Notebooks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            Notebooks
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../notebooks/supportvectors-common/">
+<span class="md-ellipsis">
+    Common Patterns
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel">
+<span class="md-ellipsis">
+      datamodel
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.CopyEditedText">
+<span class="md-ellipsis">
+      CopyEditedText
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.InvokeRequest">
+<span class="md-ellipsis">
+      InvokeRequest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.InvokeResponse">
+<span class="md-ellipsis">
+      InvokeResponse
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.StreamRequest">
+<span class="md-ellipsis">
+      StreamRequest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metamorphosis.datamodel.SummarizedText">
+<span class="md-ellipsis">
+      SummarizedText
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-processing-models">
+<span class="md-ellipsis">
+      Core Processing Models
+    </span>
+</a>
+<nav aria-label="Core Processing Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#text-processing-results">
+<span class="md-ellipsis">
+      Text Processing Results
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#enumeration-types">
+<span class="md-ellipsis">
+      Enumeration Types
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#api-models">
+<span class="md-ellipsis">
+      API Models
+    </span>
+</a>
+<nav aria-label="API Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#request-models">
+<span class="md-ellipsis">
+      Request Models
+    </span>
+</a>
+<nav aria-label="Request Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invokerequest">
+<span class="md-ellipsis">
+      InvokeRequest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#streamrequest">
+<span class="md-ellipsis">
+      StreamRequest
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#response-models">
+<span class="md-ellipsis">
+      Response Models
+    </span>
+</a>
+<nav aria-label="Response Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invokeresponse">
+<span class="md-ellipsis">
+      InvokeResponse
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workflowstate">
+<span class="md-ellipsis">
+      WorkflowState
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage-examples">
+<span class="md-ellipsis">
+      Usage Examples
+    </span>
+</a>
+<nav aria-label="Usage Examples" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#processing-results">
+<span class="md-ellipsis">
+      Processing Results
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#achievement-extraction">
+<span class="md-ellipsis">
+      Achievement Extraction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quality-evaluation">
+<span class="md-ellipsis">
+      Quality Evaluation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validation-features">
+<span class="md-ellipsis">
+      Validation Features
+    </span>
+</a>
+<nav aria-label="Validation Features" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#automatic-validation">
+<span class="md-ellipsis">
+      Automatic Validation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#field-constraints">
+<span class="md-ellipsis">
+      Field Constraints
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#custom-validators">
+<span class="md-ellipsis">
+      Custom Validators
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#serialization">
+<span class="md-ellipsis">
+      Serialization
+    </span>
+</a>
+<nav aria-label="Serialization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#json-serialization">
+<span class="md-ellipsis">
+      JSON Serialization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jsonl-output">
+<span class="md-ellipsis">
+      JSONL Output
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      Configuration
+    </span>
+</a>
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-configuration">
+<span class="md-ellipsis">
+      Model Configuration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#field-documentation">
+<span class="md-ellipsis">
+      Field Documentation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing">
+<span class="md-ellipsis">
+      Testing
+    </span>
+</a>
+<nav aria-label="Testing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-validation-tests">
+<span class="md-ellipsis">
+      Model Validation Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#serialization-tests">
+<span class="md-ellipsis">
+      Serialization Tests
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#migration-guide">
+<span class="md-ellipsis">
+      Migration Guide
+    </span>
+</a>
+<nav aria-label="Migration Guide" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-v0x-to-v10">
+<span class="md-ellipsis">
+      From v0.x to v1.0
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
+      See Also
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="data-models">Data Models<a class="headerlink" href="#data-models" title="Permanent link">¶</a></h1>
+<div class="doc doc-object doc-module">
+<a id="metamorphosis.datamodel"></a>
+<div class="doc doc-contents first">
+<div class="doc doc-children">
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="metamorphosis.datamodel.CopyEditedText">
+<code>CopyEditedText</code>
+<a class="headerlink" href="#metamorphosis.datamodel.CopyEditedText" title="Permanent link">¶</a></h2>
+<div class="doc doc-contents">
+<p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+<p>Rationalized text with typos and grammar errors corrected.</p>
+<details class="quote">
+<summary>Source code in <code>src/metamorphosis/datamodel.py</code></summary>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CopyEditedText</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Rationalized text with typos and grammar errors corrected."""</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span>
+    <span class="n">copy_edited_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The lightly normalized and corrected text"</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The size of the copy-edited text in tokens"</span><span class="p">)</span>
+    <span class="n">is_edited</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Whether the text was edited"</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</details>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="metamorphosis.datamodel.InvokeRequest">
+<code>InvokeRequest</code>
+<a class="headerlink" href="#metamorphosis.datamodel.InvokeRequest" title="Permanent link">¶</a></h2>
+<div class="doc doc-contents">
+<p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+<p>Request model for synchronous self-review processing (/invoke).</p>
+<details class="quote">
+<summary>Source code in <code>src/metamorphosis/datamodel.py</code></summary>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InvokeRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Request model for synchronous self-review processing (/invoke)."""</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span>
+
+    <span class="n">review_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"The review text to process through the LangGraph"</span><span class="p">,</span>
+        <span class="n">example</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"I had an eventful cycle this summer. Learnt agentic workflows and implemented a "</span>
+            <span class="s2">"self-reviewer agent for the periodic employee self-review process. It significantly "</span>
+            <span class="s2">"improved employee productivity for the organization."</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">thread_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"Optional thread ID for state persistence. If not provided, a new UUID will be generated."</span>
+        <span class="p">),</span>
+        <span class="n">example</span><span class="o">=</span><span class="s2">"thread_123"</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</details>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="metamorphosis.datamodel.InvokeResponse">
+<code>InvokeResponse</code>
+<a class="headerlink" href="#metamorphosis.datamodel.InvokeResponse" title="Permanent link">¶</a></h2>
+<div class="doc doc-contents">
+<p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+<p>Response model for synchronous self-review processing results.</p>
+<details class="quote">
+<summary>Source code in <code>src/metamorphosis/datamodel.py</code></summary>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InvokeResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Response model for synchronous self-review processing results."""</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span>
+
+    <span class="n">original_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The original review text"</span><span class="p">)</span>
+    <span class="n">copy_edited_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The copy-edited text"</span><span class="p">)</span>
+    <span class="n">summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The summary of the copy-edited text"</span><span class="p">)</span>
+    <span class="n">word_cloud_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The path to the word cloud image"</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</details>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="metamorphosis.datamodel.StreamRequest">
+<code>StreamRequest</code>
+<a class="headerlink" href="#metamorphosis.datamodel.StreamRequest" title="Permanent link">¶</a></h2>
+<div class="doc doc-contents">
+<p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+<p>Request model for streaming self-review processing via SSE (/stream).</p>
+<details class="quote">
+<summary>Source code in <code>src/metamorphosis/datamodel.py</code></summary>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">StreamRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Request model for streaming self-review processing via SSE (/stream)."""</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span>
+
+    <span class="n">review_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The review text to process through the LangGraph"</span>
+    <span class="p">)</span>
+    <span class="n">thread_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Unique identifier for the conversation thread"</span>
+    <span class="p">)</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="s2">"values"</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">"^(values|updates)$"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"Streaming mode - 'updates' for state changes only, 'values' for full state each step"</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</details>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="metamorphosis.datamodel.SummarizedText">
+<code>SummarizedText</code>
+<a class="headerlink" href="#metamorphosis.datamodel.SummarizedText" title="Permanent link">¶</a></h2>
+<div class="doc doc-contents">
+<p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+<p>Structured summary output returned by summarization routines.</p>
+<details class="quote">
+<summary>Source code in <code>src/metamorphosis/datamodel.py</code></summary>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SummarizedText</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Structured summary output returned by summarization routines."""</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span>
+    <span class="n">summarized_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The generated abstractive summary text"</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The size of the summary in tokens"</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</details>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The <code>metamorphosis.datamodel</code> module provides comprehensive Pydantic data models for type-safe handling of text processing inputs, outputs, and workflow state. All models implement strict validation, serialization, and provide rich metadata for debugging and monitoring.</p>
+<h2 id="core-processing-models">Core Processing Models<a class="headerlink" href="#core-processing-models" title="Permanent link">¶</a></h2>
+<h3 id="text-processing-results">Text Processing Results<a class="headerlink" href="#text-processing-results" title="Permanent link">¶</a></h3>
+<div class="mermaid">classDiagram
+    class SummarizedText {
+        +summarized_text: str
+        +size: int
+        +unit: str
+        +model_config: ConfigDict
+    }
+
+    class CopyEditedText {
+        +copy_edited_text: str
+        +size: int
+        +is_edited: bool
+        +model_config: ConfigDict
+    }
+
+    class Achievement {
+        +title: str
+        +outcome: str
+        +impact_area: ImpactArea
+        +metric_strings: List[str]
+        +timeframe: Optional[str]
+        +ownership_scope: Optional[OwnershipScope]
+        +collaborators: List[str]
+    }
+
+    class AchievementsList {
+        +items: List[Achievement]
+        +size: int
+        +unit: str
+    }
+
+    class MetricScore {
+        +name: str
+        +score: int
+        +rationale: str
+        +suggestion: str
+    }
+
+    class ReviewScorecard {
+        +metrics: List[MetricScore]
+        +overall: int
+        +verdict: Verdict
+        +notes: List[str]
+        +radar_labels: List[str]
+        +radar_values: List[int]
+    }
+
+    AchievementsList --&gt; Achievement : contains
+    ReviewScorecard --&gt; MetricScore : contains
+</div>
+<h3 id="enumeration-types">Enumeration Types<a class="headerlink" href="#enumeration-types" title="Permanent link">¶</a></h3>
+<div class="mermaid">classDiagram
+    class ImpactArea {
+        &lt;<enumeration>&gt;
+        reliability
+        performance
+        security
+        cost_efficiency
+        user_experience
+        developer_productivity
+        scalability
+        innovation
+        compliance
+        operational_excellence
+        business_growth
+        technical_debt
+        other
+    }
+
+    class OwnershipScope {
+        &lt;<enumeration>&gt;
+        IC
+        TechLead
+        Manager
+        Director
+        VP
+        Org_wide
+        Cross_functional
+        other
+    }
+
+    class Verdict {
+        &lt;<enumeration>&gt;
+        excellent
+        strong
+        mixed
+        weak
+    }
+
+    Achievement --&gt; ImpactArea
+    Achievement --&gt; OwnershipScope
+    ReviewScorecard --&gt; Verdict
+</enumeration></enumeration></enumeration></div>
+<h2 id="api-models">API Models<a class="headerlink" href="#api-models" title="Permanent link">¶</a></h2>
+<h3 id="request-models">Request Models<a class="headerlink" href="#request-models" title="Permanent link">¶</a></h3>
+<h4 id="invokerequest">InvokeRequest<a class="headerlink" href="#invokerequest" title="Permanent link">¶</a></h4>
+<p>Used for synchronous workflow execution via the <code>/invoke</code> endpoint.</p>
+<h4 id="streamrequest">StreamRequest<a class="headerlink" href="#streamrequest" title="Permanent link">¶</a></h4>
+<p>Used for asynchronous streaming workflow execution via the <code>/stream</code> endpoint.</p>
+<h3 id="response-models">Response Models<a class="headerlink" href="#response-models" title="Permanent link">¶</a></h3>
+<h4 id="invokeresponse">InvokeResponse<a class="headerlink" href="#invokeresponse" title="Permanent link">¶</a></h4>
+<p>Structured response for synchronous processing results.</p>
+<h4 id="workflowstate">WorkflowState<a class="headerlink" href="#workflowstate" title="Permanent link">¶</a></h4>
+<p>Internal state management for LangGraph workflows.</p>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">¶</a></h2>
+<h3 id="processing-results">Processing Results<a class="headerlink" href="#processing-results" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.datamodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SummarizedText</span><span class="p">,</span> <span class="n">CopyEditedText</span>
+
+<span class="c1"># Create a summary result</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="p">(</span>
+    <span class="n">summarized_text</span><span class="o">=</span><span class="s2">"Concise summary of the review..."</span><span class="p">,</span>
+    <span class="n">size</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+    <span class="n">unit</span><span class="o">=</span><span class="s2">"tokens"</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a copy editing result</span>
+<span class="n">edited</span> <span class="o">=</span> <span class="n">CopyEditedText</span><span class="p">(</span>
+    <span class="n">copy_edited_text</span><span class="o">=</span><span class="s2">"Professionally edited text..."</span><span class="p">,</span>
+    <span class="n">size</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">is_edited</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Access validated data</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Summary: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">summarized_text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tokens: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Was edited: </span><span class="si">{</span><span class="n">edited</span><span class="o">.</span><span class="n">is_edited</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="achievement-extraction">Achievement Extraction<a class="headerlink" href="#achievement-extraction" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.datamodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Achievement</span><span class="p">,</span> <span class="n">AchievementsList</span><span class="p">,</span> <span class="n">ImpactArea</span>
+
+<span class="c1"># Create an achievement</span>
+<span class="n">achievement</span> <span class="o">=</span> <span class="n">Achievement</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Reduced checkout latency"</span><span class="p">,</span>
+    <span class="n">outcome</span><span class="o">=</span><span class="s2">"Improved p95 latency from 480ms to 190ms through cache optimization"</span><span class="p">,</span>
+    <span class="n">impact_area</span><span class="o">=</span><span class="n">ImpactArea</span><span class="o">.</span><span class="n">performance</span><span class="p">,</span>
+    <span class="n">metric_strings</span><span class="o">=</span><span class="p">[</span><span class="s2">"480ms"</span><span class="p">,</span> <span class="s2">"190ms"</span><span class="p">],</span>
+    <span class="n">timeframe</span><span class="o">=</span><span class="s2">"H1 2025"</span><span class="p">,</span>
+    <span class="n">ownership_scope</span><span class="o">=</span><span class="n">OwnershipScope</span><span class="o">.</span><span class="n">TechLead</span><span class="p">,</span>
+    <span class="n">collaborators</span><span class="o">=</span><span class="p">[</span><span class="s2">"Payments team"</span><span class="p">,</span> <span class="s2">"SRE team"</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Create achievements list</span>
+<span class="n">achievements</span> <span class="o">=</span> <span class="n">AchievementsList</span><span class="p">(</span>
+    <span class="n">items</span><span class="o">=</span><span class="p">[</span><span class="n">achievement</span><span class="p">],</span>
+    <span class="n">size</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+    <span class="n">unit</span><span class="o">=</span><span class="s2">"tokens"</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="quality-evaluation">Quality Evaluation<a class="headerlink" href="#quality-evaluation" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.datamodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricScore</span><span class="p">,</span> <span class="n">ReviewScorecard</span><span class="p">,</span> <span class="n">Verdict</span>
+
+<span class="c1"># Create metric scores</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MetricScore</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"OutcomeOverActivity"</span><span class="p">,</span>
+        <span class="n">score</span><span class="o">=</span><span class="mi">85</span><span class="p">,</span>
+        <span class="n">rationale</span><span class="o">=</span><span class="s2">"Strong focus on concrete outcomes"</span><span class="p">,</span>
+        <span class="n">suggestion</span><span class="o">=</span><span class="s2">"Continue emphasizing results"</span>
+    <span class="p">),</span>
+    <span class="n">MetricScore</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"QuantitativeSpecificity"</span><span class="p">,</span>
+        <span class="n">score</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+        <span class="n">rationale</span><span class="o">=</span><span class="s2">"Excellent use of specific metrics"</span><span class="p">,</span>
+        <span class="n">suggestion</span><span class="o">=</span><span class="s2">"Maintain this level of detail"</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># Create scorecard</span>
+<span class="n">scorecard</span> <span class="o">=</span> <span class="n">ReviewScorecard</span><span class="p">(</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">,</span>
+    <span class="n">overall</span><span class="o">=</span><span class="mi">87</span><span class="p">,</span>
+    <span class="n">verdict</span><span class="o">=</span><span class="n">Verdict</span><span class="o">.</span><span class="n">excellent</span><span class="p">,</span>
+    <span class="n">notes</span><span class="o">=</span><span class="p">[</span><span class="s2">"strong_metrics"</span><span class="p">,</span> <span class="s2">"clear_outcomes"</span><span class="p">],</span>
+    <span class="n">radar_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"OutcomeOverActivity"</span><span class="p">,</span> <span class="s2">"QuantitativeSpecificity"</span><span class="p">],</span>
+    <span class="n">radar_values</span><span class="o">=</span><span class="p">[</span><span class="mi">85</span><span class="p">,</span> <span class="mi">90</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="validation-features">Validation Features<a class="headerlink" href="#validation-features" title="Permanent link">¶</a></h2>
+<h3 id="automatic-validation">Automatic Validation<a class="headerlink" href="#automatic-validation" title="Permanent link">¶</a></h3>
+<p>All models use Pydantic's automatic validation:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># This will fail validation</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="p">(</span>
+        <span class="n">summarized_text</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>  <span class="c1"># Empty string not allowed</span>
+        <span class="n">size</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Negative size not allowed</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">""</span>  <span class="c1"># Empty unit not allowed</span>
+    <span class="p">)</span>
+<span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Validation errors: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="field-constraints">Field Constraints<a class="headerlink" href="#field-constraints" title="Permanent link">¶</a></h3>
+<p>Models implement comprehensive field constraints:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Achievement</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+    <span class="n">outcome</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+    <span class="n">metric_strings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="c1"># ... additional constraints</span>
+</code></pre></div>
+<h3 id="custom-validators">Custom Validators<a class="headerlink" href="#custom-validators" title="Permanent link">¶</a></h3>
+<p>Some models include custom validation logic:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"overall"</span><span class="p">)</span>
+<span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_overall_score</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Overall score must be between 0 and 100"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">v</span>
+</code></pre></div>
+<h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">¶</a></h2>
+<h3 id="json-serialization">JSON Serialization<a class="headerlink" href="#json-serialization" title="Permanent link">¶</a></h3>
+<p>All models support JSON serialization:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Serialize to JSON</span>
+<span class="n">json_data</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+<span class="n">json_string</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">()</span>
+
+<span class="c1"># Deserialize from JSON</span>
+<span class="n">summary_restored</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+<span class="n">summary_from_string</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="jsonl-output">JSONL Output<a class="headerlink" href="#jsonl-output" title="Permanent link">¶</a></h3>
+<p>Models work seamlessly with JSONL format:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="c1"># Write to JSONL</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"results.jsonl"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">processing_results</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Read from JSONL</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"results.jsonl"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<h3 id="model-configuration">Model Configuration<a class="headerlink" href="#model-configuration" title="Permanent link">¶</a></h3>
+<p>All models use strict configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
+    <span class="n">str_strip_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Auto-strip whitespace</span>
+    <span class="n">validate_assignment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>   <span class="c1"># Validate on assignment</span>
+    <span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">,</span>            <span class="c1"># Forbid extra fields</span>
+    <span class="n">frozen</span><span class="o">=</span><span class="kc">False</span>               <span class="c1"># Allow field modification</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="field-documentation">Field Documentation<a class="headerlink" href="#field-documentation" title="Permanent link">¶</a></h3>
+<p>Models include comprehensive field documentation:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SummarizedText</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">summarized_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"The generated summary text"</span><span class="p">,</span>
+        <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Estimated token count of the summary"</span><span class="p">,</span>
+        <span class="n">ge</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">¶</a></h2>
+<h3 id="model-validation-tests">Model Validation Tests<a class="headerlink" href="#model-validation-tests" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.datamodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SummarizedText</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_summarized_text_validation</span><span class="p">():</span>
+    <span class="c1"># Valid data</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="p">(</span>
+        <span class="n">summarized_text</span><span class="o">=</span><span class="s2">"Valid summary"</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">"tokens"</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">summary</span><span class="o">.</span><span class="n">summarized_text</span> <span class="o">==</span> <span class="s2">"Valid summary"</span>
+
+    <span class="c1"># Invalid data</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ValidationError</span><span class="p">):</span>
+        <span class="n">SummarizedText</span><span class="p">(</span>
+            <span class="n">summarized_text</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>  <span class="c1"># Empty string</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="s2">"tokens"</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="serialization-tests">Serialization Tests<a class="headerlink" href="#serialization-tests" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_json_serialization</span><span class="p">():</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="p">(</span>
+        <span class="n">summarized_text</span><span class="o">=</span><span class="s2">"Test summary"</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">"tokens"</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Round-trip serialization</span>
+    <span class="n">json_data</span> <span class="o">=</span> <span class="n">original</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+    <span class="n">restored</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">original</span> <span class="o">==</span> <span class="n">restored</span>
+</code></pre></div>
+<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">¶</a></h2>
+<h3 id="from-v0x-to-v10">From v0.x to v1.0<a class="headerlink" href="#from-v0x-to-v10" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p><strong>Update import statements</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Old</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Summary</span><span class="p">,</span> <span class="n">EditResult</span>
+
+<span class="c1"># New</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.datamodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SummarizedText</span><span class="p">,</span> <span class="n">CopyEditedText</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Update field names</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Old</span>
+<span class="n">result</span><span class="o">.</span><span class="n">summary_text</span>
+<span class="n">result</span><span class="o">.</span><span class="n">token_count</span>
+
+<span class="c1"># New</span>
+<span class="n">result</span><span class="o">.</span><span class="n">summarized_text</span>
+<span class="n">result</span><span class="o">.</span><span class="n">size</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Handle new validation</strong>:
+   <div class="highlight"><pre><span></span><code><span class="c1"># Add proper error handling for validation</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">SummarizedText</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="c1"># Handle validation errors</span>
+    <span class="k">pass</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../mcp/">MCP Package</a> - Text processing utilities that use these models</li>
+<li><a href="../agents/">Agents Package</a> - Workflow orchestration with state management</li>
+<li><a href="../../examples/">Examples</a> - Usage examples with real data</li>
+<li><a href="https://docs.pydantic.dev/">Pydantic Documentation</a> - Underlying validation framework</li>
+</ul>
+<hr/>
+<p><em>This documentation is automatically generated from the source code and maintained in sync with the model definitions.</em></p>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+<script src="../../javascripts/mathjax.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+mermaid.initialize({});</script></body>
+</html>

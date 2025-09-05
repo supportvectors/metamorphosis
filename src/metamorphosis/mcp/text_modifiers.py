@@ -16,16 +16,21 @@ from pydantic import Field, validate_call
 from dotenv import load_dotenv
 from loguru import logger
 
-load_dotenv()
-
-# Import custom exceptions and utilities
 from metamorphosis.exceptions import (
     PostconditionError,
     raise_postcondition_error,
 )
 from metamorphosis.utilities import read_text_file, get_project_root
-from metamorphosis.datamodel import SummarizedText, CopyEditedText, AchievementsList, ReviewScorecard
+from metamorphosis.datamodel import (
+    SummarizedText,
+    CopyEditedText,
+    AchievementsList,
+    ReviewScorecard,
+)
 from metamorphosis import get_model_registry
+
+load_dotenv()
+
 
 class TextModifiers:
     """LLM-backed text processing utilities with structured outputs.
@@ -62,17 +67,28 @@ class TextModifiers:
         # Load as-is; no VOICE placeholder expected in the template
         self.summarizer_system_prompt = read_text_file(prompts_dir / "summarizer_system_prompt.md")
         self.summarizer_user_prompt = read_text_file(prompts_dir / "summarizer_user_prompt.md")
-        
-        self.key_achievements_system_prompt = read_text_file(prompts_dir / "key_achievements_system_prompt.md")
-        self.key_achievements_user_prompt = read_text_file(prompts_dir / "key_achievements_user_prompt.md")
-        
-        self.text_rationalization_system_prompt = read_text_file(prompts_dir / "text_rationalization_system_prompt.md")
-        self.text_rationalization_user_prompt = read_text_file(prompts_dir / "text_rationalization_user_prompt.md")
-        
-        self.text_evaluator_system_prompt = read_text_file(prompts_dir / "text_evaluator_system_prompt.md")
-        self.text_evaluator_user_prompt = read_text_file(prompts_dir / "text_evaluator_user_prompt.md")
-        
-     
+
+        self.key_achievements_system_prompt = read_text_file(
+            prompts_dir / "key_achievements_system_prompt.md"
+        )
+        self.key_achievements_user_prompt = read_text_file(
+            prompts_dir / "key_achievements_user_prompt.md"
+        )
+
+        self.text_rationalization_system_prompt = read_text_file(
+            prompts_dir / "text_rationalization_system_prompt.md"
+        )
+        self.text_rationalization_user_prompt = read_text_file(
+            prompts_dir / "text_rationalization_user_prompt.md"
+        )
+
+        self.text_evaluator_system_prompt = read_text_file(
+            prompts_dir / "text_evaluator_system_prompt.md"
+        )
+        self.text_evaluator_user_prompt = read_text_file(
+            prompts_dir / "text_evaluator_user_prompt.md"
+        )
+
         # Compose prompts with input placeholders for clarity.
 
         logger.debug("TextModifiers initialized successfully")
@@ -99,10 +115,10 @@ class TextModifiers:
         logger.debug("summarize: processing text (length={}, max_words={})", len(text), max_words)
         # Log the model details as a simple table for traceability and debugging.
         self._log_model_details_table("summarize")
-        
+
         messages = [
             ("system", self.summarizer_system_prompt),
-            ("user",self.summarizer_user_prompt.format(review=text)),
+            ("user", self.summarizer_user_prompt.format(review=text)),
         ]
         prompt = ChatPromptTemplate.from_messages(messages)
         logger.debug("summarizer_llm: {}", self.summarizer_llm)
@@ -113,25 +129,27 @@ class TextModifiers:
         except Exception as e:
             logger.error("summarize: LLM invocation failed - {}", str(e))
             raise PostconditionError(
-                "Summarization LLM invocation failed",
-                operation="summarize_llm_invocation"
+                "Summarization LLM invocation failed", operation="summarize_llm_invocation"
             ) from e
 
         # Postcondition (O(1)): ensure structured output is valid
         if not isinstance(result, SummarizedText) or not result.summarized_text:
             raise_postcondition_error(
                 "Summarization output validation failed",
-                context={"result_type": type(result).__name__, "has_text": bool(getattr(result, 'summarized_text', None))},
-                operation="summarize_validation"
+                context={
+                    "result_type": type(result).__name__,
+                    "has_text": bool(getattr(result, "summarized_text", None)),
+                },
+                operation="summarize_validation",
             )
 
-        logger.debug("summarize: completed successfully (output_length={})", len(result.summarized_text))
+        logger.debug(
+            "summarize: completed successfully (output_length={})", len(result.summarized_text)
+        )
         return result
 
     @validate_call
-    def rationalize_text(
-        self, *, text: Annotated[str, Field(min_length=1)]
-    ) -> CopyEditedText:
+    def rationalize_text(self, *, text: Annotated[str, Field(min_length=1)]) -> CopyEditedText:
         """Rationalize text by correcting grammar, spelling, and formatting errors.
 
         This method performs text rationalization using an LLM-based copy editor that makes
@@ -162,7 +180,7 @@ class TextModifiers:
         - Normalizes product/tool names for consistency
         - Standardizes punctuation and spacing around units and symbols
         - Removes casual interjections while preserving meaning
-        - Corrects double negatives in reduction statements (e.g., "reduced by -38%" → "reduced by 38%")
+        - Corrects double negatives in reduction statements (e.g., "reduced by -38%" → "reduced by 38%")  # noqa: E501
 
         Args:
             text: The input text to rationalize. Must be non-empty string containing
@@ -209,10 +227,10 @@ class TextModifiers:
             ("user", self.text_rationalization_user_prompt.format(EMPLOYEE_REVIEW_TEXT=text)),
         ]
         prompt = ChatPromptTemplate.from_messages(messages)
-        
+
         # Create the rationalization chain with structured output
         rationalizer = prompt | self.copy_editor_llm.with_structured_output(CopyEditedText)
-        
+
         # Invoke the chain with exception handling
         try:
             result = rationalizer.invoke({})
@@ -220,19 +238,25 @@ class TextModifiers:
             logger.error("rationalize_text: LLM invocation failed - {}", str(e))
             raise PostconditionError(
                 "Text rationalization LLM invocation failed",
-                operation="rationalize_text_llm_invocation"
+                operation="rationalize_text_llm_invocation",
             ) from e
 
         # Postcondition (O(1)): ensure structured output is valid
         if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
             raise_postcondition_error(
                 "Text rationalization output validation failed",
-                context={"result_type": type(result).__name__, "has_text": bool(getattr(result, 'copy_edited_text', None))},
-                operation="rationalize_text_validation"
+                context={
+                    "result_type": type(result).__name__,
+                    "has_text": bool(getattr(result, "copy_edited_text", None)),
+                },
+                operation="rationalize_text_validation",
             )
 
-        logger.debug("rationalize_text: completed successfully (output_length={}, edited={})", 
-                    len(result.copy_edited_text), result.is_edited)
+        logger.debug(
+            "rationalize_text: completed successfully (output_length={}, edited={})",
+            len(result.copy_edited_text),
+            result.is_edited,
+        )
         return result
 
     # =========================================================================
@@ -243,7 +267,7 @@ class TextModifiers:
     ) -> AchievementsList:
         """Extract key achievements from employee self-review text.
 
-        This method analyzes employee self-review text and extracts up to 5 key achievements
+        This method analyzes employee self-review text and extracts up to 10 key achievements
         with structured metadata including impact areas, metrics, timeframes, and
         collaboration details. The extraction focuses on identifying concrete outcomes
         and business impact rather than activities or tasks.
@@ -270,7 +294,7 @@ class TextModifiers:
         - No invented metrics, dates, or collaborators - only explicit information
         - Numbers and units copied exactly as they appear in the review
         - Achievements are deduplicated and ranked by impact
-        - Maximum of 5 achievements returned, fewer if insufficient quality achievements exist
+        - Maximum of 10 achievements returned, fewer if insufficient quality achievements exist
 
         Args:
             text: The employee self-review text to analyze. Must be non-empty string
@@ -280,7 +304,7 @@ class TextModifiers:
 
         Returns:
             AchievementsList: A structured response containing:
-                - items: List of up to 5 Achievement objects ranked by impact
+                - items: List of up to 10 Achievement objects ranked by impact
                 - size: Token estimate of concatenated titles and outcomes
                 - unit: Always "tokens"
 
@@ -320,10 +344,10 @@ class TextModifiers:
             ("user", self.key_achievements_user_prompt.format(EMPLOYEE_REVIEW_TEXT=text)),
         ]
         prompt = ChatPromptTemplate.from_messages(messages)
-        
+
         # Create the achievement extraction chain with structured output
         extractor = prompt | self.key_achievements_llm.with_structured_output(AchievementsList)
-        
+
         # Invoke the chain with exception handling
         try:
             result = extractor.invoke({})
@@ -331,27 +355,31 @@ class TextModifiers:
             logger.error("extract_achievements: LLM invocation failed - {}", str(e))
             raise PostconditionError(
                 "Achievement extraction LLM invocation failed",
-                operation="extract_achievements_llm_invocation"
+                operation="extract_achievements_llm_invocation",
             ) from e
 
         # Postcondition (O(1)): ensure structured output is valid
         if not isinstance(result, AchievementsList):
             raise_postcondition_error(
                 "Achievement extraction output validation failed",
-                context={"result_type": type(result).__name__, "has_items": bool(getattr(result, 'items', None))},
-                operation="extract_achievements_validation"
+                context={
+                    "result_type": type(result).__name__,
+                    "has_items": bool(getattr(result, "items", None)),
+                },
+                operation="extract_achievements_validation",
             )
 
-        logger.debug("extract_achievements: completed successfully (items_count={}, total_size={})", 
-                    len(result.items), result.size)
+        logger.debug(
+            "extract_achievements: completed successfully (items_count={}, total_size={})",
+            len(result.items),
+            result.size,
+        )
         return result
 
     # =========================================================================
 
     @validate_call
-    def evaluate_review_text(
-        self, *, text: Annotated[str, Field(min_length=1)]
-    ) -> ReviewScorecard:
+    def evaluate_review_text(self, *, text: Annotated[str, Field(min_length=1)]) -> ReviewScorecard:
         """Evaluate the writing quality of employee self-review text.
 
         This method analyzes employee self-review text and provides a comprehensive
@@ -429,10 +457,10 @@ class TextModifiers:
             ("user", self.text_evaluator_user_prompt.format(EMPLOYEE_REVIEW_TEXT=text)),
         ]
         prompt = ChatPromptTemplate.from_messages(messages)
-        
+
         # Create the evaluation chain with structured output
         evaluator = prompt | self.review_text_evaluator_llm.with_structured_output(ReviewScorecard)
-        
+
         # Invoke the chain with exception handling
         try:
             result = evaluator.invoke({})
@@ -440,23 +468,30 @@ class TextModifiers:
             logger.error("evaluate_review_text: LLM invocation failed - {}", str(e))
             raise PostconditionError(
                 "Review text evaluation LLM invocation failed",
-                operation="evaluate_review_text_llm_invocation"
+                operation="evaluate_review_text_llm_invocation",
             ) from e
 
         # Postcondition (O(1)): ensure structured output is valid
-        if not isinstance(result, ReviewScorecard) or not result.metrics or len(result.metrics) != 6:
+        if (
+            not isinstance(result, ReviewScorecard)
+            or not result.metrics
+            or len(result.metrics) != 6
+        ):
             raise_postcondition_error(
                 "Review text evaluation output validation failed",
                 context={
-                    "result_type": type(result).__name__, 
-                    "has_metrics": bool(getattr(result, 'metrics', None)),
-                    "metrics_count": len(getattr(result, 'metrics', []))
+                    "result_type": type(result).__name__,
+                    "has_metrics": bool(getattr(result, "metrics", None)),
+                    "metrics_count": len(getattr(result, "metrics", [])),
                 },
-                operation="evaluate_review_text_validation"
+                operation="evaluate_review_text_validation",
             )
 
-        logger.debug("evaluate_review_text: completed successfully (overall_score={}, verdict={})", 
-                    result.overall, result.verdict)
+        logger.debug(
+            "evaluate_review_text: completed successfully (overall_score={}, verdict={})",
+            result.overall,
+            result.verdict,
+        )
         return result
 
     # =========================================================================
@@ -465,7 +500,8 @@ class TextModifiers:
         """Get model configuration information for a specific method.
 
         Args:
-            method: The method name (e.g., "summarize", "rationalize_text", "extract_achievements", "evaluate_review_text").
+            method: The method name (e.g., "summarize", "rationalize_text", 
+                "extract_achievements", "evaluate_review_text").
 
         Returns:
             Dictionary containing model configuration or None if not found.
@@ -476,11 +512,11 @@ class TextModifiers:
             "extract_achievements": self.key_achievements_llm,
             "evaluate_review_text": self.review_text_evaluator_llm,
         }
-        
+
         llm = method_to_llm.get(method)
         if not llm:
             return None
-            
+
         # Extract configuration from the LLM instance
         model_info = {
             "model": getattr(llm, "model_name", "N/A"),
@@ -488,13 +524,13 @@ class TextModifiers:
             "max_tokens": getattr(llm, "max_tokens", "N/A"),
             "timeout": getattr(llm, "request_timeout", "N/A"),
         }
-        
+
         # Add optional parameters if they exist
         for attr in ("top_p", "frequency_penalty", "presence_penalty"):
             value = getattr(llm, attr, None)
             if value is not None:
                 model_info[attr] = value
-                
+
         return model_info
 
     def _log_model_details_table(self, method: str) -> None:

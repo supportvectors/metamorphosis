@@ -81,3 +81,37 @@ extra_javascript:
 extra:
   PYTHONPATH: src
 
+# -----------------------------------------------------------------------------
+# Navigation structure
+# -----------------------------------------------------------------------------
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Package Documentation:
+    - Overview: metamorphosis/index.md
+    - MCP Package:
+      - Overview: metamorphosis/mcp/index.md
+      - TextModifiers: metamorphosis/mcp/TextModifiers.md
+    - Agents Package:
+      - Overview: metamorphosis/agents/index.md
+    - Core Modules:
+      - Data Models: metamorphosis/datamodel.md
+      - Exceptions: metamorphosis/exceptions.md
+      - Utilities: metamorphosis/utilities.md
+      - Model Registry: metamorphosis/model_registry.md
+  - Examples:
+    - Overview: examples/index.md
+    - Basic Processing:
+      - Summarizer Usage: examples/summarizer_usage.md
+      - Copy Editor Usage: examples/rationalize_usage.md
+    - Advanced Processing:
+      - Achievement Extraction: examples/extract_achievements_usage.md
+      - Quality Evaluation: examples/review_text_evaluator_usage.md
+    - Visualization:
+      - Radar Charts: examples/visualize_evaluation_radar.md
+  - Project Guide:
+    - Tips & Tricks:
+      - CUDA Issues: project-guide/tips-and-tricks/cuda-hell.md
+  - Notebooks:
+    - Common Patterns: notebooks/supportvectors-common.ipynb
+

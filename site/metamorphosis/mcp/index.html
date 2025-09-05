@@ -1,0 +1,1603 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A simple example with AI Agents" name="description"/>
+<meta content="SupportVectors" name="author"/>
+<link href="https://supportvectors.ai/metamorphosis/metamorphosis/mcp/" rel="canonical"/>
+<link href="../" rel="prev"/>
+<link href="TextModifiers/" rel="next"/>
+<link href="../../images/favicon.ico" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.18" name="generator"/>
+<title>Overview - SupportVectors MetaMorphosis</title>
+<link href="../../assets/stylesheets/main.7e37652d.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Lora:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Lora";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../stylesheets/supportvectors.css" rel="stylesheet"/>
+<link href="../../css/ansi-colours.css" rel="stylesheet"/>
+<link href="../../css/jupyter-cells.css" rel="stylesheet"/>
+<link href="../../css/pandas-dataframe.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="gray" data-md-color-primary="light-blue" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#mcp-model-context-protocol-package">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="SupportVectors MetaMorphosis" class="md-header__button md-logo" data-md-component="logo" href="../.." title="SupportVectors MetaMorphosis">
+<img alt="logo" src="../../images/overlapping_logo.png"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            SupportVectors MetaMorphosis
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Overview
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="gray" data-md-color-media="" data-md-color-primary="light-blue" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="SupportVectors MetaMorphosis" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="SupportVectors MetaMorphosis">
+<img alt="logo" src="../../images/overlapping_logo.png"/>
+</a>
+    SupportVectors MetaMorphosis
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../architecture/">
+<span class="md-ellipsis">
+    Architecture
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Package Documentation
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            Package Documentation
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    MCP Package
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
+            MCP Package
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#package-overview">
+<span class="md-ellipsis">
+      Package Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-components">
+<span class="md-ellipsis">
+      Core Components
+    </span>
+</a>
+<nav aria-label="Core Components" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#textmodifiers-class">
+<span class="md-ellipsis">
+      TextModifiers Class
+    </span>
+</a>
+<nav aria-label="TextModifiers Class" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-text-summarization">
+<span class="md-ellipsis">
+      1. Text Summarization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-text-rationalization-copy-editing">
+<span class="md-ellipsis">
+      2. Text Rationalization (Copy Editing)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-achievement-extraction">
+<span class="md-ellipsis">
+      3. Achievement Extraction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-review-quality-evaluation">
+<span class="md-ellipsis">
+      4. Review Quality Evaluation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcp-tools-server">
+<span class="md-ellipsis">
+      MCP Tools Server
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#module-documentation">
+<span class="md-ellipsis">
+      Module Documentation
+    </span>
+</a>
+<nav aria-label="Module Documentation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-modules">
+<span class="md-ellipsis">
+      Core Modules
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-classes">
+<span class="md-ellipsis">
+      Key Classes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tool-functions">
+<span class="md-ellipsis">
+      Tool Functions
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#processing-pipeline">
+<span class="md-ellipsis">
+      Processing Pipeline
+    </span>
+</a>
+<nav aria-label="Processing Pipeline" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#text-processing-flow">
+<span class="md-ellipsis">
+      Text Processing Flow
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-handling-flow">
+<span class="md-ellipsis">
+      Error Handling Flow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      Configuration
+    </span>
+</a>
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-configuration">
+<span class="md-ellipsis">
+      Model Configuration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prompt-templates">
+<span class="md-ellipsis">
+      Prompt Templates
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage-examples">
+<span class="md-ellipsis">
+      Usage Examples
+    </span>
+</a>
+<nav aria-label="Usage Examples" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#basic-text-processing">
+<span class="md-ellipsis">
+      Basic Text Processing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#achievement-extraction">
+<span class="md-ellipsis">
+      Achievement Extraction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quality-evaluation">
+<span class="md-ellipsis">
+      Quality Evaluation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcp-tool-usage">
+<span class="md-ellipsis">
+      MCP Tool Usage
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#advanced-features">
+<span class="md-ellipsis">
+      Advanced Features
+    </span>
+</a>
+<nav aria-label="Advanced Features" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-information-introspection">
+<span class="md-ellipsis">
+      Model Information Introspection
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#custom-prompt-templates">
+<span class="md-ellipsis">
+      Custom Prompt Templates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logging-and-debugging">
+<span class="md-ellipsis">
+      Logging and Debugging
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-optimization">
+<span class="md-ellipsis">
+      Performance Optimization
+    </span>
+</a>
+<nav aria-label="Performance Optimization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#caching-strategy">
+<span class="md-ellipsis">
+      Caching Strategy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token-management">
+<span class="md-ellipsis">
+      Token Management
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-recovery">
+<span class="md-ellipsis">
+      Error Recovery
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing">
+<span class="md-ellipsis">
+      Testing
+    </span>
+</a>
+<nav aria-label="Testing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#unit-tests">
+<span class="md-ellipsis">
+      Unit Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#integration-tests">
+<span class="md-ellipsis">
+      Integration Tests
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#troubleshooting">
+<span class="md-ellipsis">
+      Troubleshooting
+    </span>
+</a>
+<nav aria-label="Troubleshooting" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-issues">
+<span class="md-ellipsis">
+      Common Issues
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debug-mode">
+<span class="md-ellipsis">
+      Debug Mode
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#migration-guide">
+<span class="md-ellipsis">
+      Migration Guide
+    </span>
+</a>
+<nav aria-label="Migration Guide" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-legacy-versions">
+<span class="md-ellipsis">
+      From Legacy Versions
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
+      See Also
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="TextModifiers/">
+<span class="md-ellipsis">
+    TextModifiers
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Agents Package
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            Agents Package
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../agents/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Core Modules
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            Core Modules
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../datamodel/">
+<span class="md-ellipsis">
+    Data Models
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../exceptions.md">
+<span class="md-ellipsis">
+    Exceptions
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../utilities.md">
+<span class="md-ellipsis">
+    Utilities
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../model_registry.md">
+<span class="md-ellipsis">
+    Model Registry
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Examples
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Basic Processing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_2">
+<span class="md-nav__icon md-icon"></span>
+            Basic Processing
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/summarizer_usage.md">
+<span class="md-ellipsis">
+    Summarizer Usage
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/rationalize_usage.md">
+<span class="md-ellipsis">
+    Copy Editor Usage
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Advanced Processing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
+<span class="md-nav__icon md-icon"></span>
+            Advanced Processing
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/extract_achievements_usage/">
+<span class="md-ellipsis">
+    Achievement Extraction
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/review_text_evaluator_usage.md">
+<span class="md-ellipsis">
+    Quality Evaluation
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Visualization
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_4">
+<span class="md-nav__icon md-icon"></span>
+            Visualization
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/visualize_evaluation_radar.md">
+<span class="md-ellipsis">
+    Radar Charts
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    Project Guide
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Project Guide
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+<span class="md-ellipsis">
+    Tips &amp; Tricks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_1_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_1">
+<span class="md-nav__icon md-icon"></span>
+            Tips &amp; Tricks
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../project-guide/tips-and-tricks/cuda-hell/">
+<span class="md-ellipsis">
+    CUDA Issues
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    Notebooks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            Notebooks
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../notebooks/supportvectors-common/">
+<span class="md-ellipsis">
+    Common Patterns
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#package-overview">
+<span class="md-ellipsis">
+      Package Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-components">
+<span class="md-ellipsis">
+      Core Components
+    </span>
+</a>
+<nav aria-label="Core Components" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#textmodifiers-class">
+<span class="md-ellipsis">
+      TextModifiers Class
+    </span>
+</a>
+<nav aria-label="TextModifiers Class" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-text-summarization">
+<span class="md-ellipsis">
+      1. Text Summarization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-text-rationalization-copy-editing">
+<span class="md-ellipsis">
+      2. Text Rationalization (Copy Editing)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-achievement-extraction">
+<span class="md-ellipsis">
+      3. Achievement Extraction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-review-quality-evaluation">
+<span class="md-ellipsis">
+      4. Review Quality Evaluation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcp-tools-server">
+<span class="md-ellipsis">
+      MCP Tools Server
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#module-documentation">
+<span class="md-ellipsis">
+      Module Documentation
+    </span>
+</a>
+<nav aria-label="Module Documentation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-modules">
+<span class="md-ellipsis">
+      Core Modules
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-classes">
+<span class="md-ellipsis">
+      Key Classes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tool-functions">
+<span class="md-ellipsis">
+      Tool Functions
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#processing-pipeline">
+<span class="md-ellipsis">
+      Processing Pipeline
+    </span>
+</a>
+<nav aria-label="Processing Pipeline" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#text-processing-flow">
+<span class="md-ellipsis">
+      Text Processing Flow
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-handling-flow">
+<span class="md-ellipsis">
+      Error Handling Flow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      Configuration
+    </span>
+</a>
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-configuration">
+<span class="md-ellipsis">
+      Model Configuration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prompt-templates">
+<span class="md-ellipsis">
+      Prompt Templates
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage-examples">
+<span class="md-ellipsis">
+      Usage Examples
+    </span>
+</a>
+<nav aria-label="Usage Examples" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#basic-text-processing">
+<span class="md-ellipsis">
+      Basic Text Processing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#achievement-extraction">
+<span class="md-ellipsis">
+      Achievement Extraction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quality-evaluation">
+<span class="md-ellipsis">
+      Quality Evaluation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcp-tool-usage">
+<span class="md-ellipsis">
+      MCP Tool Usage
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#advanced-features">
+<span class="md-ellipsis">
+      Advanced Features
+    </span>
+</a>
+<nav aria-label="Advanced Features" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-information-introspection">
+<span class="md-ellipsis">
+      Model Information Introspection
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#custom-prompt-templates">
+<span class="md-ellipsis">
+      Custom Prompt Templates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logging-and-debugging">
+<span class="md-ellipsis">
+      Logging and Debugging
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-optimization">
+<span class="md-ellipsis">
+      Performance Optimization
+    </span>
+</a>
+<nav aria-label="Performance Optimization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#caching-strategy">
+<span class="md-ellipsis">
+      Caching Strategy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token-management">
+<span class="md-ellipsis">
+      Token Management
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-recovery">
+<span class="md-ellipsis">
+      Error Recovery
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing">
+<span class="md-ellipsis">
+      Testing
+    </span>
+</a>
+<nav aria-label="Testing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#unit-tests">
+<span class="md-ellipsis">
+      Unit Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#integration-tests">
+<span class="md-ellipsis">
+      Integration Tests
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#troubleshooting">
+<span class="md-ellipsis">
+      Troubleshooting
+    </span>
+</a>
+<nav aria-label="Troubleshooting" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-issues">
+<span class="md-ellipsis">
+      Common Issues
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debug-mode">
+<span class="md-ellipsis">
+      Debug Mode
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#migration-guide">
+<span class="md-ellipsis">
+      Migration Guide
+    </span>
+</a>
+<nav aria-label="Migration Guide" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-legacy-versions">
+<span class="md-ellipsis">
+      From Legacy Versions
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
+      See Also
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="mcp-model-context-protocol-package">MCP (Model Context Protocol) Package<a class="headerlink" href="#mcp-model-context-protocol-package" title="Permanent link">¶</a></h1>
+<p>The <code>metamorphosis.mcp</code> package provides Model Context Protocol integration for text processing capabilities. It implements a standardized interface for LLM-backed text utilities with type-safe structured outputs and comprehensive error handling.</p>
+<h2 id="package-overview">Package Overview<a class="headerlink" href="#package-overview" title="Permanent link">¶</a></h2>
+<div class="mermaid">classDiagram
+    class TextModifiers {
+        +summarizer_llm: ChatOpenAI
+        +copy_editor_llm: ChatOpenAI
+        +key_achievements_llm: ChatOpenAI
+        +review_text_evaluator_llm: ChatOpenAI
+        +__init__() None
+        +summarize(text: str, max_words: int) SummarizedText
+        +rationalize_text(text: str) CopyEditedText
+        +extract_achievements(text: str) AchievementsList
+        +evaluate_review_text(text: str) ReviewScorecard
+        +get_model_info(method: str) dict
+        +_log_model_details_table(method: str) None
+    }
+
+    class ToolsServer {
+        +copy_edit(text: str) CopyEditedText
+        +create_word_cloud(text: str) str
+        +abstractive_summarize(text: str, max_words: int) SummarizedText
+        +_get_modifiers() TextModifiers
+    }
+
+    class SummarizedText {
+        +summarized_text: str
+        +size: int
+        +unit: str
+    }
+
+    class CopyEditedText {
+        +copy_edited_text: str
+        +size: int
+        +is_edited: bool
+    }
+
+    class AchievementsList {
+        +items: List[Achievement]
+        +size: int
+        +unit: str
+    }
+
+    class ReviewScorecard {
+        +metrics: List[MetricScore]
+        +overall: int
+        +verdict: Verdict
+        +notes: List[str]
+        +radar_labels: List[str]
+        +radar_values: List[int]
+    }
+
+    TextModifiers --&gt; SummarizedText : creates
+    TextModifiers --&gt; CopyEditedText : creates
+    TextModifiers --&gt; AchievementsList : creates
+    TextModifiers --&gt; ReviewScorecard : creates
+    ToolsServer --&gt; TextModifiers : uses
+    ToolsServer ..&gt; SummarizedText : returns
+    ToolsServer ..&gt; CopyEditedText : returns
+</div>
+<h2 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">¶</a></h2>
+<h3 id="textmodifiers-class">TextModifiers Class<a class="headerlink" href="#textmodifiers-class" title="Permanent link">¶</a></h3>
+<p>The <code>TextModifiers</code> class is the heart of the MCP package, providing four main text processing capabilities:</p>
+<h4 id="1-text-summarization">1. Text Summarization<a class="headerlink" href="#1-text-summarization" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Generate abstractive summaries of employee review text</li>
+<li><strong>Model</strong>: Configurable LLM (default: gpt-4o)</li>
+<li><strong>Features</strong>: Configurable word limits, structured output, token estimation</li>
+</ul>
+<h4 id="2-text-rationalization-copy-editing">2. Text Rationalization (Copy Editing)<a class="headerlink" href="#2-text-rationalization-copy-editing" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Improve grammar, spelling, and professional tone</li>
+<li><strong>Features</strong>: Preserves meaning and structure, tracks modifications</li>
+<li><strong>Guarantees</strong>: No content addition/removal, maintains author voice</li>
+</ul>
+<h4 id="3-achievement-extraction">3. Achievement Extraction<a class="headerlink" href="#3-achievement-extraction" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Extract and structure key accomplishments from reviews</li>
+<li><strong>Output</strong>: Up to 10 ranked achievements with metadata</li>
+<li><strong>Metadata</strong>: Impact areas, metrics, timeframes, collaborators</li>
+</ul>
+<h4 id="4-review-quality-evaluation">4. Review Quality Evaluation<a class="headerlink" href="#4-review-quality-evaluation" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Purpose</strong>: Assess writing quality across six dimensions</li>
+<li><strong>Scoring</strong>: 0-100 scale with weighted overall score</li>
+<li><strong>Output</strong>: Detailed metrics, suggestions, radar chart data</li>
+</ul>
+<h3 id="mcp-tools-server">MCP Tools Server<a class="headerlink" href="#mcp-tools-server" title="Permanent link">¶</a></h3>
+<p>The <code>tools_server.py</code> module implements MCP-compliant tool functions that can be called by external agents and workflows:</p>
+<ul>
+<li><strong>Standardized Interface</strong>: MCP protocol compliance</li>
+<li><strong>Error Handling</strong>: Comprehensive exception management</li>
+<li><strong>Caching</strong>: LRU-cached TextModifiers instances</li>
+<li><strong>Logging</strong>: Detailed operation tracking</li>
+</ul>
+<h2 id="module-documentation">Module Documentation<a class="headerlink" href="#module-documentation" title="Permanent link">¶</a></h2>
+<h3 id="core-modules">Core Modules<a class="headerlink" href="#core-modules" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+<th>Key Components</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="TextModifiers/"><code>text_modifiers.py</code></a></td>
+<td>Main text processing class</td>
+<td><code>TextModifiers</code></td>
+</tr>
+<tr>
+<td><a href="tools_server.md"><code>tools_server.py</code></a></td>
+<td>MCP server implementation</td>
+<td>Tool functions</td>
+</tr>
+<tr>
+<td><a href="mcp_init.md"><code>__init__.py</code></a></td>
+<td>Package initialization</td>
+<td>Exports</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-classes">Key Classes<a class="headerlink" href="#key-classes" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Purpose</th>
+<th>Documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="TextModifiers/"><code>TextModifiers</code></a></td>
+<td>Core text processing utilities</td>
+<td><a href="TextModifiers/">View Details →</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="tool-functions">Tool Functions<a class="headerlink" href="#tool-functions" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+<th>Documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="copy_edit.md"><code>copy_edit</code></a></td>
+<td>MCP tool for text rationalization</td>
+<td><a href="copy_edit.md">View Details →</a></td>
+</tr>
+<tr>
+<td><a href="abstractive_summarize.md"><code>abstractive_summarize</code></a></td>
+<td>MCP tool for summarization</td>
+<td><a href="abstractive_summarize.md">View Details →</a></td>
+</tr>
+<tr>
+<td><a href="create_word_cloud.md"><code>create_word_cloud</code></a></td>
+<td>MCP tool for visualization</td>
+<td><a href="create_word_cloud.md">View Details →</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="processing-pipeline">Processing Pipeline<a class="headerlink" href="#processing-pipeline" title="Permanent link">¶</a></h2>
+<h3 id="text-processing-flow">Text Processing Flow<a class="headerlink" href="#text-processing-flow" title="Permanent link">¶</a></h3>
+<div class="mermaid">sequenceDiagram
+    participant Client
+    participant ToolsServer
+    participant TextModifiers
+    participant LLM
+    participant ModelRegistry
+
+    Client-&gt;&gt;ToolsServer: copy_edit(text)
+    ToolsServer-&gt;&gt;ToolsServer: _get_modifiers()
+    ToolsServer-&gt;&gt;TextModifiers: rationalize_text(text)
+    TextModifiers-&gt;&gt;ModelRegistry: get copy_editor_llm
+    ModelRegistry-&gt;&gt;TextModifiers: ChatOpenAI instance
+    TextModifiers-&gt;&gt;TextModifiers: _log_model_details_table()
+    TextModifiers-&gt;&gt;LLM: invoke with prompt
+    LLM-&gt;&gt;TextModifiers: structured response
+    TextModifiers-&gt;&gt;TextModifiers: validate output
+    TextModifiers-&gt;&gt;ToolsServer: CopyEditedText
+    ToolsServer-&gt;&gt;Client: validated result
+</div>
+<h3 id="error-handling-flow">Error Handling Flow<a class="headerlink" href="#error-handling-flow" title="Permanent link">¶</a></h3>
+<div class="mermaid">sequenceDiagram
+    participant Client
+    participant ToolsServer
+    participant TextModifiers
+    participant Exception
+
+    Client-&gt;&gt;ToolsServer: tool_function(invalid_input)
+    ToolsServer-&gt;&gt;TextModifiers: process(invalid_input)
+    TextModifiers-&gt;&gt;Exception: ValidationError
+    Exception-&gt;&gt;TextModifiers: error context
+    TextModifiers-&gt;&gt;ToolsServer: PostconditionError
+    ToolsServer-&gt;&gt;ToolsServer: log error
+    ToolsServer-&gt;&gt;Client: structured error response
+</div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<h3 id="model-configuration">Model Configuration<a class="headerlink" href="#model-configuration" title="Permanent link">¶</a></h3>
+<p>Each processing method uses a dedicated LLM configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">models</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">summarizer</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"gpt-4o"</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+
+<span class="w">  </span><span class="nt">copy_editor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"gpt-4o"</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span>
+
+<span class="w">  </span><span class="nt">key_achievements</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"gpt-4o"</span><span class="w">  </span><span class="c1"># Non-reasoning model for structured output</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+
+<span class="w">  </span><span class="nt">review_text_evaluator</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"gpt-5"</span><span class="w">  </span><span class="c1"># Reasoning model for complex evaluation</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20000</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+</code></pre></div>
+<h3 id="prompt-templates">Prompt Templates<a class="headerlink" href="#prompt-templates" title="Permanent link">¶</a></h3>
+<p>The system uses external prompt templates for maintainability:</p>
+<div class="highlight"><pre><span></span><code>prompts/
+├── summarizer_system_prompt.md
+├── summarizer_user_prompt.md
+├── text_rationalization_system_prompt.md
+├── text_rationalization_user_prompt.md
+├── key_achievements_system_prompt.md
+├── key_achievements_user_prompt.md
+├── text_evaluator_system_prompt.md
+└── text_evaluator_user_prompt.md
+</code></pre></div>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">¶</a></h2>
+<h3 id="basic-text-processing">Basic Text Processing<a class="headerlink" href="#basic-text-processing" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.mcp.text_modifiers</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextModifiers</span>
+
+<span class="c1"># Initialize the processor</span>
+<span class="n">modifier</span> <span class="o">=</span> <span class="n">TextModifiers</span><span class="p">()</span>
+
+<span class="c1"># Summarize text</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">modifier</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">"Long employee review text..."</span><span class="p">,</span>
+    <span class="n">max_words</span><span class="o">=</span><span class="mi">100</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Summary: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">summarized_text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Size: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Copy edit text</span>
+<span class="n">edited</span> <span class="o">=</span> <span class="n">modifier</span><span class="o">.</span><span class="n">rationalize_text</span><span class="p">(</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">"Text with grammar errors and typos..."</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Edited: </span><span class="si">{</span><span class="n">edited</span><span class="o">.</span><span class="n">copy_edited_text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Was modified: </span><span class="si">{</span><span class="n">edited</span><span class="o">.</span><span class="n">is_edited</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="achievement-extraction">Achievement Extraction<a class="headerlink" href="#achievement-extraction" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Extract achievements</span>
+<span class="n">achievements</span> <span class="o">=</span> <span class="n">modifier</span><span class="o">.</span><span class="n">extract_achievements</span><span class="p">(</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">"I led the migration project that reduced latency by 50%..."</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">achievement</span> <span class="ow">in</span> <span class="n">achievements</span><span class="o">.</span><span class="n">items</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Title: </span><span class="si">{</span><span class="n">achievement</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Impact: </span><span class="si">{</span><span class="n">achievement</span><span class="o">.</span><span class="n">impact_area</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Metrics: </span><span class="si">{</span><span class="n">achievement</span><span class="o">.</span><span class="n">metric_strings</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Timeframe: </span><span class="si">{</span><span class="n">achievement</span><span class="o">.</span><span class="n">timeframe</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"---"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="quality-evaluation">Quality Evaluation<a class="headerlink" href="#quality-evaluation" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Evaluate review quality</span>
+<span class="n">scorecard</span> <span class="o">=</span> <span class="n">modifier</span><span class="o">.</span><span class="n">evaluate_review_text</span><span class="p">(</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">"Employee review text to evaluate..."</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Overall Score: </span><span class="si">{</span><span class="n">scorecard</span><span class="o">.</span><span class="n">overall</span><span class="si">}</span><span class="s2">/100"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Verdict: </span><span class="si">{</span><span class="n">scorecard</span><span class="o">.</span><span class="n">verdict</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">scorecard</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">score</span><span class="si">}</span><span class="s2">/100"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Rationale: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">rationale</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Suggestion: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">suggestion</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"---"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="mcp-tool-usage">MCP Tool Usage<a class="headerlink" href="#mcp-tool-usage" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.mcp.tools_server</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_edit</span><span class="p">,</span> <span class="n">abstractive_summarize</span>
+
+<span class="c1"># Use MCP tools directly</span>
+<span class="n">edited_result</span> <span class="o">=</span> <span class="n">copy_edit</span><span class="p">(</span><span class="s2">"Text to edit..."</span><span class="p">)</span>
+<span class="n">summary_result</span> <span class="o">=</span> <span class="n">abstractive_summarize</span><span class="p">(</span><span class="s2">"Text to summarize..."</span><span class="p">,</span> <span class="n">max_words</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="advanced-features">Advanced Features<a class="headerlink" href="#advanced-features" title="Permanent link">¶</a></h2>
+<h3 id="model-information-introspection">Model Information Introspection<a class="headerlink" href="#model-information-introspection" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Get model configuration for debugging</span>
+<span class="n">model_info</span> <span class="o">=</span> <span class="n">modifier</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">(</span><span class="s2">"summarize"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model: </span><span class="si">{</span><span class="n">model_info</span><span class="p">[</span><span class="s1">'model'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Temperature: </span><span class="si">{</span><span class="n">model_info</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Max Tokens: </span><span class="si">{</span><span class="n">model_info</span><span class="p">[</span><span class="s1">'max_tokens'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="custom-prompt-templates">Custom Prompt Templates<a class="headerlink" href="#custom-prompt-templates" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># The system automatically loads prompts from the prompts/ directory</span>
+<span class="c1"># Modify the .md files to customize behavior</span>
+</code></pre></div>
+<h3 id="logging-and-debugging">Logging and Debugging<a class="headerlink" href="#logging-and-debugging" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="c1"># Enable detailed logging</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"mcp_debug.log"</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"DEBUG"</span><span class="p">)</span>
+
+<span class="c1"># The system will log:</span>
+<span class="c1"># - Model configurations</span>
+<span class="c1"># - Processing steps</span>
+<span class="c1"># - Token usage</span>
+<span class="c1"># - Error details</span>
+</code></pre></div>
+<h2 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">¶</a></h2>
+<h3 id="caching-strategy">Caching Strategy<a class="headerlink" href="#caching-strategy" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>LLM Client Caching</strong>: Singleton model registry prevents duplicate initialization</li>
+<li><strong>Prompt Template Caching</strong>: Templates loaded once at startup</li>
+<li><strong>LRU Cache</strong>: Tools server uses <code>@lru_cache</code> for TextModifiers instances</li>
+</ul>
+<h3 id="token-management">Token Management<a class="headerlink" href="#token-management" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Efficient Prompting</strong>: Optimized prompt templates minimize token usage</li>
+<li><strong>Structured Output</strong>: Direct JSON generation reduces parsing overhead</li>
+<li><strong>Batch Processing</strong>: Process multiple items efficiently</li>
+</ul>
+<h3 id="error-recovery">Error Recovery<a class="headerlink" href="#error-recovery" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Graceful Degradation</strong>: Fallback strategies for API failures</li>
+<li><strong>Retry Logic</strong>: Automatic retry for transient errors</li>
+<li><strong>Circuit Breaker</strong>: Prevent cascade failures</li>
+</ul>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">¶</a></h2>
+<h3 id="unit-tests">Unit Tests<a class="headerlink" href="#unit-tests" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.mcp.text_modifiers</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextModifiers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.datamodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SummarizedText</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_summarization</span><span class="p">():</span>
+    <span class="n">modifier</span> <span class="o">=</span> <span class="n">TextModifiers</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">modifier</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Long text to summarize..."</span><span class="p">,</span>
+        <span class="n">max_words</span><span class="o">=</span><span class="mi">50</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">SummarizedText</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summarized_text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_copy_editing</span><span class="p">():</span>
+    <span class="n">modifier</span> <span class="o">=</span> <span class="n">TextModifiers</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">modifier</span><span class="o">.</span><span class="n">rationalize_text</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">"Text with errers and typos."</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">CopyEditedText</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">"errors"</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">copy_edited_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="integration-tests">Integration Tests<a class="headerlink" href="#integration-tests" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_mcp_tools_integration</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.mcp.tools_server</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_edit</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">copy_edit</span><span class="p">(</span><span class="s2">"Test text with errors."</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">copy_edited_text</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">is_edited</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>LLM API Errors</strong>:</li>
+<li>Check OpenAI API key validity</li>
+<li>Monitor rate limits and quotas</li>
+<li>
+<p>Verify network connectivity</p>
+</li>
+<li>
+<p><strong>Prompt Template Issues</strong>:</p>
+</li>
+<li>Ensure all prompt files exist in <code>prompts/</code> directory</li>
+<li>Check file encoding (UTF-8)</li>
+<li>
+<p>Validate Jinja2 template syntax</p>
+</li>
+<li>
+<p><strong>Memory Issues</strong>:</p>
+</li>
+<li>Monitor token usage with large texts</li>
+<li>Implement text chunking for very long inputs</li>
+<li>Use streaming for real-time processing</li>
+</ol>
+<h3 id="debug-mode">Debug Mode<a class="headerlink" href="#debug-mode" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Enable comprehensive debugging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metamorphosis.mcp.text_modifiers</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextModifiers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">modifier</span> <span class="o">=</span> <span class="n">TextModifiers</span><span class="p">()</span>
+
+<span class="c1"># All operations will now log detailed information</span>
+</code></pre></div>
+<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">¶</a></h2>
+<h3 id="from-legacy-versions">From Legacy Versions<a class="headerlink" href="#from-legacy-versions" title="Permanent link">¶</a></h3>
+<ul>
+<li>Update import statements to use new module structure</li>
+<li>Replace manual LLM initialization with ModelRegistry</li>
+<li>Update exception handling for new hierarchy</li>
+<li>Migrate to Pydantic v2 models</li>
+</ul>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../agents/">Agents Package</a> - LangGraph workflow integration</li>
+<li><a href="../datamodel/">Data Models</a> - Pydantic schema definitions</li>
+<li><a href="../../examples/">Examples</a> - Usage examples and tutorials</li>
+<li><a href="../model_registry.md">Model Registry</a> - LLM client management</li>
+</ul>
+<hr/>
+<p><em>This documentation is automatically generated from the source code and maintained in sync with the codebase.</em></p>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+<script src="../../javascripts/mathjax.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+mermaid.initialize({});</script></body>
+</html>

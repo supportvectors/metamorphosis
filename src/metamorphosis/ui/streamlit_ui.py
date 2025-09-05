@@ -1,7 +1,8 @@
 # =============================================================================
 #  Filename: streamlit_ui.py
 #
-#  Short Description: Streamlit UI for the self-reviewer agent(s) for the periodic employee self-review process.
+#  Short Description: Streamlit UI for the self-reviewer agent(s) for the periodic
+#                     employee self-review process.
 #
 #  Creation date: 2025-09-01
 #  Author: Chandar L
@@ -50,7 +51,7 @@ import streamlit as st  # Web UI framework for building interactive applications
 
 # Base URL for the FastAPI backend service that runs LangGraph workflows
 # This should match the host and port where the agent_service.py is running
-SERVICE_BASE = "http://localhost:8000"  
+SERVICE_BASE = "http://localhost:8000"
 # Endpoint for streaming Server-Sent Events (SSE) from the LangGraph execution
 # This connects to the /stream endpoint in the FastAPI service
 STREAM_URL = f"{SERVICE_BASE}/stream"
@@ -72,50 +73,52 @@ REQUEST_TIMEOUT = 300  # 5 minutes timeout for requests
 # UTILITY FUNCTIONS
 # =============================================================================
 
+
 def validate_review_text(text: str) -> tuple[bool, str]:
     """
     Simple validation for review text input.
-    
+
     Args:
         text: The review text to validate
-        
+
     Returns:
         tuple: (is_valid, error_message)
     """
     if not text or not text.strip():
         return False, "Please enter some review text before starting."
-    
+
     if len(text.strip()) < 10:
         return False, "Review text should be at least 10 characters long."
-    
+
     if len(text) > 10000:
         return False, "Review text is too long (max 10,000 characters)."
-    
+
     return True, ""
+
 
 def patch_state(dst: Dict[str, Any], delta: Dict[str, Any]) -> Dict[str, Any]:
     """
     Performs a shallow merge of two dictionaries for 'updates' mode.
-    
+
     This function is used when the server sends delta updates instead of full state snapshots.
     It merges the delta changes into the existing destination dictionary, creating a new
     dictionary to avoid mutating the original. This is essential for handling incremental
     updates from the LangGraph streaming mode.
-    
+
     The function handles None inputs gracefully and ensures that the destination dictionary
     is never modified in place, which is important for Streamlit's session state management.
-    
+
     Args:
         dst (Dict[str, Any]): Destination dictionary to merge into (will be copied to avoid mutation)
         delta (Dict[str, Any]): Dictionary containing updates to apply
-        
+
     Returns:
         Dict[str, Any]: New dictionary with merged state
-        
+
     Example:
         >>> patch_state({"a": 1, "b": 2}, {"b": 3, "c": 4})
         {"a": 1, "b": 3, "c": 4}
-        
+
     Note:
         - Both dst and delta can be None, which will be handled gracefully
         - The function creates a shallow copy, so nested dictionaries are not deep-copied
@@ -130,36 +133,37 @@ def patch_state(dst: Dict[str, Any], delta: Dict[str, Any]) -> Dict[str, Any]:
         dst[k] = v
     return dst
 
+
 def sse_events(url: str, data: Dict[str, Any]):
     """
     Minimal Server-Sent Events (SSE) client using the requests library.
-    
+
     This function establishes an HTTP connection to the server and yields decoded JSON payloads
     from lines that start with 'data:'. It's the core function that drives the server-side
     LangGraph execution because the /stream endpoint calls graph.astream(...).
-    
+
     The function implements a robust SSE client that handles various edge cases and provides
     real-time streaming of LangGraph workflow execution. It's designed to be resilient to
     network issues and malformed data while maintaining a stable connection.
-    
+
     SSE Format: The server sends data in the format:
         data: {"message": "Hello"}
         data: {"message": "World"}
-        
+
     Args:
         url (str): The SSE endpoint URL to connect to (typically /stream endpoint)
         data (Dict[str, Any]): Data to send with the request containing:
             - thread_id: Unique conversation identifier
             - review_text: The text to process through the workflow
             - mode: Streaming mode ("values" or "updates")
-        
+
     Yields:
         Dict[str, Any]: Parsed JSON objects from the SSE stream representing workflow events
-        
+
     Raises:
         requests.RequestException: For HTTP errors, connection issues, or timeouts
         json.JSONDecodeError: For malformed JSON in the stream (handled gracefully)
-        
+
     Note:
         - Uses POST request to handle large review text data in the request body
         - Uses decode_unicode=False to get raw bytes for proper SSE parsing
@@ -174,7 +178,7 @@ def sse_events(url: str, data: Dict[str, Any]):
         # Raise exception for HTTP error status codes (4xx, 5xx)
         # This ensures we fail fast on server errors rather than processing error responses
         resp.raise_for_status()
-        
+
         # Iterate through response lines as raw bytes (not decoded to unicode)
         # This is crucial for proper SSE parsing as we need to handle the "data:" prefix
         for raw in resp.iter_lines(decode_unicode=False):
@@ -183,14 +187,14 @@ def sse_events(url: str, data: Dict[str, Any]):
             if raw is None or not raw:
                 # SSE event boundary (blank line) — ignore
                 continue
-                
+
             # Check if line starts with "data:" prefix (standard SSE format)
             # Only process lines that contain actual data payloads
             if raw.startswith(b"data:"):
                 try:
                     # Extract payload: remove "data:" prefix, strip whitespace, decode to UTF-8
                     # The prefix is exactly 5 bytes ("data:"), so we slice from index 5
-                    payload = raw[len(b"data:"):].strip().decode("utf-8")
+                    payload = raw[len(b"data:") :].strip().decode("utf-8")
                     if payload:
                         # Parse JSON and yield the resulting object
                         # This converts the string payload into a Python dictionary
@@ -201,31 +205,32 @@ def sse_events(url: str, data: Dict[str, Any]):
                     # Common issues: invalid JSON, encoding problems, truncated data
                     pass
 
+
 def extract_values_from_event(ev: Dict[str, Any]) -> Dict[str, Any] | None:
     """
     Extracts the actual state values from various LangGraph event formats.
-    
+
     LangGraph events can have different structures depending on the configuration,
     streaming mode, and server implementation. This function provides robust handling
     for multiple event formats to ensure compatibility across different setups.
-    
+
     The function implements a hierarchical checking strategy that looks for state
     data in common locations, falling back to pattern matching for custom formats.
     This approach ensures maximum compatibility while maintaining performance.
-    
+
     Supported Event Formats:
     - Standard LangGraph: {"values": {...}} or {"data": {"values": {...}}}
     - State wrapper: {"state": {...}} or {"data": {"state": {...}}}
     - Direct format: {"original_text": "...", "copy_edited_text": "...", ...}
     - Custom wrappers: Various nested structures
-    
+
     Args:
         ev (Dict[str, Any]): Raw event dictionary from the SSE stream
-        
+
     Returns:
         Dict[str, Any] | None: Extracted state dictionary containing workflow data,
             or None if no valid state structure is found
-        
+
     Note:
         The function checks multiple common patterns to be robust against
         different LangGraph event formats and server configurations. It uses
@@ -238,7 +243,7 @@ def extract_values_from_event(ev: Dict[str, Any]) -> Dict[str, Any] | None:
 
     # Pattern A: Standard LangGraph wrapper formats
     # These are the most common formats used by LangGraph in different modes
-    
+
     # Check if state is wrapped in "values" field (common in "values" mode)
     if isinstance(ev.get("values"), dict):
         return ev["values"]
@@ -264,6 +269,7 @@ def extract_values_from_event(ev: Dict[str, Any]) -> Dict[str, Any] | None:
     # No valid state found - return None to indicate no state data in this event
     return None
 
+
 # =============================================================================
 # STREAMLIT SESSION STATE INITIALIZATION
 # =============================================================================
@@ -279,7 +285,7 @@ if "thread_id" not in st.session_state:
 # Current LangGraph state - gets updated with each streaming event
 # This stores the latest merged state from the workflow execution
 if "state" not in st.session_state:
-    st.session_state.state = {}       # latest GraphState (merged)
+    st.session_state.state = {}  # latest GraphState (merged)
 
 # Current review title for the LangGraph workflow (default example review title)
 # This provides a user-friendly identifier for the review session
@@ -289,8 +295,8 @@ if "current_review_title" not in st.session_state:
 # Current review text content that will be processed by the workflow
 # This stores the user's input and gets sent to the LangGraph for processing
 if "current_review_text" not in st.session_state:
-    st.session_state.current_review_text = '''I had an eventful cycle this summer.  Learnt agentic workflows and implemented a self-reviewer agent 
-    for the periodic employee self-review process.  It significantly improved employee productivity for the organization.'''  # default
+    st.session_state.current_review_text = """I had an eventful cycle this summer.  Learnt agentic workflows and implemented a self-reviewer agent 
+    for the periodic employee self-review process.  It significantly improved employee productivity for the organization."""  # default
 
 # Timestamp of last state update (for display purposes)
 # This tracks when the workflow state was last modified for UI feedback
@@ -305,14 +311,14 @@ if "running" not in st.session_state:
 # Buffer of recent raw events for debugging (keeps last MAX_EVENTS events)
 # This maintains a rolling history of SSE events for troubleshooting
 if "events" not in st.session_state:
-    st.session_state.events = []      # recent raw events (debug)
+    st.session_state.events = []  # recent raw events (debug)
 
 # Track which results have been displayed to prevent duplicates
 if "results_displayed" not in st.session_state:
     st.session_state.results_displayed = {
         "copy_edited": False,
-        "summary": False, 
-        "word_cloud": False
+        "summary": False,
+        "word_cloud": False,
     }
 
 # =============================================================================
@@ -325,15 +331,15 @@ st.title("🐾 LangGraph State Monitor (Streamlit)")
 # Sidebar for user controls - provides dedicated space for configuration options
 with st.sidebar:
     st.header("Run Controls")
-    
+
     # Review title input field - allows users to customize their session identifier
     # This provides a user-friendly way to organize different review sessions
     review_title = st.text_input(
         "Review Title",
         value=st.session_state.current_review_title,
-        help="Enter a title for your review session"
+        help="Enter a title for your review session",
     )
-    
+
     # Streaming mode selection - controls how data is received from the server
     # "values" mode provides complete state snapshots, "updates" mode provides deltas
     mode = st.radio(
@@ -357,11 +363,11 @@ with st.sidebar:
 
     # Start button - initiates the LangGraph workflow and streaming
     # Primary button with visual emphasis to indicate main action
-    start_btn = st.button("▶️ Start & Stream", width='stretch', type="primary")
-    
+    start_btn = st.button("▶️ Start & Stream", width="stretch", type="primary")
+
     # Stop button - stops the client-side streaming loop
     # Allows users to interrupt long-running processes
-    stop_btn = st.button("⏹️ Stop (client-side)", width='stretch')
+    stop_btn = st.button("⏹️ Stop (client-side)", width="stretch")
 
     # Handle start button click - initialize new workflow execution
     if start_btn:
@@ -371,14 +377,14 @@ with st.sidebar:
             st.error(f"❌ Cannot start: {validation_message}")
         else:
             st.session_state.running = True  # Enable streaming loop
-            st.session_state.state = {}      # Clear previous results
-            st.session_state.events = []     # Clear event history
+            st.session_state.state = {}  # Clear previous results
+            st.session_state.events = []  # Clear event history
             st.session_state.last_update = time.time()  # Reset timestamp
             # Reset results display tracking for new run
             st.session_state.results_displayed = {
                 "copy_edited": False,
-                "summary": False, 
-                "word_cloud": False
+                "summary": False,
+                "word_cloud": False,
             }
 
     # Handle stop button click - gracefully terminate streaming
@@ -400,7 +406,7 @@ review_text = st.text_area(
     height=300,  # Large height for substantial content input
     placeholder="Enter your detailed review text here...",
     help="Enter your review text here. This will be processed by the LangGraph agent to generate copy-edited text, summary, and word cloud.",
-    key=f"main_review_input_{st.session_state.thread_id}"  # Thread-specific key to avoid conflicts
+    key=f"main_review_input_{st.session_state.thread_id}",  # Thread-specific key to avoid conflicts
 )
 
 # Validate input and show feedback
@@ -449,38 +455,42 @@ input_col, events_col = st.columns([1.5, 1], gap="large")
 # This is the primary user-facing area with session information and processing results
 with input_col:
     st.subheader("📋 Review Session Info")
-    
+
     # Display review title - read-only display of current session identifier
     st.text_input(
         "Review Title",
         value=st.session_state.current_review_title,
         disabled=True,  # Read-only to prevent confusion with sidebar input
         help="Current review session title",
-        key=f"left_title_{st.session_state.thread_id}"
+        key=f"left_title_{st.session_state.thread_id}",
     )
-    
+
     # Display review text preview (first 200 characters)
     # Provides a quick overview of the content being processed
-    review_preview = st.session_state.current_review_text[:200] + "..." if len(st.session_state.current_review_text) > 200 else st.session_state.current_review_text
+    review_preview = (
+        st.session_state.current_review_text[:200] + "..."
+        if len(st.session_state.current_review_text) > 200
+        else st.session_state.current_review_text
+    )
     st.text_area(
         "Review Text Preview",
         value=review_preview,
         height=100,
         disabled=True,  # Read-only preview
         help="Preview of the review text being processed",
-        key=f"left_preview_{st.session_state.thread_id}"
+        key=f"left_preview_{st.session_state.thread_id}",
     )
-    
+
     # Results section - dynamic content area for processing outputs
     st.subheader("✨ Processing Results")
-    
+
     # Create containers for dynamic content that will be updated during streaming
     # Using containers instead of empty placeholders to avoid key conflicts
     # Containers allow for dynamic content updates without Streamlit key issues
-    copy_edited_container = st.container()      # Copy-edited text display
-    summary_container = st.container()          # Summary text display
+    copy_edited_container = st.container()  # Copy-edited text display
+    summary_container = st.container()  # Summary text display
     word_cloud_path_container = st.container()  # Word cloud path display
-    word_cloud_image_container = st.container() # Word cloud image display
+    word_cloud_image_container = st.container()  # Word cloud image display
 
 # Right column: Debug information - technical details for developers and troubleshooting
 with events_col:
@@ -499,8 +509,8 @@ if st.session_state.running:
         # This data will be sent to the FastAPI /stream endpoint
         data = {
             "thread_id": st.session_state.thread_id,  # Unique conversation identifier for state persistence
-            "review_text": st.session_state.current_review_text,   # What the agent should work on
-            "mode": mode,                             # Streaming mode (values vs updates)
+            "review_text": st.session_state.current_review_text,  # What the agent should work on
+            "mode": mode,  # Streaming mode (values vs updates)
         }
 
         # Track the most recent event for debug display
@@ -527,7 +537,7 @@ if st.session_state.running:
             # =================================================================
             # STATE UPDATE LOGIC (Robust handling of different event formats)
             # =================================================================
-            
+
             # Strategy 1: Prefer full snapshots (values/state) if present
             # This handles mode="values" and provides complete state
             # Full snapshots are preferred as they provide the most complete state information
@@ -555,7 +565,7 @@ if st.session_state.running:
             # =================================================================
             # REAL-TIME UI RENDERING (Live updates during streaming)
             # =================================================================
-            
+
             # Get current state for display (use empty dict if none)
             # This ensures we always have a valid dictionary for display operations
             current = st.session_state.state or {}
@@ -566,9 +576,12 @@ if st.session_state.running:
 
             # Display copy-edited text as a non-editable text area
             # This shows the grammar and clarity improved version of the input text
-            copy_edited_text = current.get('copy_edited_text', 'Not yet processed')
-            
-            if copy_edited_text != 'Not yet processed' and not st.session_state.results_displayed["copy_edited"]:
+            copy_edited_text = current.get("copy_edited_text", "Not yet processed")
+
+            if (
+                copy_edited_text != "Not yet processed"
+                and not st.session_state.results_displayed["copy_edited"]
+            ):
                 # Result is available and not yet displayed - show it
                 copy_edited_container.empty()  # Clear any previous content
                 copy_edited_container.text_area(
@@ -577,15 +590,15 @@ if st.session_state.running:
                     height=200,
                     disabled=True,  # Read-only display
                     help="This is the copy-edited version of your review text, returned by the LangGraph agent.",
-                    key=f"copy_edited_{st.session_state.thread_id}"  # Fixed key - no timestamp
+                    key=f"copy_edited_{st.session_state.thread_id}",  # Fixed key - no timestamp
                 )
                 st.session_state.results_displayed["copy_edited"] = True
 
             # Display summary as a non-editable text area
             # This shows the abstractive summary of the review content
-            summary = current.get('summary', 'Not yet processed')
-            
-            if summary != 'Not yet processed' and not st.session_state.results_displayed["summary"]:
+            summary = current.get("summary", "Not yet processed")
+
+            if summary != "Not yet processed" and not st.session_state.results_displayed["summary"]:
                 # Result is available and not yet displayed - show it
                 summary_container.empty()  # Clear any previous content
                 summary_container.text_area(
@@ -594,31 +607,37 @@ if st.session_state.running:
                     height=150,
                     disabled=True,  # Read-only display
                     help="This is the summary of your review text, generated by the LangGraph agent.",
-                    key=f"summary_{st.session_state.thread_id}"  # Fixed key - no timestamp
+                    key=f"summary_{st.session_state.thread_id}",  # Fixed key - no timestamp
                 )
                 st.session_state.results_displayed["summary"] = True
 
             # Display word cloud path and image
             # This shows both the file path and the actual generated word cloud image
-            word_cloud_path = current.get('word_cloud_path', 'Not yet processed')
-            
-            if word_cloud_path != 'Not yet processed' and not st.session_state.results_displayed["word_cloud"]:
+            word_cloud_path = current.get("word_cloud_path", "Not yet processed")
+
+            if (
+                word_cloud_path != "Not yet processed"
+                and not st.session_state.results_displayed["word_cloud"]
+            ):
                 # Result is available and not yet displayed - show it
                 word_cloud_path_container.empty()  # Clear any previous content
                 word_cloud_path_container.write(f"**🖼️ Word Cloud Path:** `{word_cloud_path}`")
-                
+
                 # Try to display the wordcloud image if the path exists
                 # This provides visual feedback of the word cloud generation
                 try:
                     import os
+
                     if os.path.exists(word_cloud_path):
                         word_cloud_image_container.image(
                             word_cloud_path,
                             caption="Generated Word Cloud",
-                            width='stretch'  # Responsive width
+                            width="stretch",  # Responsive width
                         )
                     else:
-                        word_cloud_image_container.warning(f"⚠️ Word cloud image not found at path: {word_cloud_path}")
+                        word_cloud_image_container.warning(
+                            f"⚠️ Word cloud image not found at path: {word_cloud_path}"
+                        )
                 except Exception as e:
                     word_cloud_image_container.error(f"❌ Error displaying word cloud: {e}")
                 st.session_state.results_displayed["word_cloud"] = True
@@ -626,11 +645,14 @@ if st.session_state.running:
             # =================================================================
             # DEBUG DISPLAY (Raw event information)
             # =================================================================
-            
+
             # Show the most recent raw event for debugging purposes
             # This provides developers with insight into the event structure and data flow
             try:
-                events_container.code(json.dumps(recent_event, indent=2), key=f"debug_event_{st.session_state.thread_id}_{int(time.time())}")
+                events_container.code(
+                    json.dumps(recent_event, indent=2),
+                    key=f"debug_event_{st.session_state.thread_id}_{int(time.time())}",
+                )
             except Exception:
                 # Fallback if JSON serialization fails
                 # This handles cases where the event contains non-serializable objects
@@ -639,22 +661,32 @@ if st.session_state.running:
         # =================================================================
         # STREAMING COMPLETION
         # =================================================================
-        
+
         # If the for-loop ends naturally (no break), consider execution completed
         # This indicates that the server has finished processing and closed the connection
         st.session_state.running = False
-        
+
         # Display final progress in the right panel
         # This provides a summary of what was completed during the workflow execution
         with events_col:
             st.subheader("📊 Final Progress")
             progress_steps = []
             # Check each workflow step and show completion status
-            progress_steps.append("✅ Copy Editing" if current.get('copy_edited_text') is not None else "⏳ Copy Editing")
-            progress_steps.append("✅ Summarization" if current.get('summary') is not None else "⏳ Summarization")
-            progress_steps.append("✅ Word Cloud Generation" if current.get('word_cloud_path') is not None else "⏳ Word Cloud Generation")
+            progress_steps.append(
+                "✅ Copy Editing"
+                if current.get("copy_edited_text") is not None
+                else "⏳ Copy Editing"
+            )
+            progress_steps.append(
+                "✅ Summarization" if current.get("summary") is not None else "⏳ Summarization"
+            )
+            progress_steps.append(
+                "✅ Word Cloud Generation"
+                if current.get("word_cloud_path") is not None
+                else "⏳ Word Cloud Generation"
+            )
             st.write("**Progress:** " + " → ".join(progress_steps))
-        
+
         st.success("✅ **Graph execution completed!**")
 
     except requests.RequestException as e:
@@ -679,62 +711,77 @@ current = st.session_state.state or {}
 # Show last update timestamp if available
 # This provides temporal context for when the results were generated
 if st.session_state.last_update > 0:
-    st.caption(f"Last updated: {time.strftime('%H:%M:%S', time.localtime(st.session_state.last_update))}")
+    st.caption(
+        f"Last updated: {time.strftime('%H:%M:%S', time.localtime(st.session_state.last_update))}"
+    )
 
 # Display final execution summary if we have meaningful state data
 # This section only appears if the workflow has produced actual results
-if current and any(k in current for k in ['copy_edited_text', 'summary', 'word_cloud_path']):
+if current and any(k in current for k in ["copy_edited_text", "summary", "word_cloud_path"]):
     st.success("**Execution Summary:**")
-    
+
     # Show review session info
     # This provides context about the review session that was processed
     st.subheader("📋 Review Session Details")
     col1, col2 = st.columns(2)
     with col1:
-        st.text_input("Review Title", value=st.session_state.current_review_title, disabled=True, key=f"final_title_{st.session_state.thread_id}")
+        st.text_input(
+            "Review Title",
+            value=st.session_state.current_review_title,
+            disabled=True,
+            key=f"final_title_{st.session_state.thread_id}",
+        )
     with col2:
-        st.text_input("Review Text Length", value=f"{len(st.session_state.current_review_text)} characters", disabled=True, key=f"final_length_{st.session_state.thread_id}")
-    
+        st.text_input(
+            "Review Text Length",
+            value=f"{len(st.session_state.current_review_text)} characters",
+            disabled=True,
+            key=f"final_length_{st.session_state.thread_id}",
+        )
+
     # Create a nice summary display with the results
     # Each result section is displayed only if the corresponding data exists
-    
-    if current.get('copy_edited_text'):
+
+    if current.get("copy_edited_text"):
         st.subheader("📝 Final Copy-Edited Text")
         st.text_area(
             "Copy-Edited Result",
-            value=current['copy_edited_text'],
+            value=current["copy_edited_text"],
             height=200,
             disabled=True,  # Read-only display
             help="Final copy-edited version of your review text",
-            key=f"final_copy_edited_{st.session_state.thread_id}"
+            key=f"final_copy_edited_{st.session_state.thread_id}",
         )
-    
-    if current.get('summary'):
+
+    if current.get("summary"):
         st.subheader("📋 Final Summary")
         st.text_area(
             "Summary Result",
-            value=current['summary'],
+            value=current["summary"],
             height=150,
             disabled=True,  # Read-only display
             help="Final summary of your review text",
-            key=f"final_summary_{st.session_state.thread_id}"
+            key=f"final_summary_{st.session_state.thread_id}",
         )
-    
-    if current.get('word_cloud_path'):
+
+    if current.get("word_cloud_path"):
         st.subheader("🖼️ Final Word Cloud")
         try:
             import os
-            if os.path.exists(current['word_cloud_path']):
+
+            if os.path.exists(current["word_cloud_path"]):
                 st.image(
-                    current['word_cloud_path'],
+                    current["word_cloud_path"],
                     caption="Final Generated Word Cloud",
-                    width='stretch'  # Responsive width
+                    width="stretch",  # Responsive width
                 )
             else:
-                st.warning(f"⚠️ Word cloud image not found at final path: {current['word_cloud_path']}")
+                st.warning(
+                    f"⚠️ Word cloud image not found at final path: {current['word_cloud_path']}"
+                )
         except Exception as e:
             st.error(f"❌ Error displaying final word cloud: {e}")
-    
+
     # Also show the raw JSON for debugging
     # This provides developers with access to the complete state data
     with st.expander("🔍 Raw JSON Data"):
@@ -754,14 +801,12 @@ with st.expander("🔍 Debug Information"):
     # Display the unique thread identifier for this session
     st.write(f"**Thread ID:** {st.session_state.thread_id}")
     # Show a preview of the current review text (first 100 characters)
-    st.write(f"**Current Review Text:** {st.session_state.current_review_text[:100]}{'...' if len(st.session_state.current_review_text) > 100 else ''}")
+    st.write(
+        f"**Current Review Text:** {st.session_state.current_review_text[:100]}{'...' if len(st.session_state.current_review_text) > 100 else ''}"
+    )
     # Display the timestamp of the last state update
     st.write(
         f"**Last Update:** {time.strftime('%H:%M:%S', time.localtime(st.session_state.last_update)) if st.session_state.last_update > 0 else 'Never'}"
     )
     # Show the number of events kept in the rolling history buffer
     st.write(f"**Total Events kept:** {len(st.session_state.events)}")
-
-
-
-

@@ -26,7 +26,7 @@ Return only valid JSON with the exact field names above. No extra keys, no comme
 
 C — Context
 
-Employee self‑reviews can be long and mixed (tasks, outcomes, anecdotes). Your job is to extract the top 5 achievements that best demonstrate business or customer impact, breadth of ownership, and quality/reliability/security/cost improvements—without rewriting the whole review.
+Employee self‑reviews can be long and mixed (tasks, outcomes, anecdotes). Your job is to extract the top 10 achievements that best demonstrate business or customer impact, breadth of ownership, and quality/reliability/security/cost improvements—without rewriting the whole review.
 
 O — Objective
 

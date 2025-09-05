@@ -40,7 +40,7 @@ def _load_config() -> dict[str, Any]:
 
     Returns:
         dict[str, Any]: Configuration mapping.
-        
+
     Raises:
         Exception: If configuration loading fails.
     """
@@ -48,7 +48,11 @@ def _load_config() -> dict[str, Any]:
     config_data = ConfigurationMixin().load_config()
     # Postcondition (O(1)): ensure valid config
     if not isinstance(config_data, dict):
-        raise_postcondition_error("Config validation failed", context={"config_type": type(config_data).__name__}, operation="config_loading_validation")
+        raise_postcondition_error(
+            "Config validation failed",
+            context={"config_type": type(config_data).__name__},
+            operation="config_loading_validation",
+        )
     return config_data
 
 

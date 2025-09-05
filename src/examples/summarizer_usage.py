@@ -38,7 +38,7 @@ def summarize_raw_review(max_words: Annotated[PositiveInt, Field(gt=0)] = 200) -
 
     # Create TextModifiers instance
     modifiers = TextModifiers()
-    
+
     # Log model details for summarizer before running
     modifiers._log_model_details_table(method="summarize")
 
@@ -54,5 +54,3 @@ def summarize_raw_review(max_words: Annotated[PositiveInt, Field(gt=0)] = 200) -
 if __name__ == "__main__":
     summary = summarize_raw_review()
     print(summary.summarized_text)
-
-

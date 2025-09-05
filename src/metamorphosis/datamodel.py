@@ -14,27 +14,39 @@ from pydantic import BaseModel, ConfigDict, Field
 
 # models_extras.py
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field
 
 # ---------- Achievements ----------
 ImpactArea = Literal[
-    "reliability", "performance", "security", "cost", "revenue",
-    "customer", "delivery_speed", "quality", "compliance", "team"
+    "reliability",
+    "performance",
+    "security",
+    "cost",
+    "revenue",
+    "customer",
+    "delivery_speed",
+    "quality",
+    "compliance",
+    "team",
 ]
+
 
 class Achievement(BaseModel):
     title: str = Field(..., description="≤12 words, concise label.")
     outcome: str = Field(..., description="≤40 words, outcome-focused description.")
     impact_area: ImpactArea
-    metric_strings: List[str] = Field(default_factory=list, description="Copy numbers/units verbatim if present.")
+    metric_strings: List[str] = Field(
+        default_factory=list, description="Copy numbers/units verbatim if present."
+    )
     timeframe: Optional[str] = None  # e.g., 'H1 2025', 'Q3', 'year'
-    ownership_scope: Optional[Literal["IC","TechLead","Manager","Cross-team","Org-wide"]] = None
+    ownership_scope: Optional[Literal["IC", "TechLead", "Manager", "Cross-team", "Org-wide"]] = None
     collaborators: List[str] = Field(default_factory=list)  # names/teams if explicitly mentioned
+
 
 class AchievementsList(BaseModel):
     items: List[Achievement]
     size: int = Field(..., description="Token estimate of concatenated titles+outcomes.")
     unit: Literal["tokens"] = "tokens"
+
 
 # ---------- Review Scorecard (for radar) ----------
 class MetricScore(BaseModel):
@@ -44,13 +56,15 @@ class MetricScore(BaseModel):
         "ClarityCoherence",
         "Conciseness",
         "OwnershipLeadership",
-        "Collaboration"
+        "Collaboration",
     ]
     score: int = Field(..., ge=0, le=100)
     rationale: str = Field(..., description="One sentence; point to evidence from the text.")
     suggestion: str = Field(..., description="One improvement action; concrete and concise.")
 
-Verdict = Literal["excellent","strong","mixed","weak"]
+
+Verdict = Literal["excellent", "strong", "mixed", "weak"]
+
 
 class ReviewScorecard(BaseModel):
     metrics: List[MetricScore]  # length 6, in the order above
@@ -59,8 +73,6 @@ class ReviewScorecard(BaseModel):
     notes: List[str] = Field(default_factory=list)  # optional flags, e.g., “no metrics found”
     radar_labels: List[str]  # echo names for plotting
     radar_values: List[int]  # 6 integers (0-100)
-
-
 
 
 class SummarizedText(BaseModel):
@@ -136,8 +148,4 @@ class InvokeResponse(BaseModel):
     original_text: str = Field(..., description="The original review text")
     copy_edited_text: str | None = Field(None, description="The copy-edited text")
     summary: str | None = Field(None, description="The summary of the copy-edited text")
-    word_cloud_path: str | None = Field(
-        None, description="The path to the word cloud image"
-    )
-
-
+    word_cloud_path: str | None = Field(None, description="The path to the word cloud image")
