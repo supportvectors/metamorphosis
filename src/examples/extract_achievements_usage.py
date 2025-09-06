@@ -27,10 +27,7 @@ import sys
 from pathlib import Path
 
 from rich.console import Console
-from rich.table import Table
-from rich.text import Text
 from rich.panel import Panel
-from rich import box
 from loguru import logger
 
 # Add src to path for imports
@@ -39,6 +36,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from metamorphosis.mcp.text_modifiers import TextModifiers
 from metamorphosis.datamodel import AchievementsList
 from metamorphosis.utilities import get_project_root
+from metamorphosis.utilities import create_summary_panel, create_achievements_table
 
 
 def load_sample_review() -> str:
@@ -59,82 +57,6 @@ def load_sample_review() -> str:
     return sample_file.read_text(encoding="utf-8")
 
 
-def create_achievements_table(achievements_list: AchievementsList) -> Table:
-    """Create a rich table displaying the extracted achievements.
-
-    Args:
-        achievements_list: The AchievementsList object containing extracted achievements.
-
-    Returns:
-        A rich Table object formatted for display.
-    """
-    # Create the main table
-    table = Table(
-        title=(
-            f"🏆 Extracted Key Achievements "
-            f"({len(achievements_list.items)} items, ~{achievements_list.size} tokens)"
-        ),
-        box=box.ROUNDED,
-        show_header=True,
-        header_style="bold magenta",
-        title_style="bold blue",
-        expand=True,
-    )
-
-    # Add columns
-    table.add_column("Title", style="bold cyan", width=25)
-    table.add_column("Outcome", style="white", width=40)
-    table.add_column("Impact Area", style="bold green", justify="center", width=12)
-    table.add_column("Metrics", style="bold yellow", width=15)
-    table.add_column("Details", style="dim white", width=20)
-
-    # Add rows for each achievement
-    for i, achievement in enumerate(achievements_list.items, 1):
-        # Format metrics as a comma-separated string
-        metrics_text = ", ".join(achievement.metric_strings) if achievement.metric_strings else "—"
-
-        # Format additional details (timeframe, scope, collaborators)
-        details_parts = []
-        if achievement.timeframe:
-            details_parts.append(f"⏰ {achievement.timeframe}")
-        if achievement.ownership_scope:
-            details_parts.append(f"👤 {achievement.ownership_scope}")
-        if achievement.collaborators:
-            collabs = ", ".join(achievement.collaborators[:2])  # Show first 2 collaborators
-            if len(achievement.collaborators) > 2:
-                collabs += f" +{len(achievement.collaborators) - 2}"
-            details_parts.append(f"🤝 {collabs}")
-
-        details_text = "\n".join(details_parts) if details_parts else "—"
-
-        # Color-code impact areas
-        impact_colors = {
-            "reliability": "red",
-            "performance": "blue",
-            "security": "magenta",
-            "cost": "green",
-            "revenue": "bold green",
-            "customer": "cyan",
-            "delivery_speed": "yellow",
-            "quality": "white",
-            "compliance": "dim white",
-            "team": "bold blue",
-        }
-        impact_color = impact_colors.get(achievement.impact_area, "white")
-        impact_text = Text(achievement.impact_area, style=impact_color)
-
-        # Add the row
-        table.add_row(
-            f"{i}. {achievement.title}",
-            achievement.outcome,
-            impact_text,
-            metrics_text,
-            details_text,
-        )
-
-    return table
-
-
 def write_achievements_to_jsonl(achievements_list: AchievementsList, output_path: Path) -> None:
     """Write the achievements to a JSONL file.
 
@@ -152,57 +74,6 @@ def write_achievements_to_jsonl(achievements_list: AchievementsList, output_path
         f.write(json.dumps(achievements_dict, ensure_ascii=False) + "\n")
 
     logger.debug("Wrote achievements to JSONL file: {}", output_path)
-
-
-def create_summary_panel(achievements_list: AchievementsList) -> Panel:
-    """Create a summary panel with statistics about the achievements.
-
-    Args:
-        achievements_list: The AchievementsList object containing extracted achievements.
-
-    Returns:
-        A rich Panel object with summary statistics.
-    """
-    if not achievements_list.items:
-        return Panel(
-            "No achievements were extracted from the review text.",
-            title="📊 Summary",
-            style="dim red",
-        )
-
-    # Count achievements by impact area
-    impact_counts: dict[str, int] = {}
-    total_metrics = 0
-    achievements_with_timeframes = 0
-    achievements_with_collaborators = 0
-
-    for achievement in achievements_list.items:
-        impact_counts[achievement.impact_area] = impact_counts.get(achievement.impact_area, 0) + 1
-        total_metrics += len(achievement.metric_strings)
-        if achievement.timeframe:
-            achievements_with_timeframes += 1
-        if achievement.collaborators:
-            achievements_with_collaborators += 1
-
-    # Format the summary text
-    summary_lines = [
-        f"📈 Total Achievements: {len(achievements_list.items)}",
-        f"📊 Total Metrics Found: {total_metrics}",
-        f"⏰ With Timeframes: {achievements_with_timeframes}",
-        f"🤝 With Collaborators: {achievements_with_collaborators}",
-        f"🎯 Token Estimate: {achievements_list.size}",
-        "",
-        "📋 Impact Areas:",
-    ]
-
-    # Add impact area breakdown
-    for impact_area, count in sorted(impact_counts.items()):
-        summary_lines.append(f"  • {impact_area}: {count}")
-
-    return Panel(
-        "\n".join(summary_lines), title="📊 Achievements Summary", style="dim blue", box=box.SIMPLE
-    )
-
 
 def main() -> None:
     """Main function that demonstrates achievement extraction."""

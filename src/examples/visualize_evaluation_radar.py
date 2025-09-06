@@ -22,7 +22,6 @@ Run this script from the project root:
 from __future__ import annotations
 
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -34,7 +33,7 @@ from loguru import logger
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from metamorphosis.utilities import get_project_root
+from metamorphosis.utilities import get_project_root, create_radar_plot
 
 
 def load_evaluation_results(jsonl_path: Path) -> dict:
@@ -59,131 +58,6 @@ def load_evaluation_results(jsonl_path: Path) -> dict:
         if not line:
             raise ValueError("Empty evaluation results file")
         return json.loads(line)
-
-
-def create_radar_plot(evaluation_data: dict) -> go.Figure:
-    """Create a radar plot from evaluation data.
-
-    Args:
-        evaluation_data: Dictionary containing evaluation results with radar_labels and radar_values.
-
-    Returns:
-        Plotly Figure object containing the radar plot.
-    """
-    # Extract radar data
-    labels = evaluation_data["radar_labels"]
-    values = evaluation_data["radar_values"]
-    overall_score = evaluation_data["overall"]
-    verdict = evaluation_data["verdict"]
-
-    # Create the radar plot
-    fig = go.Figure()
-
-    # Add the "Writing Goal" reference polygon (90% on all metrics)
-    goal_values = [90] * len(labels)
-    fig.add_trace(
-        go.Scatterpolar(
-            r=goal_values,
-            theta=labels,
-            fill="toself",
-            name="Writing Goal (90% target)",
-            line=dict(color="rgba(255, 165, 0, 0.8)", width=2, dash="dash"),
-            fillcolor="rgba(255, 165, 0, 0.1)",
-            hovertemplate="<b>%{theta}</b><br>Writing Goal: %{r}/100<extra></extra>",
-            opacity=0.7,
-        )
-    )
-
-    # Add the main radar trace (actual scores)
-    fig.add_trace(
-        go.Scatterpolar(
-            r=values,
-            theta=labels,
-            fill="toself",
-            name=f"Current Performance (Overall: {overall_score}/100)",
-            line=dict(color="rgb(0, 123, 255)", width=3),
-            fillcolor="rgba(0, 123, 255, 0.3)",
-            hovertemplate="<b>%{theta}</b><br>Current Score: %{r}/100<extra></extra>",
-        )
-    )
-
-    # Customize the layout
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 105],  # Extended range to show 100% circle clearly
-                tickvals=[20, 40, 60, 80, 100],
-                ticktext=["20", "40", "60", "80", "100"],
-                tickfont=dict(size=11, color="#333"),
-                gridcolor="rgba(200, 200, 200, 0.5)",
-                linecolor="rgba(150, 150, 150, 0.8)",
-                gridwidth=1,
-            ),
-            angularaxis=dict(
-                tickfont=dict(size=13, color="darkblue", family="Arial Bold"),
-                rotation=90,  # Start from top
-                direction="clockwise",
-                linecolor="rgba(150, 150, 150, 0.8)",
-                gridcolor="rgba(200, 200, 200, 0.3)",
-            ),
-            bgcolor="rgba(248, 249, 250, 0.9)",
-        ),
-        title=dict(
-            text=f"📊 Review Quality Evaluation - {verdict.title()}<br>"
-            f"<sub style='color:#666;'>Overall Score: {overall_score}/100 | "
-            f"🎯 Target: 90% across all metrics</sub>",
-            x=0.5,
-            font=dict(size=18, color="darkblue", family="Arial Bold"),
-        ),
-        font=dict(family="Arial", size=12),
-        width=750,
-        height=750,
-        margin=dict(l=90, r=90, t=120, b=90),
-        paper_bgcolor="white",
-        plot_bgcolor="rgba(248, 249, 250, 0.3)",
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=-0.1,
-            xanchor="center",
-            x=0.5,
-            bgcolor="rgba(255, 255, 255, 0.8)",
-            bordercolor="rgba(200, 200, 200, 0.5)",
-            borderwidth=1,
-            font=dict(size=11),
-        ),
-    )
-
-    # Add improved score annotations positioned outside the radar
-    for i, (label, value) in enumerate(zip(labels, values)):
-        # Calculate proper polar coordinates for annotation positioning
-        angle_deg = 90 - i * 360 / len(labels)  # Start from top, go clockwise
-        angle_rad = angle_deg * 3.14159 / 180
-
-        # Position annotations at radius 115 (outside the 105 max range)
-        r_annotation = 115
-        x_pos = r_annotation * 0.01 * math.cos(angle_rad)
-        y_pos = r_annotation * 0.01 * math.sin(angle_rad)
-
-        # Choose color based on performance vs goal
-        score_color = "green" if value >= 90 else "orange" if value >= 70 else "red"
-
-        fig.add_annotation(
-            x=x_pos,
-            y=y_pos,
-            text=f"<b>{value}</b>",
-            showarrow=False,
-            font=dict(size=12, color=score_color, family="Arial Bold"),
-            bgcolor="rgba(255, 255, 255, 0.9)",
-            bordercolor=score_color,
-            borderwidth=2,
-            borderpad=4,
-        )
-
-    return fig
-
 
 def save_and_display_plot(fig: go.Figure, output_path: Path) -> None:
     """Save the plot as HTML and display in browser.

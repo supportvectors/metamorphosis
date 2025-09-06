@@ -155,7 +155,9 @@ async def _generate_stream_events(
             config={"configurable": {"thread_id": thread_id}},
             stream_mode=mode,
         ):
-            yield f"data: {json.dumps(ev, default=str)}\n\n".encode("utf-8")
+            # Convert Pydantic objects to dictionaries for proper JSON serialization
+            serializable_ev = _convert_pydantic_to_dict(ev)
+            yield f"data: {json.dumps(serializable_ev, default=str)}\n\n".encode("utf-8")
 
             if await request.is_disconnected():
                 logger.info("Client disconnected during streaming (thread_id={})", thread_id)

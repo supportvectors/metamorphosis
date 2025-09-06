@@ -27,8 +27,6 @@ import sys
 from pathlib import Path
 
 from rich.console import Console
-from rich.table import Table
-from rich.text import Text
 from rich.panel import Panel
 from rich import box
 from loguru import logger
@@ -38,8 +36,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from metamorphosis.mcp.text_modifiers import TextModifiers
 from metamorphosis.datamodel import ReviewScorecard
-from metamorphosis.utilities import get_project_root
-
+from metamorphosis.utilities import (get_project_root, 
+                create_summary_panel_evaluation, 
+                create_metrics_table, 
+                create_radar_chart_info)
 
 def load_sample_review() -> str:
     """Load the sample copy-edited review from sample_reviews directory.
@@ -76,141 +76,6 @@ def write_evaluation_to_jsonl(scorecard: ReviewScorecard, output_path: Path) -> 
         f.write(json.dumps(scorecard_dict, ensure_ascii=False) + "\n")
 
     logger.debug("Wrote evaluation results to JSONL file: {}", output_path)
-
-
-def create_metrics_table(scorecard: ReviewScorecard) -> Table:
-    """Create a rich table displaying the evaluation metrics.
-
-    Args:
-        scorecard: The ReviewScorecard object containing evaluation results.
-
-    Returns:
-        A rich Table object formatted for display.
-    """
-    # Create the main table
-    table = Table(
-        title=(
-            f"📊 Review Quality Evaluation "
-            f"(Overall: {scorecard.overall}/100 - {scorecard.verdict.title()})"
-        ),
-        box=box.ROUNDED,
-        show_header=True,
-        header_style="bold magenta",
-        title_style="bold blue",
-        expand=True,
-    )
-
-    # Add columns
-    table.add_column("Metric", style="bold cyan", width=20)
-    table.add_column("Score", style="bold white", justify="center", width=8)
-    table.add_column("Rationale", style="white", width=50)
-    table.add_column("Suggestion", style="bold yellow", width=40)
-
-    # Define weights for display
-    weights = {
-        "OutcomeOverActivity": "25%",
-        "QuantitativeSpecificity": "25%",
-        "ClarityCoherence": "15%",
-        "Conciseness": "15%",
-        "OwnershipLeadership": "10%",
-        "Collaboration": "10%",
-    }
-
-    # Color coding based on score ranges
-    def get_score_color(score: int) -> str:
-        if score >= 85:
-            return "bright_green"
-        elif score >= 70:
-            return "green"
-        elif score >= 50:
-            return "yellow"
-        else:
-            return "red"
-
-    # Add rows for each metric
-    for metric in scorecard.metrics:
-        weight = weights.get(metric.name, "")
-        metric_name = f"{metric.name}\n({weight})"
-
-        score_color = get_score_color(metric.score)
-        score_text = Text(f"{metric.score}/100", style=score_color)
-
-        # Add the row
-        table.add_row(metric_name, score_text, metric.rationale, metric.suggestion)
-
-    return table
-
-
-def create_summary_panel(scorecard: ReviewScorecard) -> Panel:
-    """Create a summary panel with overall evaluation statistics.
-
-    Args:
-        scorecard: The ReviewScorecard object containing evaluation results.
-
-    Returns:
-        A rich Panel object with summary statistics.
-    """
-    # Verdict styling
-    verdict_colors = {
-        "excellent": "bright_green",
-        "strong": "green",
-        "mixed": "yellow",
-        "weak": "red",
-    }
-    verdict_color = verdict_colors.get(scorecard.verdict, "white")
-
-    # Calculate score statistics
-    scores = [metric.score for metric in scorecard.metrics]
-    avg_score = sum(scores) / len(scores)
-    max_score = max(scores)
-    min_score = min(scores)
-
-    # Find best and worst performing metrics
-    best_metric = max(scorecard.metrics, key=lambda m: m.score)
-    worst_metric = min(scorecard.metrics, key=lambda m: m.score)
-
-    # Format the summary text
-    summary_lines = [
-        f"🎯 Overall Score: {scorecard.overall}/100",
-        f"📈 Verdict: {scorecard.verdict.title()}",
-        f"📊 Average Score: {avg_score:.1f}/100",
-        f"🔝 Highest Score: {max_score}/100 ({best_metric.name})",
-        f"🔻 Lowest Score: {min_score}/100 ({worst_metric.name})",
-        "",
-        f"🏷️  Quality Flags: {len(scorecard.notes)} detected",
-    ]
-
-    # Add flags if any
-    if scorecard.notes:
-        summary_lines.append("   • " + ", ".join(scorecard.notes))
-    else:
-        summary_lines.append("   • No quality issues detected")
-
-    return Panel(
-        "\n".join(summary_lines),
-        title="📋 Evaluation Summary",
-        style=f"dim {verdict_color}",
-        box=box.SIMPLE,
-    )
-
-
-def create_radar_chart_info(scorecard: ReviewScorecard) -> Panel:
-    """Create an info panel with radar chart data.
-
-    Args:
-        scorecard: The ReviewScorecard object containing evaluation results.
-
-    Returns:
-        A rich Panel object with radar chart information.
-    """
-    # Format radar data
-    radar_data = []
-    for label, value in zip(scorecard.radar_labels, scorecard.radar_values):
-        radar_data.append(f"  • {label}: {value}/100")
-
-    radar_text = "📡 Radar Chart Data (for visualization):\n\n" + "\n".join(radar_data)
-
-    return Panel(radar_text, title="📈 Visualization Data", style="dim blue", box=box.SIMPLE)
 
 
 def main() -> None:
@@ -256,7 +121,7 @@ def main() -> None:
 
         # Display results
         console.print("\n")
-        console.print(create_summary_panel(evaluation))
+        console.print(create_summary_panel_evaluation(evaluation))
         console.print("\n")
         console.print(create_metrics_table(evaluation))
         console.print("\n")

@@ -40,10 +40,64 @@ import json  # JSON serialization/deserialization for event data
 import time  # Timestamp generation and timing operations
 import uuid  # Unique identifier generation for session management
 from typing import Dict, Any  # Type hints for data structures
+import os  # Operating system functions for file paths
 
 # Third-party imports for HTTP requests and web UI framework
 import requests  # HTTP client for SSE streaming and API communication
 import streamlit as st  # Web UI framework for building interactive applications
+from dotenv import load_dotenv  # Load environment variables from .env file
+import math  # Math functions for calculation
+
+from metamorphosis.datamodel import AchievementsList, ReviewScorecard
+from metamorphosis.utilities import (create_summary_panel, 
+                create_achievements_table, 
+                create_summary_panel_evaluation, 
+                create_metrics_table, 
+                create_radar_chart_info,
+                create_radar_plot)
+
+from streamlit.delta_generator import DeltaGenerator
+# Rich imports for converting Rich objects to HTML
+from rich.console import Console
+
+load_dotenv()
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+def render_rich(
+    rich_renderable: object,
+    *,
+    char_width: int = 100,      # approximate characters per line (affects wrapping)
+    line_height_px: int = 20,   # monospace-ish line height
+    padding_px: int = 24,       # top+bottom padding
+    min_height: int = 120,
+    max_height: int = 800,
+    scrolling: bool = False,    # turn on if you expect very tall content
+):
+    """
+    Render a Rich Panel/Table (or any renderable) into Streamlit and auto-pick a height.
+
+    Strategy: render to text to count lines -> derive pixel height -> render HTML at that height.
+    """
+    # 1) Render once to measure (text)
+    measure_console = Console(record=True, width=char_width)
+    measure_console.print(rich_renderable)
+    text = measure_console.export_text(clear=False)
+
+    # 2) Count lines (includes wrapped lines because of width=char_width)
+    line_count = text.count("\n") + 1
+
+    # 3) Convert to pixels (very close for monospace; tweak constants to taste)
+    measured_height = line_count * line_height_px + padding_px
+    height = max(min_height, min(int(measured_height), max_height))
+
+    # 4) Export HTML from the same buffer so the look matches the measurement
+    html = measure_console.export_html(inline_styles=True)
+
+    # 5) Embed
+    st.components.v1.html(html, height=height, scrolling=scrolling)
 
 # =============================================================================
 # CONFIGURATION SECTION
@@ -66,13 +120,19 @@ st.set_page_config(page_title="LangGraph Monitor", layout="wide")
 
 # Performance optimization constants
 MAX_EVENTS = 50  # Reduced from 200 for better memory usage
-UI_UPDATE_INTERVAL = 0.5  # 500ms between UI updates (instead of every event)
-REQUEST_TIMEOUT = 300  # 5 minutes timeout for requests
 
 # =============================================================================
 # UTILITY FUNCTIONS
 # =============================================================================
 
+def count_visual_lines(text: str, chars_per_line: int = 80) -> int:
+    """
+    Approximate how many lines the text will take in the textarea,
+    given an average chars_per_line before wrapping.
+    """
+    if not text:
+        return 1
+    return sum(math.ceil(len(line) / chars_per_line) for line in text.split("\n"))
 
 def validate_review_text(text: str) -> tuple[bool, str]:
     """
@@ -168,13 +228,13 @@ def sse_events(url: str, data: Dict[str, Any]):
         - Uses POST request to handle large review text data in the request body
         - Uses decode_unicode=False to get raw bytes for proper SSE parsing
         - Handles malformed lines gracefully by catching exceptions and continuing
-        - Times out after 300 seconds to prevent hanging connections
+        - Times out after 600 seconds to prevent hanging connections
         - Maintains connection stability by ignoring bad lines rather than failing
         - The generator pattern allows for memory-efficient streaming of large datasets
     """
     # Establish streaming HTTP connection with timeout using POST
     # POST is used instead of GET to handle large review text data in the request body
-    with requests.post(url, json=data, stream=True, timeout=300) as resp:
+    with requests.post(url, json=data, stream=True, timeout=600) as resp:
         # Raise exception for HTTP error status codes (4xx, 5xx)
         # This ensures we fail fast on server errors rather than processing error responses
         resp.raise_for_status()
@@ -267,12 +327,204 @@ def extract_values_from_event(ev: Dict[str, Any]) -> Dict[str, Any] | None:
         return ev  # treat the whole event as the current state
 
     # No valid state found - return None to indicate no state data in this event
-    return None
+        return None
+
+def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_container) -> str:
+    """
+    Populate the tabbed interface with content based on graph execution status.
+    
+    This function handles the content for all tabs, showing appropriate content
+    based on whether the graph execution has completed and what data is available.
+    
+    Args:
+        tabs: The Streamlit tabs object
+        graph_completed (bool): Whether the graph execution has completed
+        current (dict): Current session state data
+        review_validation_container: Container for review validation messages
+        
+    Returns:
+        str: The review text from the first tab
+    """
+    # =============================================================================
+    # TAB 1: REVIEW TEXT INPUT
+    # =============================================================================
+    with tabs[0]:
+        st.subheader("📝 Enter Your Review Text")
+        review_text = st.text_area(
+            "Review Text",
+            value=st.session_state.current_review_text,
+            height=min(max(100, count_visual_lines(st.session_state.current_review_text) * 20 + 60), 800),
+            key=f"main_review_input_{st.session_state.thread_id}",
+        )
+        # Validate input and show feedback
+        is_valid, validation_message = validate_review_text(review_text)
+        if not is_valid:
+            review_validation_container.warning(f"⚠️ {validation_message}")
+        else:
+            review_validation_container.success("✅ Review text looks good!")
+        
+        # Handle review text changes - automatic state management
+        # When content changes, we need to reset the session to prevent mixing old and new data
+        if review_text != st.session_state.current_review_text:
+            st.session_state.current_review_text = review_text
+            # Generate new thread ID for clean separation between different content
+            st.session_state.thread_id = str(uuid.uuid4())
+            # Clear previous state to prevent data contamination from old content
+            st.session_state.state = {}
+            # Clear previous events for clean debugging of new content
+            st.session_state.events = []
+
+    # =============================================================================
+    # TAB 2: COPY-EDITED TEXT
+    # =============================================================================
+    with tabs[1]:
+        if graph_completed and current.get("copy_edited_text"):
+            st.subheader("📝 Final Copy-Edited Text")
+            st.text_area(
+                "Copy-Edited Result",
+                value=current["copy_edited_text"],
+                height=min(max(100, count_visual_lines(current["copy_edited_text"]) * 20 + 60), 800),
+                disabled=True,
+                key=f"final_copy_edited_{st.session_state.thread_id}",
+            )
+        else:
+            st.info("⏳ Copy-edited text will appear here after graph execution completes.")
+            if not graph_completed:
+                st.caption("💡 Complete the review text input and click 'Start & Stream' to begin processing.")
+
+    # =============================================================================
+    # TAB 3: SUMMARY
+    # =============================================================================
+    with tabs[2]:
+        if graph_completed and current.get("summary"):
+            st.subheader("📋 Final Summary")
+            st.text_area(
+                "Summary Result",
+                value=current["summary"],
+                height=min(max(100, count_visual_lines(current["summary"]) * 20 + 60), 800),
+                disabled=True,
+                key=f"final_summary_{st.session_state.thread_id}",
+            )
+        else:
+            st.info("⏳ Summary will appear here after graph execution completes.")
+            if not graph_completed:
+                st.caption("💡 Complete the review text input and click 'Start & Stream' to begin processing.")
+
+    # =============================================================================
+    # TAB 4: WORD CLOUD
+    # =============================================================================
+    with tabs[3]:
+        if graph_completed and current.get("word_cloud_path"):
+            st.subheader("🖼️ Final Word Cloud")
+            try:
+                import os
+                if os.path.exists(current["word_cloud_path"]):
+                    st.image(
+                        current["word_cloud_path"],
+                        caption="Final Generated Word Cloud",
+                        width='stretch',
+                    )
+                else:
+                    st.warning(f"⚠️ Word cloud image not found at final path: {current['word_cloud_path']}")
+            except Exception as e:
+                st.error(f"❌ Error displaying final word cloud: {e}")
+        else:
+            st.info("⏳ Word cloud will appear here after graph execution completes.")
+            if not graph_completed:
+                st.caption("💡 Complete the review text input and click 'Start & Stream' to begin processing.")
+
+    # =============================================================================
+    # TAB 5: ACHIEVEMENTS
+    # =============================================================================
+    with tabs[4]:
+        if graph_completed and current.get("achievements"):
+            st.subheader("🏆 Final Achievements")
+            try:
+                achievements_data = current["achievements"]
+                achievements = None
+                
+                # Handle both dict and string representations of achievements
+                if isinstance(achievements_data, dict):
+                    achievements = AchievementsList(**achievements_data)
+                else:
+                    st.write("⚠️ Achievements data not parse-able")
+                    st.write(achievements_data)
+                
+                # Only display the achievements if we successfully parsed them
+                if achievements is not None:
+                    # Render the summary panel as HTML
+                    summary_panel = create_summary_panel(achievements)
+                    render_rich(summary_panel)
+                    
+                    # Render the achievements table as HTML
+                    achievements_table = create_achievements_table(achievements)
+                    render_rich(achievements_table)
+
+            except Exception as e:
+                st.error(f"❌ Error displaying final achievements: {e}")
+        else:
+            st.info("⏳ Achievements will appear here after graph execution completes.")
+            if not graph_completed:
+                st.caption("💡 Complete the review text input and click 'Start & Stream' to begin processing.")
+
+    # =============================================================================
+    # TAB 6: REVIEW SCORECARD
+    # =============================================================================
+    with tabs[5]:
+        if graph_completed and current.get("review_scorecard"):
+            st.subheader("📊 Final Review Scorecard")
+            try:
+                review_scorecard_data = current["review_scorecard"]
+                review_scorecard = None
+                
+                # Handle both dict and string representations of review scorecard
+                if isinstance(review_scorecard_data, dict):
+                    review_scorecard = ReviewScorecard(**review_scorecard_data)
+                else:
+                    st.write("⚠️ Review scorecard data not parse-able")
+                    st.write(review_scorecard_data)
+                
+                # Only display the review scorecard if we successfully parsed it
+                if review_scorecard is not None:
+                    # Render the evaluation summary panel as HTML
+                    eval_summary_panel = create_summary_panel_evaluation(review_scorecard)
+                    render_rich(eval_summary_panel)
+                    
+                    # Render the metrics table as HTML
+                    metrics_table = create_metrics_table(review_scorecard)
+                    render_rich(metrics_table)
+                    
+                    # Render the radar chart info as HTML
+                    radar_info = create_radar_chart_info(review_scorecard)
+                    render_rich(radar_info)
+                    
+                    # Render the radar plot (this should be a Plotly figure)
+                    st.plotly_chart(create_radar_plot(review_scorecard.model_dump()))
+                    
+            except Exception as e:
+                st.error(f"❌ Error displaying final review scorecard: {e}")
+        else:
+            st.info("⏳ Review scorecard will appear here after graph execution completes.")
+            if not graph_completed:
+                st.caption("💡 Complete the review text input and click 'Start & Stream' to begin processing.")
+    
+    return review_text
 
 
 # =============================================================================
 # STREAMLIT SESSION STATE INITIALIZATION
 # =============================================================================
+
+# Version check to force reset when code changes
+# This ensures that session state is reset when the application is updated
+APP_VERSION = "1.1.0"  # Increment this when you want to force a session reset
+
+# Check if this is a new version and reset session state if needed
+if "app_version" not in st.session_state or st.session_state.app_version != APP_VERSION:
+    # Clear all session state for new version
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state.app_version = APP_VERSION
 
 # Initialize persistent session state variables that survive Streamlit reruns
 # These maintain state between user interactions and streaming updates
@@ -290,13 +542,22 @@ if "state" not in st.session_state:
 # Current review title for the LangGraph workflow (default example review title)
 # This provides a user-friendly identifier for the review session
 if "current_review_title" not in st.session_state:
-    st.session_state.current_review_title = "Employee self-review - cycle 2025"  # default
+    st.session_state.current_review_title = "Self-review Q1–Q2 / H1 2025"  # default
 
 # Current review text content that will be processed by the workflow
 # This stores the user's input and gets sent to the LangGraph for processing
 if "current_review_text" not in st.session_state:
-    st.session_state.current_review_text = """I had an eventful cycle this summer.  Learnt agentic workflows and implemented a self-reviewer agent 
-    for the periodic employee self-review process.  It significantly improved employee productivity for the organization."""  # default
+    # Load default review text from sample file
+    try:
+        root_dir = os.getenv("BOOTCAMP_ROOT_DIR")
+        sample_file_path = os.path.join(root_dir, "sample_reviews", "data_engineer_review.md")
+        print(f"Loading review text from {sample_file_path}")
+        with open(sample_file_path, 'r', encoding='utf-8') as f:
+            st.session_state.current_review_text = f.read().strip()
+    except Exception:
+        # Fallback to a simple default if file reading fails
+        st.session_state.current_review_text = """I had an eventful cycle this summer.  Learnt agentic workflows and implemented a self-reviewer agent 
+        for the periodic employee self-review process.  It significantly improved employee productivity for the organization."""
 
 # Timestamp of last state update (for display purposes)
 # This tracks when the workflow state was last modified for UI feedback
@@ -319,6 +580,8 @@ if "results_displayed" not in st.session_state:
         "copy_edited": False,
         "summary": False,
         "word_cloud": False,
+        "achievements": False,
+        "review_scorecard": False,
     }
 
 # =============================================================================
@@ -335,9 +598,10 @@ with st.sidebar:
     # Review title input field - allows users to customize their session identifier
     # This provides a user-friendly way to organize different review sessions
     review_title = st.text_input(
-        "Review Title",
+        label="Review Title",
         value=st.session_state.current_review_title,
-        help="Enter a title for your review session",
+        key="review_title_input",
+        placeholder="Enter a title for your review session",
     )
 
     # Streaming mode selection - controls how data is received from the server
@@ -368,6 +632,10 @@ with st.sidebar:
     # Stop button - stops the client-side streaming loop
     # Allows users to interrupt long-running processes
     stop_btn = st.button("⏹️ Stop (client-side)", width="stretch")
+    
+    # Reset button - clears all session state and reloads defaults
+    # Useful for testing or when you want to start fresh
+    reset_btn = st.button("🔄 Reset Session", width="stretch", type="secondary")
 
     # Handle start button click - initialize new workflow execution
     if start_btn:
@@ -385,6 +653,8 @@ with st.sidebar:
                 "copy_edited": False,
                 "summary": False,
                 "word_cloud": False,
+                "achievements": False,
+                "review_scorecard": False,
             }
 
     # Handle stop button click - gracefully terminate streaming
@@ -394,38 +664,48 @@ with st.sidebar:
         # This prevents resource waste while allowing server-side cleanup
         st.session_state.running = False
 
+    # Handle reset button click - clear all session state and reload defaults
+    if reset_btn:
+        # Clear all session state
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        # Set the app version to trigger reinitialization
+        st.session_state.app_version = APP_VERSION
+        # Force a rerun to reinitialize everything
+        st.rerun()
+
+    review_validation_container = st.container()
+    status_container = st.container()
+    progress_container = st.container()
+    progress_container.subheader("📊 Progress Status")
+    progress_steps = [] if "progress_steps" not in st.session_state else st.session_state.progress_steps
+    st.session_state.progress_steps = progress_steps
 # =============================================================================
 # USER INTERFACE - MAIN INPUT PANEL
 # =============================================================================
 
-# Main review text input area at the top - primary content entry point
-st.subheader("📝 Enter Your Review Text")
-review_text = st.text_area(
-    "Review Text",
-    value=st.session_state.current_review_text,
-    height=300,  # Large height for substantial content input
-    placeholder="Enter your detailed review text here...",
-    help="Enter your review text here. This will be processed by the LangGraph agent to generate copy-edited text, summary, and word cloud.",
-    key=f"main_review_input_{st.session_state.thread_id}",  # Thread-specific key to avoid conflicts
-)
+# =============================================================================
+# TABBED INTERFACE - MAIN CONTENT AREA
+# =============================================================================
 
-# Validate input and show feedback
-is_valid, validation_message = validate_review_text(review_text)
-if not is_valid:
-    st.warning(f"⚠️ {validation_message}")
-else:
-    st.success("✅ Review text looks good!")
+# Check if graph execution has completed to determine which tabs are available
+current = st.session_state.state or {}
+graph_completed = any(k in current for k in ["copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"])
 
-# Handle review text changes - automatic state management
-# When content changes, we need to reset the session to prevent mixing old and new data
-if review_text != st.session_state.current_review_text:
-    st.session_state.current_review_text = review_text
-    # Generate new thread ID for clean separation between different content
-    st.session_state.thread_id = str(uuid.uuid4())
-    # Clear previous state to prevent data contamination from old content
-    st.session_state.state = {}
-    # Clear previous events for clean debugging of new content
-    st.session_state.events = []
+# Define tab labels and their availability
+tab_labels = [
+    "📝 Review Text",
+    "📝 Copy-Edited Text", 
+    "📋 Summary",
+    "🖼️ Word Cloud",
+    "🏆 Achievements",
+    "📊 Review Scorecard"
+]
+
+tabs = st.tabs(tab_labels)
+
+# Populate tabs with content - called at the beginning
+review_text = populate_tabs(tabs, graph_completed, current, review_validation_container)
 
 # =============================================================================
 # USER INTERFACE - STATUS DISPLAY
@@ -434,73 +714,49 @@ if review_text != st.session_state.current_review_text:
 # Display current application status with context-aware messaging
 if st.session_state.running:
     # Active streaming state - inform user that processing is ongoing
-    st.info("🔄 **Streaming run in progress…**")
+    status_container.info("🔄 **Streaming run in progress…**")
 else:
     if st.session_state.state:
         # Completed state - previous run finished with results
-        st.success("✅ **Last run finished**")
+        status_container.success("✅ **Last run finished**")
     else:
         # Ready state - waiting for user to start processing
-        st.info("⏸️ **Ready** — enter your review text above and click Start in the sidebar")
+        status_container.info("⏸️ **Ready** — enter your review text and click Start in the sidebar")
 
 # =============================================================================
-# USER INTERFACE - THREE-COLUMN LAYOUT
+# USER INTERFACE - STREAMING EVENTS EXPANDER
 # =============================================================================
 
-# Create two columns with left panel wider: input info and debug
-# The 1.5:1 ratio gives more space to user-facing content while preserving debug info
-input_col, events_col = st.columns([1.5, 1], gap="large")
+# Final results are now displayed in the tabbed interface above
 
-# Left column: Review title, input info, progress, and results display
-# This is the primary user-facing area with session information and processing results
-with input_col:
-    st.subheader("📋 Review Session Info")
-
-    # Display review title - read-only display of current session identifier
-    st.text_input(
-        "Review Title",
-        value=st.session_state.current_review_title,
-        disabled=True,  # Read-only to prevent confusion with sidebar input
-        help="Current review session title",
-        key=f"left_title_{st.session_state.thread_id}",
-    )
-
-    # Display review text preview (first 200 characters)
-    # Provides a quick overview of the content being processed
-    review_preview = (
-        st.session_state.current_review_text[:200] + "..."
-        if len(st.session_state.current_review_text) > 200
-        else st.session_state.current_review_text
-    )
-    st.text_area(
-        "Review Text Preview",
-        value=review_preview,
-        height=100,
-        disabled=True,  # Read-only preview
-        help="Preview of the review text being processed",
-        key=f"left_preview_{st.session_state.thread_id}",
-    )
-
-    # Results section - dynamic content area for processing outputs
-    st.subheader("✨ Processing Results")
-
-    # Create containers for dynamic content that will be updated during streaming
-    # Using containers instead of empty placeholders to avoid key conflicts
-    # Containers allow for dynamic content updates without Streamlit key issues
-    copy_edited_container = st.container()  # Copy-edited text display
-    summary_container = st.container()  # Summary text display
-    word_cloud_path_container = st.container()  # Word cloud path display
-    word_cloud_image_container = st.container()  # Word cloud image display
-
-# Right column: Debug information - technical details for developers and troubleshooting
-with events_col:
-    st.subheader("🔍 Stream Events (Debug)")
+# Collapsible section for streaming events debug information
+# This provides developers with insight into the event structure and data flow
+with st.expander("🔍 Streaming Events", expanded=False):
     events_container = st.container()  # raw event display for debugging
+
+# =============================================================================
+# USER INTERFACE - MAIN CONTENT AREA (FULL WIDTH)
+# =============================================================================
+
+# Main content area using full width of the screen
+# Results section - dynamic content area for processing outputs
+with st.expander("✨ Processing Results", expanded=False):
+    processing_results_container = st.container()
+
+# Create containers for dynamic content that will be updated during streaming
+# Using containers instead of empty placeholders to avoid key conflicts
+# Containers allow for dynamic content updates without Streamlit key issues
+copy_edited_container = processing_results_container.container()  # Copy-edited text display
+summary_container = processing_results_container.container()  # Summary text display
+word_cloud_path_container = processing_results_container.container()  # Word cloud path display
+word_cloud_image_container = processing_results_container.container()  # Word cloud image display
+achievements_container = processing_results_container.container()  # Achievements dictionary display
+review_scorecard_container = processing_results_container.container()  # Review scorecard dictionary display
 
 # =============================================================================
 # MAIN STREAMING LOOP
 # =============================================================================
-
+    
 # This is the core of the application - the streaming loop that processes events
 # If running, drive the stream (this call blocks the script until the server finishes or user stops)
 if st.session_state.running:
@@ -587,7 +843,7 @@ if st.session_state.running:
                 copy_edited_container.text_area(
                     "📝 Copy-Edited Text",
                     value=copy_edited_text,
-                    height=200,
+                    height=None,
                     disabled=True,  # Read-only display
                     help="This is the copy-edited version of your review text, returned by the LangGraph agent.",
                     key=f"copy_edited_{st.session_state.thread_id}",  # Fixed key - no timestamp
@@ -604,7 +860,7 @@ if st.session_state.running:
                 summary_container.text_area(
                     "📋 Summary",
                     value=summary,
-                    height=150,
+                    height=None,
                     disabled=True,  # Read-only display
                     help="This is the summary of your review text, generated by the LangGraph agent.",
                     key=f"summary_{st.session_state.thread_id}",  # Fixed key - no timestamp
@@ -642,6 +898,44 @@ if st.session_state.running:
                     word_cloud_image_container.error(f"❌ Error displaying word cloud: {e}")
                 st.session_state.results_displayed["word_cloud"] = True
 
+            # Display achievements dictionary
+            # This shows the extracted achievements from the review text
+            achievements = current.get("achievements", "Not yet processed")
+
+            if (
+                achievements != "Not yet processed"
+                and not st.session_state.results_displayed["achievements"]
+            ):
+                # Result is available and not yet displayed - show it
+                achievements_container.empty()  # Clear any previous content
+                achievements_container.subheader("🏆 Achievements")
+                if isinstance(achievements, dict):
+                    # Display as a nicely formatted dictionary
+                    achievements_container.json(achievements)
+                else:
+                    # Fallback for non-dict values
+                    achievements_container.write(str(achievements))
+                st.session_state.results_displayed["achievements"] = True
+
+            # Display review scorecard dictionary
+            # This shows the review scorecard evaluation results
+            review_scorecard = current.get("review_scorecard", "Not yet processed")
+
+            if (
+                review_scorecard != "Not yet processed"
+                and not st.session_state.results_displayed["review_scorecard"]
+            ):
+                # Result is available and not yet displayed - show it
+                review_scorecard_container.empty()  # Clear any previous content
+                review_scorecard_container.subheader("📊 Review Scorecard")
+                if isinstance(review_scorecard, dict):
+                    # Display as a nicely formatted dictionary
+                    review_scorecard_container.json(review_scorecard)
+                else:
+                    # Fallback for non-dict values
+                    review_scorecard_container.write(str(review_scorecard))
+                st.session_state.results_displayed["review_scorecard"] = True
+
             # =================================================================
             # DEBUG DISPLAY (Raw event information)
             # =================================================================
@@ -666,28 +960,36 @@ if st.session_state.running:
         # This indicates that the server has finished processing and closed the connection
         st.session_state.running = False
 
-        # Display final progress in the right panel
+        # Display final progress in the main area
         # This provides a summary of what was completed during the workflow execution
-        with events_col:
-            st.subheader("📊 Final Progress")
-            progress_steps = []
-            # Check each workflow step and show completion status
-            progress_steps.append(
-                "✅ Copy Editing"
-                if current.get("copy_edited_text") is not None
-                else "⏳ Copy Editing"
-            )
-            progress_steps.append(
-                "✅ Summarization" if current.get("summary") is not None else "⏳ Summarization"
-            )
-            progress_steps.append(
-                "✅ Word Cloud Generation"
-                if current.get("word_cloud_path") is not None
-                else "⏳ Word Cloud Generation"
-            )
-            st.write("**Progress:** " + " → ".join(progress_steps))
-
-        st.success("✅ **Graph execution completed!**")
+        # Check each workflow step and show completion status
+        progress_steps.append(
+            "✅ Copy Editing"
+            if current.get("copy_edited_text") is not None
+            else "⏳ Copy Editing"
+        )
+        progress_steps.append(
+            "✅ Summarization" if current.get("summary") is not None else "⏳ Summarization"
+        )
+        progress_steps.append(
+            "✅ Word Cloud Generation"
+            if current.get("word_cloud_path") is not None
+            else "⏳ Word Cloud Generation"
+        )
+        progress_steps.append(
+            "✅ Achievements Extraction"
+            if current.get("achievements") is not None
+            else "⏳ Achievements Extraction"
+        )
+        progress_steps.append(
+            "✅ Review Scorecard"
+            if current.get("review_scorecard") is not None
+            else "⏳ Review Scorecard"
+        )
+        st.session_state.progress_steps = progress_steps
+        # Re-populate tabs with updated data after graph execution completes
+        # This ensures all tabs show the latest results
+        st.rerun()  # This will trigger a rerun and call populate_tabs again with updated data
 
     except requests.RequestException as e:
         # Handle HTTP/network errors
@@ -703,6 +1005,13 @@ if st.session_state.running:
 # =============================================================================
 # FINAL RENDERING AND PERSISTENT INFORMATION
 # =============================================================================
+if len(st.session_state.progress_steps) > 0:
+    progress_container.write("**Progress:** ")
+    for step in st.session_state.progress_steps:
+        progress_container.write(f"• {step}")
+    progress_container.success("✅ **Graph execution completed!**")
+else:
+    progress_container.info("⏳ **Graph execution not yet completed...**")
 
 # Get current state for final display
 # This ensures we have the latest state data for the summary display
@@ -711,102 +1020,17 @@ current = st.session_state.state or {}
 # Show last update timestamp if available
 # This provides temporal context for when the results were generated
 if st.session_state.last_update > 0:
-    st.caption(
+    progress_container.caption(
         f"Last updated: {time.strftime('%H:%M:%S', time.localtime(st.session_state.last_update))}"
     )
 
-# Display final execution summary if we have meaningful state data
-# This section only appears if the workflow has produced actual results
-if current and any(k in current for k in ["copy_edited_text", "summary", "word_cloud_path"]):
-    st.success("**Execution Summary:**")
-
-    # Show review session info
-    # This provides context about the review session that was processed
-    st.subheader("📋 Review Session Details")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.text_input(
-            "Review Title",
-            value=st.session_state.current_review_title,
-            disabled=True,
-            key=f"final_title_{st.session_state.thread_id}",
-        )
-    with col2:
-        st.text_input(
-            "Review Text Length",
-            value=f"{len(st.session_state.current_review_text)} characters",
-            disabled=True,
-            key=f"final_length_{st.session_state.thread_id}",
-        )
-
-    # Create a nice summary display with the results
-    # Each result section is displayed only if the corresponding data exists
-
-    if current.get("copy_edited_text"):
-        st.subheader("📝 Final Copy-Edited Text")
-        st.text_area(
-            "Copy-Edited Result",
-            value=current["copy_edited_text"],
-            height=200,
-            disabled=True,  # Read-only display
-            help="Final copy-edited version of your review text",
-            key=f"final_copy_edited_{st.session_state.thread_id}",
-        )
-
-    if current.get("summary"):
-        st.subheader("📋 Final Summary")
-        st.text_area(
-            "Summary Result",
-            value=current["summary"],
-            height=150,
-            disabled=True,  # Read-only display
-            help="Final summary of your review text",
-            key=f"final_summary_{st.session_state.thread_id}",
-        )
-
-    if current.get("word_cloud_path"):
-        st.subheader("🖼️ Final Word Cloud")
-        try:
-            import os
-
-            if os.path.exists(current["word_cloud_path"]):
-                st.image(
-                    current["word_cloud_path"],
-                    caption="Final Generated Word Cloud",
-                    width="stretch",  # Responsive width
-                )
-            else:
-                st.warning(
-                    f"⚠️ Word cloud image not found at final path: {current['word_cloud_path']}"
-                )
-        except Exception as e:
-            st.error(f"❌ Error displaying final word cloud: {e}")
-
-    # Also show the raw JSON for debugging
-    # This provides developers with access to the complete state data
-    with st.expander("🔍 Raw JSON Data"):
-        st.json(current)
-
 # =============================================================================
-# DEBUG INFORMATION EXPANDER
+# DEBUG SECTION - RAW JSON DATA
 # =============================================================================
 
-# Collapsible section with detailed debug information
-# This provides developers with comprehensive insight into the application state
-with st.expander("🔍 Debug Information"):
-    # Display current state structure and available keys
-    st.write(f"**Current State Keys:** {list(current.keys())}")
-    # Show whether the application is currently running a workflow
-    st.write(f"**Running Status:** {st.session_state.running}")
-    # Display the unique thread identifier for this session
-    st.write(f"**Thread ID:** {st.session_state.thread_id}")
-    # Show a preview of the current review text (first 100 characters)
-    st.write(
-        f"**Current Review Text:** {st.session_state.current_review_text[:100]}{'...' if len(st.session_state.current_review_text) > 100 else ''}"
-    )
-    # Display the timestamp of the last state update
-    st.write(
-        f"**Last Update:** {time.strftime('%H:%M:%S', time.localtime(st.session_state.last_update)) if st.session_state.last_update > 0 else 'Never'}"
-    )
-    # Show the number of events kept in the rolling history buffer
-    st.write(f"**Total Events kept:** {len(st.session_state.events)}")
+# Show the raw JSON for debugging in a collapsible section
+# This provides developers with access to the complete state data
+with st.expander("🔍 Raw JSON Data", expanded=False):
+    json_container = st.container()
+    json_container.json(current)
+
