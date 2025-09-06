@@ -74,7 +74,7 @@ def render_rich(
     padding_px: int = 24,       # top+bottom padding
     min_height: int = 120,
     max_height: int = 800,
-    scrolling: bool = False,    # turn on if you expect very tall content
+    scrolling: bool = True,    
 ):
     """
     Render a Rich Panel/Table (or any renderable) into Streamlit and auto-pick a height.
