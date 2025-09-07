@@ -18,7 +18,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from typing import Annotated, Optional, Literal, List
+from typing import Annotated, Optional, Literal
 
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.graph import StateGraph, START, END
