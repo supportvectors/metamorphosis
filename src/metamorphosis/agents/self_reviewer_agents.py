@@ -299,10 +299,37 @@ evaluation_score_system_prompt = read_text_file(prompts_dir / "evaluation_score_
 async def achievements_extractor_node(
     state: Annotated[dict, Field(description="Current workflow state")],
 ) -> dict:
-    """Achievements extractor node for extracting key achievements from the text.
-
-    This node extracts key achievements from the copy-edited text using an agent accessing an achievements extraction langgraph tool.
+  
     """
+    Achievements extractor node for extracting key achievements from the text.
+
+    This asynchronous node is responsible for orchestrating the extraction of key achievements
+    from the employee's copy-edited self-review text. It leverages a LangGraph agent, which
+    utilizes the `extract_achievements` tool, and is guided by a system prompt designed to
+    ensure accurate and relevant extraction. The node constructs a prompt with the current
+    conversation history and the input text, invokes the agent, and returns the updated
+    message list including the agent's response.
+
+    Args:
+        state (dict): The current workflow state. Must contain:
+            - "copy_edited_text" (str): The self-review text to analyze.
+            - "messages" (list, optional): Conversation history for context.
+
+    Returns:
+        dict: A dictionary with a single key "messages", containing the updated list of
+            messages (including the agent's response with extracted achievements).
+
+    Raises:
+        KeyError: If "copy_edited_text" is missing from the state.
+        Exception: If the agent invocation fails or returns an unexpected result.
+
+    Example:
+        >>> state = {"copy_edited_text": "Delivered project X...", "messages": []}
+        >>> result = await achievements_extractor_node(state)
+        >>> print(result["messages"][-1])  # Agent's response with achievements
+    """
+
+   
     copy_edited_text = state["copy_edited_text"]
     logger.info("achievements_extractor_node: processing text (length={})", len(copy_edited_text))
 
