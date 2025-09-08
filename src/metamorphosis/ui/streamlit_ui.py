@@ -1004,7 +1004,7 @@ graph_all_completed = all(k in current for k in ["copy_edited_text", "summary", 
 
 if graph_all_completed:
     progress_container.success("✅ **Graph execution completed!**")
-else:
+elif graph_completed:
     progress_container.info("⏳ **Graph execution has not completed some steps successfully**")
 
 # Get current state for final display
