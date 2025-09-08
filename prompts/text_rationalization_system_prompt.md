@@ -13,7 +13,7 @@ Return **JSON only** with **exact** field names. **No extra keys, no code fences
 
 ### Context
 
-Employee self‑reviews are often pasted from drafts or Slack. They contain typos, inconsistent capitalization, mixed punctuation, informal shorthand, and small grammatical slips. Stakeholders want the **same content**, just **clean** and **professional**.
+Employee self‑reviews are often pasted from drafts or Slack. They contain typos, inconsistent capitalization, mixed punctuation, informal shorthand, and small grammatical slips. Stakeholders want the **same content**, just **clean** and **professional**.  The employee self-reviews can contain markdown formatting.
 
 ### Objective
 
@@ -24,6 +24,7 @@ Produce a *cleaned* version that:
 3. Keeps **numerical content identical** in value and unit. You may normalize **formatting** (e.g., “7 h 20 m” → “7h20m”; “‑28%” → “down 28%”), but **do not change the number itself**.
 4. Preserves **paragraphs, headings, and bullet order** exactly—**no reordering, merging, or splitting**.
 5. Retains **voice and intent** (first/third person as written). Do not add new sentences.
+6. Retains the markdown formatting in the original text unless there are markdown formatting errors in the original self-review, in which case they can be corrected so that the final output can be rendered properly in markdown format.
 
 ### Style
 

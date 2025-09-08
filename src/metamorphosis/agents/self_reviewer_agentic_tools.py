@@ -1,27 +1,16 @@
 # =============================================================================
-#  Filename: self_reviewer.py
+#  Filename: self_reviewer_agentic_tools.py
 #
-#  Short Description: Self-reviewer agent(s) for the periodic employee self-review process.
+#  Short Description: Self-reviewer agent(s) that include langgraph tools for the periodic employee self-review process.
 #
-#  Creation date: 2025-09-01
+#  Creation date: 2025-09-07
 #  Author: Chandar L
 # =============================================================================
 
 """Self-Reviewer Agent Implementation.
 
-This module implements an intelligent self-review processing system using LangGraph
-for workflow orchestration and MCP (Model Context Protocol) for tool integration.
-
-The system processes employee self-review text through three main stages:
-1. Copy editing for grammar and clarity improvements
-2. Abstractive summarization for key insights extraction
-3. Word cloud generation for visual representation of key themes
-
-Architecture:
-- Uses LangGraph StateGraph for workflow management
-- Integrates with MCP servers for text processing tools
-- Implements async/await pattern for concurrent processing
-- Supports state persistence through checkpointing
+This module implements an intelligent self-review processing system 
+that includes langgraph tools as well as MCP tools for the periodic employee self-review process.
 """
 
 from __future__ import annotations
@@ -29,17 +18,25 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Literal
 
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import InMemorySaver
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import AIMessage, ToolMessage
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode
+
 from typing_extensions import TypedDict
 from rich import print as rprint
 from pydantic import Field, validate_call
 from loguru import logger
 from dotenv import load_dotenv
 from metamorphosis.datamodel import AchievementsList, ReviewScorecard
+from metamorphosis.agents.review_tools import extract_achievements, evaluate_review_text
+from metamorphosis.utilities import read_text_file, get_project_root
 
 from metamorphosis.exceptions import (
     raise_mcp_tool_error,
@@ -60,6 +57,8 @@ class GraphState(TypedDict):
         copy_edited_text: The grammar and clarity improved version.
         summary: The abstractive summary of the key insights.
         word_cloud_path: Path to the generated word cloud image file.
+        achievements: The key achievements extracted from the text by an agent accessing an achievements extraction langgraph tool.
+        review_scorecard: The review scorecard generated from the text by an agent accessing a review scorecard generation langgraph tool.
     """
 
     original_text: str
@@ -68,7 +67,7 @@ class GraphState(TypedDict):
     word_cloud_path: Optional[str]
     achievements: Optional[AchievementsList]
     review_scorecard: Optional[ReviewScorecard]
-
+    messages: Annotated[list, add_messages]
 
 # =============================================================================
 # MCP CLIENT CONFIGURATION
@@ -241,82 +240,6 @@ async def summarizer_node(
     return {"summary": summary}
 
 @validate_call
-async def achievements_extractor_node(
-    state: Annotated[dict, Field(description="Current workflow state")],
-) -> dict:
-    """Achievements extractor node for extracting key achievements from the text.
-
-    This node extracts key achievements from the copy-edited text.
-
-    Args:
-        state: Current workflow state containing copy_edited_text.
-
-    Returns:
-        dict: Updated state with achievements field populated.
-
-    Raises:
-        ValueError: If extract_achievements tool is not available or postcondition fails.
-        json.JSONDecodeError: If tool response is not valid JSON.
-    """
-    copy_edited_text = state["copy_edited_text"]
-    logger.info("achievements_extractor_node: processing text (length={})", len(copy_edited_text))
-
-    achievements_extractor_tool = _find_tool("extract_achievements")
-    result = await achievements_extractor_tool.ainvoke({"text": copy_edited_text})
-
-    result_data = json.loads(result)
-    # Create AchievementsList object from result_data
-    achievements = AchievementsList(**result_data)
-
-    # Postcondition (O(1)): ensure valid output
-    if not achievements or not isinstance(achievements, AchievementsList):
-        raise_postcondition_error(
-            "Achievements extractor output validation failed",
-            context={"has_achievements": bool(achievements), "achievements_type": type(achievements).__name__},
-            operation="achievements_extractor_validation",
-        )
-
-    return {"achievements": achievements}
-
-@validate_call
-async def review_text_evaluator_node(
-    state: Annotated[dict, Field(description="Current workflow state")],
-) -> dict:
-    """Review text evaluator node for evaluating the copy-edited text.
-
-    This node evaluates the review text.
-
-    Args:
-        state: Current workflow state containing copy_edited_text.
-
-    Returns:
-        dict: Updated state with review_scorecard field populated.
-
-    Raises:
-        ValueError: If evaluate_review_text tool is not available or postcondition fails.
-        json.JSONDecodeError: If tool response is not valid JSON.
-    """
-    copy_edited_text = state["copy_edited_text"]
-    logger.info("review_text_evaluator_node: processing text (length={})", len(copy_edited_text))
-
-    review_text_evaluator_tool = _find_tool("evaluate_review_text")
-    result = await review_text_evaluator_tool.ainvoke({"text": copy_edited_text})
-
-    result_data = json.loads(result)
-    # Create ReviewScorecard object from result_data
-    review_scorecard = ReviewScorecard(**result_data)
-
-    # Postcondition (O(1)): ensure valid output
-    if not review_scorecard or not isinstance(review_scorecard, ReviewScorecard):
-        raise_postcondition_error(
-            "Review text evaluator output validation failed",
-            context={"has_review_scorecard": bool(review_scorecard), "review_scorecard_type": type(review_scorecard).__name__},
-            operation="review_text_evaluator_validation",
-        )
-
-    return {"review_scorecard": review_scorecard}
-
-@validate_call
 async def wordcloud_node(
     state: Annotated[dict, Field(description="Current workflow state")],
 ) -> dict:
@@ -353,11 +276,201 @@ async def wordcloud_node(
 
     return {"word_cloud_path": wordcloud_path}
 
+# =============================================================================
+# AGENT WITH AGENTIC TOOLS
+# =============================================================================
+
+self_reviewer_agentic_tools = [evaluate_review_text, extract_achievements]
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+achievements_extractor_llm = llm.bind_tools([extract_achievements])
+review_text_evaluator_llm = llm.bind_tools([evaluate_review_text])
+achievements_extractor_tool_node = ToolNode([extract_achievements])
+review_text_evaluator_tool_node = ToolNode([evaluate_review_text])
+
+project_root = get_project_root()
+prompts_dir = project_root / "prompts"
+achievements_extraction_system_prompt = read_text_file(prompts_dir / "achievements_extraction_system_prompt.md")
+evaluation_score_system_prompt = read_text_file(prompts_dir / "evaluation_score_system_prompt.md")
+
+async def achievements_extractor_node(
+    state: Annotated[dict, Field(description="Current workflow state")],
+) -> dict:
+    """Achievements extractor node for extracting key achievements from the text.
+
+    This node extracts key achievements from the copy-edited text using an agent accessing an achievements extraction langgraph tool.
+    """
+    copy_edited_text = state["copy_edited_text"]
+    logger.info("achievements_extractor_node: processing text (length={})", len(copy_edited_text))
+
+    messages = state.get("messages", [])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", achievements_extraction_system_prompt),
+            MessagesPlaceholder("messages"),
+            ("human", "Extract key achievements from this text:\n\n{input_text}\n\nIf needed, call the tool."),
+        ]
+    )
+    rendered = prompt.invoke({"messages": messages, "input_text": copy_edited_text})
+    ai_response = await achievements_extractor_llm.ainvoke(rendered)
+
+    return {"messages": [ai_response]}
+
+async def after_achievements_parser(state: GraphState) -> dict:
+    """Achievements extractor post-tools node for extracting key achievements from the text.
+    Called after ToolNode executes. It reads the latest ToolMessage,
+    extracts the tool result (AchievementsList), and writes it into the state.
+    """
+    logger.info("after_achievements_parser: parsing achievements")
+    msgs = state.get("messages", [])
+    if not msgs:
+        raise_postcondition_error(
+            "Achievements extractor post-tools node: no messages found",
+            context={"messages_count": len(msgs) if msgs else 0},
+            operation="achievements_extractor_post_tools_validation",
+        )
+
+    # Find the most recent ToolMessage from extract_achievements
+    tool_msgs = [m for m in reversed(msgs) if isinstance(m, ToolMessage)]
+    if not tool_msgs:
+        raise_postcondition_error(
+            "Achievements extractor post-tools node: no tool messages found",
+            context={"tool_msgs_count": len(tool_msgs) if tool_msgs else 0},
+            operation="achievements_extractor_post_tools_validation",
+        )
+
+    last_tool_msg = tool_msgs[0]
+    # ToolNode serializes Pydantic return values as JSONable dicts (content is a string)
+    # `last_tool_msg.content` is often a string (JSON-serialized). LangChain will usually
+    # provide parsed dict under `additional_kwargs` or `content`; handle both gracefully.
+    payload = None
+
+    # Newer tool runners may set .content as a dict already; support both cases:
+    if isinstance(last_tool_msg.content, (dict, list)):
+        payload = last_tool_msg.content
+    else:
+        # Try to parse JSON if it's a string
+        try:
+            payload = json.loads(last_tool_msg.content)
+        except Exception:
+            payload = {"raw": last_tool_msg.content}
+
+    # We expect payload to match AchievementsList
+    achievements_obj = payload if isinstance(payload, dict) else {"result": payload}
+
+    summary = AIMessage(
+        content=(
+            f"Received {achievements_obj.get('size')} achievements from tool.\n"
+        )
+    )
+    achievements = AchievementsList(**achievements_obj)
+    return {
+        "messages": [summary],
+        "achievements": achievements,
+    }
+
+async def review_text_evaluator_node(
+    state: Annotated[dict, Field(description="Current workflow state")],
+) -> dict:
+    """Review text evaluator node for evaluating the copy-edited text.
+
+    This node evaluates the review text using an agent accessing a review scorecard generation langgraph tool.
+    """
+    copy_edited_text = state["copy_edited_text"]
+    logger.info("review_text_evaluator_node: processing text (length={})", len(copy_edited_text))
+
+    messages = state.get("messages", [])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", evaluation_score_system_prompt),
+            MessagesPlaceholder("messages"),
+            ("human", "Evaluate the review text and generate a review scorecard:\n\n{input_text}\n\nIf needed, call the tool."),
+        ]
+    )
+    rendered = prompt.invoke({"messages": messages, "input_text": copy_edited_text})
+    ai_response = await review_text_evaluator_llm.ainvoke(rendered)
+
+    return {"messages": [ai_response]}
+
+async def after_evaluation_parser(state: GraphState) -> dict:
+    """Review text evaluator post-tools node for evaluating the review text.
+    Called after ToolNode executes. It reads the latest ToolMessage,
+    extracts the tool result (ReviewScorecard), and writes it into the state.
+    """
+    logger.info("after_evaluation_parser: parsing review scorecard")
+    msgs = state.get("messages", [])
+    if not msgs:
+        raise_postcondition_error(
+            "Review text evaluator post-tools node: no messages found",
+            context={"messages_count": len(msgs) if msgs else 0},
+            operation="review_text_evaluator_post_tools_validation",
+        )
+
+    # Find the most recent ToolMessage from extract_achievements
+    tool_msgs = [m for m in reversed(msgs) if isinstance(m, ToolMessage)]
+    if not tool_msgs:
+        raise_postcondition_error(
+            "Review text evaluator post-tools node: no tool messages found",
+            context={"tool_msgs_count": len(tool_msgs) if tool_msgs else 0},
+            operation="review_text_evaluator_post_tools_validation",
+        )
+
+    last_tool_msg = tool_msgs[0]
+    # ToolNode serializes Pydantic return values as JSONable dicts (content is a string)
+    # `last_tool_msg.content` is often a string (JSON-serialized). LangChain will usually
+    # provide parsed dict under `additional_kwargs` or `content`; handle both gracefully.
+    payload = None
+
+    # Newer tool runners may set .content as a dict already; support both cases:
+    if isinstance(last_tool_msg.content, (dict, list)):
+        payload = last_tool_msg.content
+    else:
+        # Try to parse JSON if it's a string
+        try:
+            payload = json.loads(last_tool_msg.content)
+        except Exception:
+            payload = {"raw": last_tool_msg.content}
+
+    # We expect payload to match ReviewScorecard
+    review_scorecard_obj = payload if isinstance(payload, dict) else {"result": payload}
+
+    summary = AIMessage(
+        content=(
+            f"Received {review_scorecard_obj.get('overall')} review scorecard from tool.\n"
+        )
+    )
+    review_scorecard = ReviewScorecard(**review_scorecard_obj)
+    return {
+        "messages": [summary],
+        "review_scorecard": review_scorecard,
+    }
+
+async def should_call_achievements_extractor_tools(state: GraphState) -> Literal["no_tools", "tools"]:
+    """If the last AI message contains tool calls, go to tools; else no tools"""
+    msgs = state.get("messages", [])
+    if not msgs:
+        return "no_tools"
+    last = msgs[-1]
+    if isinstance(last, AIMessage) and getattr(last, "tool_calls", None):
+        logger.info("should_call_achievements_extractor_tools: calling tools")
+        return "tools"
+    logger.info("should_call_achievements_extractor_tools: no tools called")
+    return "no_tools"
+
+async def should_call_review_text_evaluator_tools(state: GraphState) -> Literal["no_tools", "tools"]:
+    """If the last AI message contains tool calls, go to tools; else no tools"""
+    msgs = state.get("messages", [])
+    if not msgs:
+        return "no_tools"
+    last = msgs[-1]
+    if isinstance(last, AIMessage) and getattr(last, "tool_calls", None):
+        logger.info("should_call_review_text_evaluator_tools: calling tools")
+        return "tools"
+    logger.info("should_call_review_text_evaluator_tools: no tools called")
+    return "no_tools"
 
 # =============================================================================
 # GRAPH CONSTRUCTION AND WORKFLOW ORCHESTRATION
 # =============================================================================
-
 
 async def build_graph() -> StateGraph:
     """Build and configure the LangGraph workflow for self-review processing.
@@ -378,28 +491,47 @@ async def build_graph() -> StateGraph:
     # Add processing nodes to the graph
     builder.add_node("copy_editor", copy_editor_node)
     builder.add_node("summarizer", summarizer_node)
+    builder.add_node("wordcloud", wordcloud_node)
+
     builder.add_node("achievements_extractor", achievements_extractor_node)
     builder.add_node("review_text_evaluator", review_text_evaluator_node)
-    builder.add_node("wordcloud", wordcloud_node)
+    builder.add_node("after_achievements_parser", after_achievements_parser)
+    builder.add_node("after_evaluation_parser", after_evaluation_parser)
+    builder.add_node("achievements_extractor_tool_node", achievements_extractor_tool_node)
+    builder.add_node("review_text_evaluator_tool_node", review_text_evaluator_tool_node)
+
 
     # Define the workflow edges (execution flow)
     builder.add_edge(START, "copy_editor")
     builder.add_edge("copy_editor", "summarizer")
-    builder.add_edge("copy_editor", "achievements_extractor")
-    builder.add_edge("copy_editor", "review_text_evaluator")
     builder.add_edge("copy_editor", "wordcloud")
     builder.add_edge("summarizer", END)
-    builder.add_edge("achievements_extractor", END)
-    builder.add_edge("review_text_evaluator", END)
     builder.add_edge("wordcloud", END)
+
+    builder.add_edge("copy_editor", "achievements_extractor")
+    builder.add_conditional_edges("achievements_extractor", should_call_achievements_extractor_tools, {
+        "tools": "achievements_extractor_tool_node",
+        "no_tools": END,
+    })
+    builder.add_edge("achievements_extractor_tool_node", "after_achievements_parser")
+
+    builder.add_edge("after_achievements_parser", "review_text_evaluator")
+    builder.add_conditional_edges("review_text_evaluator", should_call_review_text_evaluator_tools, {
+        "tools": "review_text_evaluator_tool_node",
+        "no_tools": END,
+    })
+
+    builder.add_edge("review_text_evaluator_tool_node", "after_evaluation_parser")
+
+    builder.add_edge("after_evaluation_parser", END)
 
     memory = InMemorySaver()
     graph = builder.compile(checkpointer=memory)
 
     # Generate visual representation for documentation
     try:
-        graph.get_graph().draw_mermaid_png(output_file_path="self_reviewer_graph.png")
-        logger.debug("Generated graph visualization: self_reviewer_graph.png")
+        graph.get_graph().draw_mermaid_png(output_file_path="self_reviewer_agentic_tools_graph.png")
+        logger.debug("Generated graph visualization: self_reviewer_agentic_tools_graph.png")
     except Exception as e:
         logger.warning("Failed to generate graph visualization: {}", e)
 
@@ -464,11 +596,9 @@ async def test_graph() -> dict | None:
     Returns:
         dict | None: Complete processed results from the workflow or None if failed.
     """
-    sample_text = (
-        "I had an eventful cycle this summer. Learnt agentic workflows and "
-        "implemented a self-reviewer agent for the periodic employee self-review "
-        "process. It significantly improved employee productivity for the organization."
-    )
+    project_root = get_project_root()
+    review_path = project_root / "sample_reviews" / "data_engineer_review.md"
+    sample_text = read_text_file(review_path)
 
     return await graph.ainvoke(
         {"original_text": sample_text}, config={"configurable": {"thread_id": "default"}}

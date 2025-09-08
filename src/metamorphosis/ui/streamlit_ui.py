@@ -56,7 +56,6 @@ from metamorphosis.utilities import (create_summary_panel,
                 create_radar_chart_info,
                 create_radar_plot)
 
-from streamlit.delta_generator import DeltaGenerator
 # Rich imports for converting Rich objects to HTML
 from rich.console import Console
 
@@ -99,6 +98,13 @@ def render_rich(
     # 5) Embed
     st.components.v1.html(html, height=height, scrolling=scrolling)
 
+def safe_markdown(text: str):
+    """
+    Replace $ with \$, so that the markdown rendering is not broken.
+    This is a workaround to avoid the markdown rendering breaking when $ is present in the text.
+    """
+    return text.replace("$", "\\$")
+
 # =============================================================================
 # CONFIGURATION SECTION
 # =============================================================================
@@ -112,7 +118,7 @@ STREAM_URL = f"{SERVICE_BASE}/stream"
 
 # Configure Streamlit page settings for optimal display
 # Wide layout provides more space for the multi-column interface
-st.set_page_config(page_title="LangGraph Monitor", layout="wide")
+st.set_page_config(page_title="Employee Self-Review", layout="wide")
 
 # =============================================================================
 # SIMPLE CONFIGURATION CONSTANTS
@@ -320,7 +326,13 @@ def extract_values_from_event(ev: Dict[str, Any]) -> Dict[str, Any] | None:
     # Pattern B: Custom server format - state is at TOP LEVEL
     # This handles cases where the server sends the state directly without wrapping
     # Define expected keys that indicate this is a GraphState object
-    expected_keys = {"original_text", "copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"}
+    expected_keys = {"original_text", 
+    "copy_edited_text", 
+    "summary", 
+    "word_cloud_path", 
+    "achievements", 
+    "review_scorecard", 
+    "review_complete"}
     # If any of these expected keys exist, treat the whole event as the current state
     # Using set intersection for efficient key checking
     if expected_keys.intersection(ev.keys()):
@@ -349,19 +361,21 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     # TAB 1: REVIEW TEXT INPUT
     # =============================================================================
     with tabs[0]:
-        st.subheader("📝 Enter Your Review Text")
+        st.subheader("📝 Enter Your Review Text in Markdown Format (Check below for preview)")
         review_text = st.text_area(
             "Review Text",
             value=st.session_state.current_review_text,
             height=min(max(100, count_visual_lines(st.session_state.current_review_text) * 20 + 60), 800),
             key=f"main_review_input_{st.session_state.thread_id}",
         )
+        # Rendered preview
+        st.subheader("Preview")
+        st.markdown(review_text, unsafe_allow_html=True)
+
         # Validate input and show feedback
         is_valid, validation_message = validate_review_text(review_text)
         if not is_valid:
             review_validation_container.warning(f"⚠️ {validation_message}")
-        else:
-            review_validation_container.success("✅ Review text looks good!")
         
         # Handle review text changes - automatic state management
         # When content changes, we need to reset the session to prevent mixing old and new data
@@ -373,6 +387,8 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
             st.session_state.state = {}
             # Clear previous events for clean debugging of new content
             st.session_state.events = []
+            # Clear previous progress steps to prevent accumulation of old steps
+            st.session_state.progress_steps = []
 
     # =============================================================================
     # TAB 2: COPY-EDITED TEXT
@@ -380,7 +396,7 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     with tabs[1]:
         if graph_completed and current.get("copy_edited_text"):
             st.subheader("📝 Final Copy-Edited Text")
-            st.markdown(current["copy_edited_text"])
+            st.markdown(current["copy_edited_text"], unsafe_allow_html=True)
             st.write("--------------------------------")
             st.text_area(
                 "Copy-Edited Result",
@@ -400,13 +416,7 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     with tabs[2]:
         if graph_completed and current.get("summary"):
             st.subheader("📋 Final Summary")
-            st.text_area(
-                "Summary Result",
-                value=current["summary"],
-                height=min(max(100, count_visual_lines(current["summary"]) * 20 + 60), 800),
-                disabled=True,
-                key=f"final_summary_{st.session_state.thread_id}",
-            )
+            st.markdown(safe_markdown(current["summary"]), unsafe_allow_html=True)
         else:
             st.info("⏳ Summary will appear here after graph execution completes.")
             if not graph_completed:
@@ -488,6 +498,13 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
                 
                 # Only display the review scorecard if we successfully parsed it
                 if review_scorecard is not None:
+                    # Render the radar plot (this should be a Plotly figure)
+                    st.plotly_chart(create_radar_plot(review_scorecard.model_dump()))
+
+                    # Render the radar chart info as HTML
+                    radar_info = create_radar_chart_info(review_scorecard)
+                    render_rich(radar_info)
+
                     # Render the evaluation summary panel as HTML
                     eval_summary_panel = create_summary_panel_evaluation(review_scorecard)
                     render_rich(eval_summary_panel)
@@ -495,13 +512,6 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
                     # Render the metrics table as HTML
                     metrics_table = create_metrics_table(review_scorecard)
                     render_rich(metrics_table)
-                    
-                    # Render the radar chart info as HTML
-                    radar_info = create_radar_chart_info(review_scorecard)
-                    render_rich(radar_info)
-                    
-                    # Render the radar plot (this should be a Plotly figure)
-                    st.plotly_chart(create_radar_plot(review_scorecard.model_dump()))
                     
             except Exception as e:
                 st.error(f"❌ Error displaying final review scorecard: {e}")
@@ -551,8 +561,8 @@ if "current_review_title" not in st.session_state:
 if "current_review_text" not in st.session_state:
     # Load default review text from sample file
     try:
-        root_dir = os.getenv("BOOTCAMP_ROOT_DIR")
-        sample_file_path = os.path.join(root_dir, "sample_reviews", "data_engineer_review.md")
+        root_dir = os.getenv("PROJECT_ROOT_DIR")
+        sample_file_path = os.path.join(root_dir, "sample_reviews", "poor_review.md") # data_engineer_review.md
         print(f"Loading review text from {sample_file_path}")
         with open(sample_file_path, 'r', encoding='utf-8') as f:
             st.session_state.current_review_text = f.read().strip()
@@ -591,7 +601,7 @@ if "results_displayed" not in st.session_state:
 # =============================================================================
 
 # Main application title with emoji for visual appeal
-st.title("🐾 LangGraph State Monitor (Streamlit)")
+st.title("🐾 Employee Self-Review Wizard")
 
 # Sidebar for user controls - provides dedicated space for configuration options
 with st.sidebar:
@@ -626,6 +636,8 @@ with st.sidebar:
         st.session_state.state = {}
         # Clear previous events for clean debugging
         st.session_state.events = []
+        # Clear previous progress steps to prevent accumulation of old steps
+        st.session_state.progress_steps = []
 
     # Start button - initiates the LangGraph workflow and streaming
     # Primary button with visual emphasis to indicate main action
@@ -692,7 +704,12 @@ with st.sidebar:
 
 # Check if graph execution has completed to determine which tabs are available
 current = st.session_state.state or {}
-graph_completed = any(k in current for k in ["copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"])
+graph_completed = any(k in current for k in ["copy_edited_text", 
+"summary", 
+"word_cloud_path", 
+"achievements", 
+"review_scorecard", 
+"review_complete"])
 
 # Define tab labels and their availability
 tab_labels = [
@@ -827,6 +844,13 @@ if st.session_state.running:
             # Get current state for display (use empty dict if none)
             # This ensures we always have a valid dictionary for display operations
             current = st.session_state.state or {}
+            graph_completed = any(k in current for k in [
+                "copy_edited_text", 
+                "summary", 
+                "word_cloud_path", 
+                "achievements", 
+                "review_scorecard", 
+                "review_complete"])
 
             # Clear previous content in containers to avoid duplication
             # This prevents content from accumulating during streaming updates
@@ -1011,10 +1035,24 @@ if len(st.session_state.progress_steps) > 0:
     progress_container.write("**Progress:** ")
     for step in st.session_state.progress_steps:
         progress_container.write(f"• {step}")
-    progress_container.success("✅ **Graph execution completed!**")
-else:
-    progress_container.info("⏳ **Graph execution not yet completed...**")
 
+graph_all_completed = all(k in current for k in [
+    "copy_edited_text", 
+    "summary", 
+    "word_cloud_path", 
+    "achievements", 
+    "review_scorecard", 
+    "review_complete"])
+
+if graph_all_completed:
+    progress_container.success("✅ **Graph execution completed!**")
+elif graph_completed:
+    progress_container.error("❌ **Graph execution has not completed some steps successfully**")
+    if "review_complete" in current and not current["review_complete"]:
+        progress_container.warning("⚠️ Very few achievements could be extracted from the self-review text")
+        progress_container.warning("💡 Update the review text input with more details and click 'Start & Stream' to restart the processing.")
+else:
+    progress_container.info("⏳ **Graph execution pending**")
 # Get current state for final display
 # This ensures we have the latest state data for the summary display
 current = st.session_state.state or {}
