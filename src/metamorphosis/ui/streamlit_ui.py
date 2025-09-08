@@ -51,9 +51,7 @@ import math  # Math functions for calculation
 
 from metamorphosis.datamodel import AchievementsList, ReviewScorecard
 from metamorphosis.utilities import (create_summary_panel, 
-                create_achievements_table, 
                 create_summary_panel_evaluation, 
-                create_metrics_table, 
                 create_radar_chart_info,
                 create_radar_plot)
 
@@ -105,6 +103,316 @@ def safe_markdown(text: str):
     This is a workaround to avoid the markdown rendering breaking when $ is present in the text.
     """
     return text.replace("$", "\\$")
+
+
+def display_achievements_table(achievements_list: AchievementsList):
+    """
+    Display achievements using HTML table with proper text wrapping.
+    
+    Args:
+        achievements_list: The AchievementsList object containing extracted achievements.
+    """
+    # Create header with summary information
+    st.markdown(f"""
+    ### 🏆 Extracted Key Achievements
+    **{len(achievements_list.items)} items** • **~{achievements_list.size} tokens**
+    """)
+    
+    # Create HTML table with proper text wrapping
+    html_table = create_html_achievements_table(achievements_list)
+    html_doc = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        {html_table}
+    </body>
+    </html>
+    """
+
+    st.components.v1.html(html_doc, height=500, scrolling=True)
+
+
+def create_html_achievements_table(achievements_list: AchievementsList) -> str:
+    """
+    Create an HTML table with proper text wrapping for achievements.
+    
+    Args:
+        achievements_list: The AchievementsList object containing extracted achievements.
+        
+    Returns:
+        HTML string for the achievements table.
+    """
+    # Start building the HTML table
+    html = """
+    <style>
+    .achievements-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-family: Arial, sans-serif;
+    }
+    .achievements-table th {
+        background-color: #f0f2f6;
+        color: #262730;
+        font-weight: bold;
+        padding: 12px 8px;
+        text-align: left;
+        border: 1px solid #e6e9ef;
+        white-space: nowrap;
+    }
+    .achievements-table td {
+        padding: 12px 8px;
+        border: 1px solid #e6e9ef;
+        vertical-align: top;
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: pre-wrap;
+        max-width: 200px;
+    }
+    .achievements-table tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+    .achievements-table tr:hover {
+        background-color: #f0f2f6;
+    }
+    .title-cell {
+        font-weight: bold;
+        color: #1f77b4;
+    }
+    .impact-cell {
+        text-align: center;
+        font-weight: bold;
+    }
+    .metrics-cell {
+        font-style: italic;
+        color: #2ca02c;
+    }
+    .details-cell {
+        font-size: 0.9em;
+        color: #666;
+    }
+    </style>
+    
+    <table class="achievements-table">
+        <thead>
+            <tr>
+                <th>🏆 Title</th>
+                <th>📋 Outcome</th>
+                <th>🎯 Impact Area</th>
+                <th>📊 Metrics</th>
+                <th>ℹ️ Details</th>
+            </tr>
+        </thead>
+        <tbody>
+    """
+    
+    # Add rows for each achievement
+    for i, achievement in enumerate(achievements_list.items, 1):
+        # Format metrics as a comma-separated string
+        metrics_text = ", ".join(achievement.metric_strings) if achievement.metric_strings else "—"
+        
+        # Format additional details (timeframe, scope, collaborators)
+        details_parts = []
+        if achievement.timeframe:
+            details_parts.append(f"⏰ {achievement.timeframe}")
+        if achievement.ownership_scope:
+            details_parts.append(f"👤 {achievement.ownership_scope}")
+        if achievement.collaborators:
+            collabs = ", ".join(achievement.collaborators[:2])  # Show first 2 collaborators
+            if len(achievement.collaborators) > 2:
+                collabs += f" +{len(achievement.collaborators) - 2}"
+            details_parts.append(f"🤝 {collabs}")
+        
+        details_text = "\n".join(details_parts) if details_parts else "—"
+        
+        # Color-code impact areas
+        impact_colors = {
+            "reliability": "#ff6b6b",
+            "performance": "#4ecdc4", 
+            "security": "#45b7d1",
+            "cost": "#96ceb4",
+            "revenue": "#feca57",
+            "customer": "#ff9ff3",
+            "delivery_speed": "#54a0ff",
+            "quality": "#5f27cd",
+            "compliance": "#00d2d3",
+            "team": "#ff9f43",
+        }
+        impact_color = impact_colors.get(achievement.impact_area, "#666")
+        
+        # Add the row
+        html += f"""
+            <tr>
+                <td class="title-cell">{i}. {achievement.title}</td>
+                <td>{achievement.outcome}</td>
+                <td class="impact-cell" style="color: {impact_color};">{achievement.impact_area.replace('_', ' ').title()}</td>
+                <td class="metrics-cell">{metrics_text}</td>
+                <td class="details-cell">{details_text}</td>
+            </tr>
+        """
+    
+    # Close the table
+    html += """
+        </tbody>
+    </table>
+    """
+    return html
+
+
+def display_metrics_table(review_scorecard: ReviewScorecard):
+    """
+    Display metrics using HTML table with proper text wrapping.
+    
+    Args:
+        review_scorecard: The ReviewScorecard object containing evaluation results.
+    """
+    # Create header with summary information
+    st.markdown(f"""
+    ### 📊 Review Quality Evaluation
+    **Overall Score: {review_scorecard.overall}/100** • **Verdict: {review_scorecard.verdict.title()}**
+    """)
+    
+    # Create HTML table with proper text wrapping
+    html_table = create_html_metrics_table(review_scorecard)
+    html_doc = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        {html_table}
+    </body>
+    </html>
+    """
+    
+    st.components.v1.html(html_doc, height=500, scrolling=True)
+
+
+def create_html_metrics_table(review_scorecard: ReviewScorecard) -> str:
+    """
+    Create an HTML table with proper text wrapping for review metrics.
+    
+    Args:
+        review_scorecard: The ReviewScorecard object containing evaluation results.
+        
+    Returns:
+        HTML string for the metrics table.
+    """
+    # Define weights for display
+    weights = {
+        "OutcomeOverActivity": "25%",
+        "QuantitativeSpecificity": "25%",
+        "ClarityCoherence": "15%",
+        "Conciseness": "15%",
+        "OwnershipLeadership": "10%",
+        "Collaboration": "10%",
+    }
+    
+    # Color coding based on score ranges
+    def get_score_color(score: int) -> str:
+        if score >= 85:
+            return "#2ecc71"  # bright green
+        elif score >= 70:
+            return "#27ae60"  # green
+        elif score >= 50:
+            return "#f39c12"  # yellow
+        else:
+            return "#e74c3c"  # red
+    
+    # Start building the HTML table
+    html = """
+    <style>
+    .metrics-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-family: Arial, sans-serif;
+    }
+    .metrics-table th {
+        background-color: #f0f2f6;
+        color: #262730;
+        font-weight: bold;
+        padding: 12px 8px;
+        text-align: left;
+        border: 1px solid #e6e9ef;
+        white-space: nowrap;
+    }
+    .metrics-table td {
+        padding: 12px 8px;
+        border: 1px solid #e6e9ef;
+        vertical-align: top;
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: pre-wrap;
+        max-width: 200px;
+    }
+    .metrics-table tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+    .metrics-table tr:hover {
+        background-color: #f0f2f6;
+    }
+    .metric-name-cell {
+        font-weight: bold;
+        color: #1f77b4;
+        width: 20%;
+    }
+    .score-cell {
+        text-align: center;
+        font-weight: bold;
+        width: 10%;
+    }
+    .rationale-cell {
+        width: 35%;
+    }
+    .suggestion-cell {
+        font-style: italic;
+        color: #2ca02c;
+        width: 35%;
+    }
+    </style>
+    
+    <table class="metrics-table">
+        <thead>
+            <tr>
+                <th>📊 Metric</th>
+                <th>🎯 Score</th>
+                <th>💭 Rationale</th>
+                <th>💡 Suggestion</th>
+            </tr>
+        </thead>
+        <tbody>
+    """
+    
+    # Add rows for each metric
+    for metric in review_scorecard.metrics:
+        weight = weights.get(metric.name, "")
+        metric_name = f"{metric.name}\n({weight})"
+        
+        score_color = get_score_color(metric.score)
+        
+        # Add the row
+        html += f"""
+            <tr>
+                <td class="metric-name-cell">{metric_name}</td>
+                <td class="score-cell" style="color: {score_color};">{metric.score}/100</td>
+                <td class="rationale-cell">{metric.rationale}</td>
+                <td class="suggestion-cell">{metric.suggestion}</td>
+            </tr>
+        """
+    
+    # Close the table
+    html += """
+        </tbody>
+    </table>
+    """
+    
+    return html
+
 
 # =============================================================================
 # CONFIGURATION SECTION
@@ -473,10 +781,8 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
                     summary_panel = create_summary_panel(achievements)
                     render_rich(summary_panel)
                     
-                    # Render the achievements table as HTML
-                    achievements_table = create_achievements_table(achievements)
-                    render_rich(achievements_table)
-
+                    display_achievements_table(achievements)
+                    
             except Exception as e:
                 st.error(f"❌ Error displaying final achievements: {e}")
         else:
@@ -514,9 +820,8 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
                     eval_summary_panel = create_summary_panel_evaluation(review_scorecard)
                     render_rich(eval_summary_panel)
                     
-                    # Render the metrics table as HTML
-                    metrics_table = create_metrics_table(review_scorecard)
-                    render_rich(metrics_table)
+                    # Display the metrics table using HTML table with text wrapping
+                    display_metrics_table(review_scorecard)
                     
             except Exception as e:
                 st.error(f"❌ Error displaying final review scorecard: {e}")
