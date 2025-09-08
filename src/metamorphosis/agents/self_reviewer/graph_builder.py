@@ -131,6 +131,7 @@ class GraphBuilder:
         builder.add_edge("achievements_extractor_tool_node", "after_achievements_parser")
 
         # Review evaluation flow
+        builder.add_edge("after_achievements_parser", "review_text_evaluator")
         builder.add_edge("review_text_evaluator_tool_node", "after_evaluation_parser")
         builder.add_edge("after_evaluation_parser", END)
 
@@ -149,16 +150,6 @@ class GraphBuilder:
             {
                 "tools": "achievements_extractor_tool_node",
                 "no_tools": END,
-            },
-        )
-
-        # Review continuation decision point
-        builder.add_conditional_edges(
-            "after_achievements_parser",
-            self.nodes.should_continue_review,
-            {
-                "continue": "review_text_evaluator",
-                "no_continue": END,
             },
         )
 
@@ -181,7 +172,7 @@ class GraphBuilder:
             graph: The compiled graph to visualize.
         """
         try:
-            graph.get_graph().draw_mermaid_png(output_file_path="self_reviewer_agents.png")
-            logger.debug("Generated graph visualization: self_reviewer_agents.png")
+            graph.get_graph().draw_mermaid_png(output_file_path="executor_graph.png")
+            logger.debug("Generated graph visualization: executor_graph.png")
         except Exception as e:
             logger.warning("Failed to generate graph visualization: {}", e)

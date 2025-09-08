@@ -1920,6 +1920,7 @@ dependencies = [
     { name = "rich" },
     { name = "spacy" },
     { name = "streamlit" },
+    { name = "streamlit-ace" },
     { name = "stylecloud" },
     { name = "svlearn-bootcamp" },
     { name = "uvicorn" },
@@ -1947,6 +1948,7 @@ requires-dist = [
     { name = "rich", specifier = ">=13.0.0" },
     { name = "spacy", specifier = ">=3.8.7" },
     { name = "streamlit", specifier = ">=1.28.0" },
+    { name = "streamlit-ace", specifier = ">=0.1.1" },
     { name = "stylecloud", specifier = ">=0.5.2" },
     { name = "svlearn-bootcamp", specifier = ">=0.1.7" },
     { name = "uvicorn", specifier = ">=0.35.0" },
@@ -4040,6 +4042,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/6a/06/cab0f4dcc7c092489b0ec0600fedbc3ffb219d6f1ab0d1878451a39c3da1/streamlit-1.49.0.tar.gz", hash = "sha256:22b48f9065435816405129c03e365725cc73759ed17c0efa929d40b4531f8bb0", size = 9640747, upload-time = "2025-08-26T19:40:48.33Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8c/9d/fe78a94ca379aa80e0e14900ce0e6276d339710a11039ad8700dc66a8014/streamlit-1.49.0-py3-none-any.whl", hash = "sha256:4defc9bcdaa6ee214ce25c1a8f660bcc410293a9e78a82251938793c8694a5ee", size = 10044260, upload-time = "2025-08-26T19:40:45.533Z" },
+]
+
+[[package]]
+name = "streamlit-ace"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "streamlit" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2e/34/a508123af170e41852d247b17d38d9cddc2b4be3884f2f29a84aeb322992/streamlit_ace-0.1.1.tar.gz", hash = "sha256:1852fa19707685fd4241be9256c1ab1a89da4a3b8c28ab286e3bff122d3a1686", size = 2389652, upload-time = "2021-12-07T19:01:15.66Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8d/c9/e862cefc5735e11c101b2bc45f37a2b767666ffe673d262004202b506f3b/streamlit_ace-0.1.1-py3-none-any.whl", hash = "sha256:cdf908a90058fa831fb720d29e2aef35a0f5799eac33e2b2e58ba9f3631b1aa5", size = 3642928, upload-time = "2021-12-07T19:01:11.288Z" },
 ]
 
 [[package]]

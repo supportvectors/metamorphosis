@@ -45,6 +45,7 @@ import os  # Operating system functions for file paths
 # Third-party imports for HTTP requests and web UI framework
 import requests  # HTTP client for SSE streaming and API communication
 import streamlit as st  # Web UI framework for building interactive applications
+from streamlit_ace import st_ace
 from dotenv import load_dotenv  # Load environment variables from .env file
 import math  # Math functions for calculation
 
@@ -100,7 +101,7 @@ def render_rich(
 
 def safe_markdown(text: str):
     """
-    Replace $ with \$, so that the markdown rendering is not broken.
+    Replace $ with \\$, so that the markdown rendering is not broken.
     This is a workaround to avoid the markdown rendering breaking when $ is present in the text.
     """
     return text.replace("$", "\\$")
@@ -361,16 +362,28 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     # TAB 1: REVIEW TEXT INPUT
     # =============================================================================
     with tabs[0]:
-        st.subheader("📝 Enter Your Review Text in Markdown Format (Check below for preview)")
-        review_text = st.text_area(
-            "Review Text",
-            value=st.session_state.current_review_text,
-            height=min(max(100, count_visual_lines(st.session_state.current_review_text) * 20 + 60), 800),
-            key=f"main_review_input_{st.session_state.thread_id}",
+        #Create radio button for mode selection
+        mode = st.radio(
+            "Choose mode:",
+            ["📝 Edit", "👁️ View"],
+            horizontal=True
         )
-        # Rendered preview
-        st.subheader("Preview")
-        st.markdown(review_text, unsafe_allow_html=True)
+        review_text = st.session_state.current_review_text
+        if mode == "📝 Edit":           
+            st.subheader("📝 Enter Your Review Text in Markdown Format")
+            review_text = st_ace(
+                value=st.session_state.current_review_text,
+                language='markdown',
+                theme='monokai',
+                key='markdown_editor',
+                height=min(max(100, count_visual_lines(st.session_state.current_review_text) * 20 + 60), 800),
+                auto_update=True,
+                wrap=True,
+                font_size=14
+            )
+        else:
+            st.subheader("📝 Review Text Preview")
+            st.markdown(st.session_state.current_review_text, unsafe_allow_html=True)
 
         # Validate input and show feedback
         is_valid, validation_message = validate_review_text(review_text)
@@ -395,16 +408,8 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     # =============================================================================
     with tabs[1]:
         if graph_completed and current.get("copy_edited_text"):
-            st.subheader("📝 Final Copy-Edited Text")
+            st.subheader("📝 Rationalized Text")
             st.markdown(current["copy_edited_text"], unsafe_allow_html=True)
-            st.write("--------------------------------")
-            st.text_area(
-                "Copy-Edited Result",
-                value=current["copy_edited_text"],
-                height=min(max(100, count_visual_lines(current["copy_edited_text"]) * 20 + 60), 800),
-                disabled=True,
-                key=f"final_copy_edited_{st.session_state.thread_id}",
-            )
         else:
             st.info("⏳ Copy-edited text will appear here after graph execution completes.")
             if not graph_completed:
@@ -415,7 +420,7 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     # =============================================================================
     with tabs[2]:
         if graph_completed and current.get("summary"):
-            st.subheader("📋 Final Summary")
+            st.subheader("📋 Summary")
             st.markdown(safe_markdown(current["summary"]), unsafe_allow_html=True)
         else:
             st.info("⏳ Summary will appear here after graph execution completes.")
@@ -427,7 +432,7 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     # =============================================================================
     with tabs[3]:
         if graph_completed and current.get("word_cloud_path"):
-            st.subheader("🖼️ Final Word Cloud")
+            st.subheader("🖼️ Word Cloud")
             try:
                 import os
                 if os.path.exists(current["word_cloud_path"]):
@@ -450,7 +455,7 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     # =============================================================================
     with tabs[4]:
         if graph_completed and current.get("achievements"):
-            st.subheader("🏆 Final Achievements")
+            st.subheader("🏆 Achievements")
             try:
                 achievements_data = current["achievements"]
                 achievements = None
@@ -484,7 +489,7 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     # =============================================================================
     with tabs[5]:
         if graph_completed and current.get("review_scorecard"):
-            st.subheader("📊 Final Review Scorecard")
+            st.subheader("📊 Review Scorecard")
             try:
                 review_scorecard_data = current["review_scorecard"]
                 review_scorecard = None
@@ -714,7 +719,7 @@ graph_completed = any(k in current for k in ["copy_edited_text",
 # Define tab labels and their availability
 tab_labels = [
     "📝 Review Text",
-    "📝 Copy-Edited Text", 
+    "📝 Rationalized Text", 
     "📋 Summary",
     "🖼️ Word Cloud",
     "🏆 Achievements",
@@ -1045,14 +1050,17 @@ graph_all_completed = all(k in current for k in [
     "review_complete"])
 
 if graph_all_completed:
-    progress_container.success("✅ **Graph execution completed!**")
+    if current["review_complete"]:
+        progress_container.success("✅ **Self-Reviewer Wizard completed successfully!**")
+    else:
+        progress_container.error("❌ **There were issues found with the self-review text. Please study and fix these:**")
+        progress_container.warning("⚠️ **Issue:** There were too few achievements found.")
+        progress_container.warning("💡 **Solution:** Elaborate on the details and add measurable achievements. Then try again.")
 elif graph_completed:
-    progress_container.error("❌ **Graph execution has not completed some steps successfully**")
-    if "review_complete" in current and not current["review_complete"]:
-        progress_container.warning("⚠️ Very few achievements could be extracted from the self-review text")
-        progress_container.warning("💡 Update the review text input with more details and click 'Start & Stream' to restart the processing.")
+    progress_container.error("❌ **Some steps of the Self-Reviewer Wizard did not complete successfully**")
 else:
-    progress_container.info("⏳ **Graph execution pending**")
+    progress_container.info("▶️ **Self-Reviewer Wizard has not run yet. Please click 'Start & Stream' to begin processing.**")
+
 # Get current state for final display
 # This ensures we have the latest state data for the summary display
 current = st.session_state.state or {}

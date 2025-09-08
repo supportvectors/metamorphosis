@@ -23,6 +23,7 @@ dependencies = [
     "rich>=13.0.0",
     "plotly>=5.17.0",
     "icontract>=2.7.1",
+    "streamlit-ace>=0.1.1",
 ]
 
 [build-system]

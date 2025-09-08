@@ -368,29 +368,6 @@ class WorkflowNodes:
 
     # -----------------------------------------------------------------------------
 
-    @require(lambda state: isinstance(state, dict), "State must be a dictionary")
-    def should_continue_review(self, state: GraphState) -> Literal["no_continue", "continue"]:
-        """If the review complete flag is true, return continue; else no_continue.
-
-        This is used to determine if the review should continue or end immediately
-        so that the user can update the review text and start the review process again.
-
-        Args:
-            state: Current workflow state containing review_complete.
-
-        Returns:
-            Literal["no_continue", "continue"]: A flag indicating if the review should continue or end immediately.
-        """
-        review_complete = state.get("review_complete", False)
-        if review_complete:
-            logger.info("should_continue_review: review can continue")
-            return "continue"
-
-        logger.info("should_continue_review: review cannot continue")
-        return "no_continue"
-
-    # -----------------------------------------------------------------------------
-
     @validate_call
     @require(lambda state: "copy_edited_text" in state, "State must contain copy_edited_text")
     @require(
