@@ -380,6 +380,8 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     with tabs[1]:
         if graph_completed and current.get("copy_edited_text"):
             st.subheader("📝 Final Copy-Edited Text")
+            st.markdown(current["copy_edited_text"])
+            st.write("--------------------------------")
             st.text_area(
                 "Copy-Edited Result",
                 value=current["copy_edited_text"],

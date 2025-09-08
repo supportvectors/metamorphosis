@@ -12,7 +12,7 @@ text_modifier_models:
   copy_editor: 
     model: gpt-4o
     temperature: 0.1
-    max_tokens: 4000
+    max_tokens: 20000
     top_p: 1
     frequency_penalty: 0
     presence_penalty: 0
@@ -23,7 +23,7 @@ text_modifier_models:
   summarizer:
     model: gpt-5  # we need reasoning here
     temperature: 0.0
-    max_tokens: 8000  # Increased to handle longer summaries
+    max_tokens: 20000  # Increased to handle longer summaries
     timeout: 300
 
   # ---------------------------------------------------------
