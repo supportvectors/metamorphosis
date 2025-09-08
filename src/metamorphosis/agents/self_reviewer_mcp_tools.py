@@ -1,5 +1,5 @@
 # =============================================================================
-#  Filename: self_reviewer.py
+#  Filename: self_reviewer_mcp_tools.py
 #
 #  Short Description: Self-reviewer agent(s) for the periodic employee self-review process.
 #
@@ -10,12 +10,7 @@
 """Self-Reviewer Agent Implementation.
 
 This module implements an intelligent self-review processing system using LangGraph
-for workflow orchestration and MCP (Model Context Protocol) for tool integration.
-
-The system processes employee self-review text through three main stages:
-1. Copy editing for grammar and clarity improvements
-2. Abstractive summarization for key insights extraction
-3. Word cloud generation for visual representation of key themes
+for workflow orchestration and uses only MCP (Model Context Protocol) tools without any agents.
 
 Architecture:
 - Uses LangGraph StateGraph for workflow management

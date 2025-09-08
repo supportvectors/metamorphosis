@@ -98,6 +98,13 @@ def render_rich(
     # 5) Embed
     st.components.v1.html(html, height=height, scrolling=scrolling)
 
+def safe_markdown(text: str):
+    """
+    Replace $ with \$, so that the markdown rendering is not broken.
+    This is a workaround to avoid the markdown rendering breaking when $ is present in the text.
+    """
+    return text.replace("$", "\\$")
+
 # =============================================================================
 # CONFIGURATION SECTION
 # =============================================================================
@@ -319,7 +326,13 @@ def extract_values_from_event(ev: Dict[str, Any]) -> Dict[str, Any] | None:
     # Pattern B: Custom server format - state is at TOP LEVEL
     # This handles cases where the server sends the state directly without wrapping
     # Define expected keys that indicate this is a GraphState object
-    expected_keys = {"original_text", "copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"}
+    expected_keys = {"original_text", 
+    "copy_edited_text", 
+    "summary", 
+    "word_cloud_path", 
+    "achievements", 
+    "review_scorecard", 
+    "review_complete"}
     # If any of these expected keys exist, treat the whole event as the current state
     # Using set intersection for efficient key checking
     if expected_keys.intersection(ev.keys()):
@@ -374,6 +387,8 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
             st.session_state.state = {}
             # Clear previous events for clean debugging of new content
             st.session_state.events = []
+            # Clear previous progress steps to prevent accumulation of old steps
+            st.session_state.progress_steps = []
 
     # =============================================================================
     # TAB 2: COPY-EDITED TEXT
@@ -393,7 +408,7 @@ def populate_tabs(tabs, graph_completed: bool, current: dict, review_validation_
     with tabs[2]:
         if graph_completed and current.get("summary"):
             st.subheader("📋 Final Summary")
-            st.markdown(current["summary"], unsafe_allow_html=True)
+            st.markdown(safe_markdown(current["summary"]), unsafe_allow_html=True)
         else:
             st.info("⏳ Summary will appear here after graph execution completes.")
             if not graph_completed:
@@ -539,7 +554,7 @@ if "current_review_text" not in st.session_state:
     # Load default review text from sample file
     try:
         root_dir = os.getenv("PROJECT_ROOT_DIR")
-        sample_file_path = os.path.join(root_dir, "sample_reviews", "data_engineer_review.md")
+        sample_file_path = os.path.join(root_dir, "sample_reviews", "poor_review.md") # data_engineer_review.md
         print(f"Loading review text from {sample_file_path}")
         with open(sample_file_path, 'r', encoding='utf-8') as f:
             st.session_state.current_review_text = f.read().strip()
@@ -613,6 +628,8 @@ with st.sidebar:
         st.session_state.state = {}
         # Clear previous events for clean debugging
         st.session_state.events = []
+        # Clear previous progress steps to prevent accumulation of old steps
+        st.session_state.progress_steps = []
 
     # Start button - initiates the LangGraph workflow and streaming
     # Primary button with visual emphasis to indicate main action
@@ -679,7 +696,12 @@ with st.sidebar:
 
 # Check if graph execution has completed to determine which tabs are available
 current = st.session_state.state or {}
-graph_completed = any(k in current for k in ["copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"])
+graph_completed = any(k in current for k in ["copy_edited_text", 
+"summary", 
+"word_cloud_path", 
+"achievements", 
+"review_scorecard", 
+"review_complete"])
 
 # Define tab labels and their availability
 tab_labels = [
@@ -814,7 +836,13 @@ if st.session_state.running:
             # Get current state for display (use empty dict if none)
             # This ensures we always have a valid dictionary for display operations
             current = st.session_state.state or {}
-            graph_completed = any(k in current for k in ["copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"])
+            graph_completed = any(k in current for k in [
+                "copy_edited_text", 
+                "summary", 
+                "word_cloud_path", 
+                "achievements", 
+                "review_scorecard", 
+                "review_complete"])
 
             # Clear previous content in containers to avoid duplication
             # This prevents content from accumulating during streaming updates
@@ -1000,13 +1028,23 @@ if len(st.session_state.progress_steps) > 0:
     for step in st.session_state.progress_steps:
         progress_container.write(f"• {step}")
 
-graph_all_completed = all(k in current for k in ["copy_edited_text", "summary", "word_cloud_path", "achievements", "review_scorecard"])
+graph_all_completed = all(k in current for k in [
+    "copy_edited_text", 
+    "summary", 
+    "word_cloud_path", 
+    "achievements", 
+    "review_scorecard", 
+    "review_complete"])
 
 if graph_all_completed:
     progress_container.success("✅ **Graph execution completed!**")
 elif graph_completed:
-    progress_container.info("⏳ **Graph execution has not completed some steps successfully**")
-
+    progress_container.error("❌ **Graph execution has not completed some steps successfully**")
+    if "review_complete" in current and not current["review_complete"]:
+        progress_container.warning("⚠️ Very few achievements could be extracted from the self-review text")
+        progress_container.warning("💡 Update the review text input with more details and click 'Start & Stream' to restart the processing.")
+else:
+    progress_container.info("⏳ **Graph execution pending**")
 # Get current state for final display
 # This ensures we have the latest state data for the summary display
 current = st.session_state.state or {}

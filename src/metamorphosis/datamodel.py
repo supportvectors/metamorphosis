@@ -151,3 +151,7 @@ class InvokeResponse(BaseModel):
     word_cloud_path: str | None = Field(None, description="The path to the word cloud image")
     achievements: AchievementsList | None = Field(None, description="The achievements list")
     review_scorecard: ReviewScorecard | None = Field(None, description="The review scorecard")
+    review_complete: bool | None = Field(None, description='''
+    A flag indicating if the review is complete, ie, 
+    the list of achievements has at least 3 items
+    ''')
