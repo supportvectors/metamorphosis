@@ -42,10 +42,16 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from dotenv import load_dotenv
-from metamorphosis.agents.self_reviewer_agents import graph, run_graph
+from metamorphosis.agents.self_reviewer import WorkflowExecutor
 from metamorphosis.datamodel import InvokeRequest, StreamRequest, InvokeResponse
 load_dotenv()
 
+# =============================================================================
+# GLOBAL WORKFLOW EXECUTOR
+# =============================================================================
+
+# Initialize the workflow executor
+executor = WorkflowExecutor()
 
 # =============================================================================
 # DATA MODELS AND SCHEMAS
@@ -81,6 +87,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# =============================================================================
+# STARTUP AND SHUTDOWN EVENTS
+# =============================================================================
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize the workflow executor on application startup."""
+    logger.info("Initializing workflow executor...")
+    await executor.initialize()
+    logger.info("Workflow executor initialized successfully")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up resources on application shutdown."""
+    logger.info("Shutting down workflow executor...")
+    await executor.close()
+    logger.info("Workflow executor shut down successfully")
 
 # =============================================================================
 # HELPER FUNCTIONS
@@ -150,7 +173,7 @@ async def _generate_stream_events(
         bytes: SSE-formatted event data.
     """
     try:
-        async for ev in graph.astream(
+        async for ev in executor.graph.astream(
             {"original_text": review_text},
             config={"configurable": {"thread_id": thread_id}},
             stream_mode=mode,
@@ -205,7 +228,7 @@ async def invoke(payload: InvokeRequest) -> JSONResponse:
     logger.info("Processing review (thread_id={}, text_length={})", thread_id, len(review_text))
 
     try:
-        result = await run_graph(graph, review_text, thread_id)
+        result = await executor.run_workflow(review_text, thread_id)
         if result is None:
             return _create_error_response("Graph execution returned no result")
 

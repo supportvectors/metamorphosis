@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Annotated
+import html
 from rich.table import Table
 from rich.text import Text
 from rich.panel import Panel
@@ -348,6 +349,229 @@ def create_achievements_table(achievements_list: AchievementsList) -> Table:
         )
 
     return table
+
+# ------- HTML Table Creation Methods -------
+
+def create_achievements_html_table(achievements_list: AchievementsList) -> str:
+    """Create a modern, browser-friendly HTML table for achievements display.
+    
+    This method creates a responsive, aesthetically pleasing HTML table that renders
+    well in browsers and provides better user experience than terminal-based rich tables.
+    
+    Args:
+        achievements_list: The AchievementsList object containing extracted achievements.
+        
+    Returns:
+        str: Complete HTML string with embedded CSS for a modern table display.
+    """
+    # Define impact area colors and icons for better visual hierarchy
+    impact_styles = {
+        "reliability": {"color": "#ef4444", "bg": "#fef2f2", "icon": "🔧"},
+        "performance": {"color": "#3b82f6", "bg": "#eff6ff", "icon": "⚡"},
+        "security": {"color": "#a855f7", "bg": "#faf5ff", "icon": "🔒"},
+        "cost": {"color": "#10b981", "bg": "#f0fdf4", "icon": "💰"},
+        "revenue": {"color": "#059669", "bg": "#ecfdf5", "icon": "💵"},
+        "customer": {"color": "#06b6d4", "bg": "#f0fdfa", "icon": "👥"},
+        "delivery_speed": {"color": "#f59e0b", "bg": "#fffbeb", "icon": "🚀"},
+        "quality": {"color": "#6b7280", "bg": "#f9fafb", "icon": "✨"},
+        "compliance": {"color": "#4b5563", "bg": "#f3f4f6", "icon": "📋"},
+        "team": {"color": "#1d4ed8", "bg": "#dbeafe", "icon": "🤝"},
+    }
+    
+    # Start building the HTML with embedded modern CSS
+    html = """
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <style>
+            .achievements-container {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 16px;
+                padding: 24px;
+                margin: 16px 0;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            .achievements-title {
+                color: white;
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 8px;
+                text-align: center;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            .achievements-subtitle {
+                color: rgba(255,255,255,0.9);
+                font-size: 14px;
+                text-align: center;
+                margin-bottom: 24px;
+            }
+            .achievements-table {
+                width: 100%;
+                border-collapse: collapse;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            }
+            .achievements-table th {
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                color: white;
+                padding: 16px 12px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border: none;
+            }
+            .achievements-table td {
+                padding: 16px 12px;
+                border-bottom: 1px solid #f1f5f9;
+                vertical-align: top;
+                line-height: 1.5;
+            }
+            .achievements-table tr:hover {
+                background-color: #f8fafc;
+                transform: scale(1.01);
+                transition: all 0.2s ease;
+            }
+            .achievement-number {
+                font-weight: 700;
+                color: #4f46e5;
+                font-size: 16px;
+            }
+            .achievement-title {
+                font-weight: 600;
+                color: #1e293b;
+                margin-bottom: 4px;
+            }
+            .achievement-outcome {
+                color: #475569;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            .impact-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .metrics-list {
+                font-size: 13px;
+                color: #059669;
+                font-weight: 500;
+            }
+            .details-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                color: #64748b;
+                margin-bottom: 4px;
+            }
+            .details-item:last-child {
+                margin-bottom: 0;
+            }
+            @media (max-width: 768px) {
+                .achievements-table {
+                    font-size: 12px;
+                }
+                .achievements-table th,
+                .achievements-table td {
+                    padding: 8px 6px;
+                }
+            }
+        </style>
+        <div class="achievements-container">
+            <div class="achievements-title">🏆 Extracted Key Achievements</div>
+            <div class="achievements-subtitle">
+                {count} items • ~{tokens} tokens
+            </div>
+            <table class="achievements-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Achievement</th>
+                        <th style="width: 35%;">Outcome</th>
+                        <th style="width: 15%;">Impact Area</th>
+                        <th style="width: 15%;">Metrics</th>
+                        <th style="width: 10%;">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+    """.format(
+        count=len(achievements_list.items),
+        tokens=achievements_list.size
+    )
+    
+    # Add rows for each achievement
+    for i, achievement in enumerate(achievements_list.items, 1):
+        # Format metrics as a list with HTML escaping
+        metrics_html = ""
+        if achievement.metric_strings:
+            metrics_items = [f"<div class='metrics-list'>• {html.escape(metric)}</div>" 
+                           for metric in achievement.metric_strings]
+            metrics_html = "".join(metrics_items)
+        else:
+            metrics_html = "<div style='color: #9ca3af;'>—</div>"
+        
+        # Format additional details with icons and HTML escaping
+        details_html = ""
+        if achievement.timeframe:
+            details_html += f"<div class='details-item'>⏰ {html.escape(achievement.timeframe)}</div>"
+        if achievement.ownership_scope:
+            details_html += f"<div class='details-item'>👤 {html.escape(achievement.ownership_scope)}</div>"
+        if achievement.collaborators:
+            collabs = ", ".join(achievement.collaborators[:2])
+            if len(achievement.collaborators) > 2:
+                collabs += f" +{len(achievement.collaborators) - 2}"
+            details_html += f"<div class='details-item'>🤝 {html.escape(collabs)}</div>"
+        
+        if not details_html:
+            details_html = "<div style='color: #9ca3af;'>—</div>"
+        
+        # Get impact area styling
+        impact_style = impact_styles.get(achievement.impact_area, {
+            "color": "#6b7280", "bg": "#f9fafb", "icon": "📊"
+        })
+        
+        # Create the impact badge
+        impact_badge = f'<div class="impact-badge" style="color: {impact_style["color"]}; background-color: {impact_style["bg"]}; border: 1px solid {impact_style["color"]}20;">{impact_style["icon"]} {achievement.impact_area}</div>'
+        
+        # Add the table row with HTML escaping for safety
+        row_html = f"""
+                    <tr>
+                        <td>
+                            <div class="achievement-number">{i}.</div>
+                            <div class="achievement-title">{html.escape(achievement.title)}</div>
+                        </td>
+                        <td>
+                            <div class="achievement-outcome">{html.escape(achievement.outcome)}</div>
+                        </td>
+                        <td style="text-align: center;">
+                            {impact_badge}
+                        </td>
+                        <td>
+                            {metrics_html}
+                        </td>
+                        <td>
+                            {details_html}
+                        </td>
+                    </tr>
+        """
+        html += row_html
+    
+    # Close the HTML structure
+    html += """
+                </tbody>
+            </table>
+        </div>
+    </div>
+    """
+    
+    return html
 
 def create_summary_panel_evaluation(scorecard: ReviewScorecard) -> Panel:
     """Create a summary panel with overall evaluation statistics.
