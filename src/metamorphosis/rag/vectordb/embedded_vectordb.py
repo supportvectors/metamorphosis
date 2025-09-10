@@ -18,7 +18,6 @@ from metamorphosis.rag.exceptions import (
     CollectionNotFoundError,
     InvalidVectorSizeError,
     InvalidDistanceMetricError,
-    InvalidPointsError,
 )
 from loguru import logger
 

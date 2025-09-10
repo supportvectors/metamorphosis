@@ -194,6 +194,15 @@ def create_html_achievements_table(achievements_list: AchievementsList) -> str:
         font-size: 0.9em;
         color: #666;
     }
+    .contribution-cell {
+        text-align: center;
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    .contribution-minor { color: #95a5a6; }
+    .contribution-medium { color: #f39c12; }
+    .contribution-significant { color: #e74c3c; }
+    .contribution-critical { color: #8e44ad; }
     </style>
     
     <table class="achievements-table">
@@ -203,6 +212,7 @@ def create_html_achievements_table(achievements_list: AchievementsList) -> str:
                 <th>📋 Outcome</th>
                 <th>🎯 Impact Area</th>
                 <th>📊 Metrics</th>
+                <th>⭐ Contribution</th>
                 <th>ℹ️ Details</th>
             </tr>
         </thead>
@@ -214,7 +224,14 @@ def create_html_achievements_table(achievements_list: AchievementsList) -> str:
         # Format metrics as a comma-separated string
         metrics_text = ", ".join(achievement.metric_strings) if achievement.metric_strings else "—"
         
-        # Format additional details (timeframe, scope, collaborators)
+        # Format contribution level with color coding
+        contribution_text = "—"
+        contribution_class = ""
+        if achievement.contribution:
+            contribution_text = achievement.contribution
+            contribution_class = f"contribution-{achievement.contribution.lower()}"
+        
+        # Format additional details (timeframe, scope, collaborators, project info)
         details_parts = []
         if achievement.timeframe:
             details_parts.append(f"⏰ {achievement.timeframe}")
@@ -225,6 +242,25 @@ def create_html_achievements_table(achievements_list: AchievementsList) -> str:
             if len(achievement.collaborators) > 2:
                 collabs += f" +{len(achievement.collaborators) - 2}"
             details_parts.append(f"🤝 {collabs}")
+        
+        # Add project-related information if available
+        if achievement.project_name:
+            details_parts.append(f"🏗️ {achievement.project_name}")
+        if achievement.project_department:
+            details_parts.append(f"🏢 {achievement.project_department}")
+        if achievement.project_impact_category:
+            details_parts.append(f"💼 {achievement.project_impact_category}")
+        if achievement.project_effort_size:
+            details_parts.append(f"⚡ {achievement.project_effort_size}")
+        if achievement.project_text:
+            # Truncate project text for display (show first 150 chars)
+            project_text_short = achievement.project_text[:150] + "..." if len(achievement.project_text) > 150 else achievement.project_text
+            details_parts.append(f"📝 {project_text_short}")
+        
+        # Add rationale if available (truncated for display)
+        if achievement.rationale:
+            rationale_short = achievement.rationale[:100] + "..." if len(achievement.rationale) > 100 else achievement.rationale
+            details_parts.append(f"💭 {rationale_short}")
         
         details_text = "\n".join(details_parts) if details_parts else "—"
         
@@ -250,6 +286,7 @@ def create_html_achievements_table(achievements_list: AchievementsList) -> str:
                 <td>{achievement.outcome}</td>
                 <td class="impact-cell" style="color: {impact_color};">{achievement.impact_area.replace('_', ' ').title()}</td>
                 <td class="metrics-cell">{metrics_text}</td>
+                <td class="contribution-cell {contribution_class}">{contribution_text}</td>
                 <td class="details-cell">{details_text}</td>
             </tr>
         """

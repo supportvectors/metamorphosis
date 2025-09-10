@@ -41,6 +41,15 @@ class Achievement(BaseModel):
     ownership_scope: Optional[Literal["IC", "TechLead", "Manager", "Cross-team", "Org-wide"]] = None
     collaborators: List[str] = Field(default_factory=list)  # names/teams if explicitly mentioned
 
+    # a few optional fields arising from the achievement evaluator
+    contribution: Optional[Literal["Minor", "Medium", "Significant", "Critical"]] = None
+    rationale: Optional[str] = None
+    project_name: Optional[str] = None
+    project_text: Optional[str] = None
+    project_department: Optional[str] = None
+    project_impact_category: Optional[str] = None
+    project_effort_size: Optional[str] = None
+
 
 class AchievementsList(BaseModel):
     items: List[Achievement]

@@ -17,7 +17,7 @@ review processing pipeline.
 from __future__ import annotations
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, List
 
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -34,6 +34,10 @@ from metamorphosis.datamodel import AchievementsList, ReviewScorecard
 from metamorphosis.utilities import read_text_file, get_project_root
 from metamorphosis.exceptions import raise_postcondition_error
 
+from metamorphosis.rag.vectordb.embedded_vectordb import EmbeddedVectorDB
+from metamorphosis.rag.vectordb.embedder import SimpleTextEmbedder
+from metamorphosis.rag.corpus.achievement_evaluator import AchievementEvaluator
+from metamorphosis.rag.corpus.project_data_models import AchievementEvaluation
 
 class WorkflowNodes:
     """Contains all workflow node implementations.
@@ -74,6 +78,11 @@ class WorkflowNodes:
         self.evaluation_score_system_prompt = read_text_file(
             prompts_dir / "evaluation_score_system_prompt.md"
         )
+
+        # Initialize the achievement evaluator
+        vector_db = EmbeddedVectorDB()
+        embedder = SimpleTextEmbedder()
+        self.achievement_evaluator = AchievementEvaluator(vector_db=vector_db, embedder=embedder)
 
     # -----------------------------------------------------------------------------
 
@@ -354,6 +363,11 @@ class WorkflowNodes:
         # We expect payload to match AchievementsList
         achievements_obj = payload if isinstance(payload, dict) else {"result": payload}
         achievements = AchievementsList(**achievements_obj)
+        logger.info("after_achievements_parser: raw achievements (length={})", len(achievements.items))
+        
+        # Contextualize the achievements
+        achievements = self._contextualize_achievements(achievements)
+        logger.info("after_achievements_parser: contextualized achievements (length={})", len(achievements.items))
 
         summary = AIMessage(
             content=f"Received {len(achievements.items)} achievements from tool.\\n"
@@ -365,6 +379,58 @@ class WorkflowNodes:
             "achievements": achievements,
             "review_complete": review_complete,
         }
+
+    # -----------------------------------------------------------------------------
+
+    @validate_call
+    def _convert_achievement_evaluations_to_achievements(self, 
+    achievement_evaluations: List[AchievementEvaluation], 
+    size: int, 
+    unit: Literal["tokens"]) -> AchievementsList:
+        """Convert achievement evaluations to achievements.
+
+        Args:
+            achievement_evaluations: List of achievement evaluations.
+            size: Size of the achievements list.
+            unit: Unit of the achievements list.
+        """
+        updated_achievements = []
+        for achievement_evaluation in achievement_evaluations:
+            updated_achievement = achievement_evaluation.achievement
+            # update the achievement with the evaluation results
+            updated_achievement.contribution = achievement_evaluation.contribution
+            updated_achievement.rationale = achievement_evaluation.rationale
+            updated_achievement.project_name = achievement_evaluation.project.name
+            updated_achievement.project_text = achievement_evaluation.project.text
+            updated_achievement.project_department = achievement_evaluation.project.department
+            updated_achievement.project_impact_category = achievement_evaluation.project.impact_category
+            updated_achievement.project_effort_size = achievement_evaluation.project.effort_size
+
+            updated_achievements.append(updated_achievement)
+
+        return AchievementsList(items=updated_achievements, size=size, unit=unit)
+
+    # -----------------------------------------------------------------------------
+
+    @validate_call
+    def _contextualize_achievements(self, achievements: AchievementsList) -> AchievementsList:
+        """Contextualize the achievements using the achievement evaluator.
+
+        Args:
+            achievements: AchievementsList to contextualize.
+        """
+        logger.info("_contextualize_achievements: contextualizing achievements (length={})", len(achievements.items))
+        
+        try:
+            contextualized_achievements = self.achievement_evaluator.contextualize(achievements=achievements)
+            logger.info("_contextualize_achievements: contextualized achievements (length={})", len(contextualized_achievements))
+            updated_achievements = self._convert_achievement_evaluations_to_achievements(contextualized_achievements, achievements.size, achievements.unit)
+            logger.info("_contextualize_achievements: contextualized achievements (length={})", len(updated_achievements.items))
+            return updated_achievements
+        except Exception as e:
+            logger.error("_contextualize_achievements: failed to contextualize achievements: {}", e)
+            # Return original achievements if contextualization fails
+            return achievements
 
     # -----------------------------------------------------------------------------
 

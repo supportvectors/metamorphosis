@@ -23,7 +23,7 @@ from metamorphosis.rag.search.semantic_search import SemanticSearch
 from metamorphosis.rag.vectordb.embedded_vectordb import EmbeddedVectorDB
 from metamorphosis.rag.vectordb.embedder import SimpleTextEmbedder
 from metamorphosis.model_registry import ModelRegistry
-
+from metamorphosis.rag.corpus.project_data_models import Project 
 
 class AchievementEvaluator:
     """Contextualize achievements against projects and assess contribution level.
@@ -92,6 +92,7 @@ class AchievementEvaluator:
         Returns:
             List of `AchievementEvaluation` objects.
         """
+        logger.info("contextualize: contextualizing achievements (length={})", len(achievements.items))
         evaluations: List[AchievementEvaluation] = []
 
         for ach in achievements.items:
@@ -113,8 +114,6 @@ class AchievementEvaluator:
 
             context = self._format_context(achievement=ach, top_k_texts=top_k_texts)
             contribution = self._call_reasoning_model(context=context)
-
-            from metamorphosis.rag.corpus.project_data_models import Project  # local import
 
             project = Project(
                 name=project_name,

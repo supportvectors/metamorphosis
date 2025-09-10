@@ -9,10 +9,9 @@
 
 import json
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Union
-from uuid import uuid4
+from typing import List, Optional, Dict, Any
 from icontract import require, ensure
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, Field, field_validator
 from qdrant_client import models
 from loguru import logger
 
