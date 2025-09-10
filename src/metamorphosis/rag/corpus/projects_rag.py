@@ -518,13 +518,14 @@ class ProjectsRag:
             for hit in hits:
                 payload: Dict[str, Any] = hit.payload or {}
 
-                if not all(k in payload for k in ("content", "department", "impact_category", "effort_size")):
+                if not all(k in payload for k in ("name", "content", "department", "impact_category", "effort_size")):
                     raise InvalidPointsError(
                         issue="Search hit payload missing required keys",
                         points_count=1,
                     )
 
                 model_input = {
+                    "name": payload.get("name", ""),
                     "text": payload.get("content", ""),
                     "department": payload.get("department"),
                     "impact_category": payload.get("impact_category"),
@@ -763,6 +764,7 @@ Please answer the user's question using the provided projects and following the 
             table.add_column("#", style="magenta", width=15, justify="center")
             table.add_column("Score", style="green", width=20, justify="center")
             table.add_column("Project", style="bright_white", width=60)
+            table.add_column("Name", style="cyan", width=30)
             table.add_column("Department", style="bold bright_yellow", width=25)
             table.add_column("Impact Category", style="white", width=25)
             
@@ -774,6 +776,7 @@ Please answer the user's question using the provided projects and following the 
             # Add rows
             for i, result in enumerate(results, 1):
                 content = result.payload.get("content", "")
+                name = result.payload.get("name", "(unnamed)")
                 department = result.payload.get("department", "Unknown")
                 category = result.payload.get("impact_category", "Unknown")
                 score = result.score
@@ -789,6 +792,7 @@ Please answer the user's question using the provided projects and following the 
                     str(i),
                     f"{score:.3f}",
                     project_text,
+                    name,
                     department,
                     category
                 )

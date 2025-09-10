@@ -32,6 +32,7 @@ class Project(BaseModel):
     impact category, and effort size.
     
     Attributes:
+        name: Human-readable project name/title
         text: The project text or description
         department: Department responsible for or owning the project
         impact_category: Impact categorization for the project
@@ -44,6 +45,11 @@ class Project(BaseModel):
         extra="forbid"
     )
     
+    name: str = Field(
+        ...,
+        min_length=1,
+        description="Human-readable project name/title",
+    )
     text: str = Field(
         ..., 
         min_length=1, 
@@ -61,7 +67,7 @@ class Project(BaseModel):
         ..., description="Effort size for the project"
     )
     
-    @field_validator('text', 'department', 'impact_category', 'effort_size')
+    @field_validator('name', 'text', 'department', 'impact_category', 'effort_size')
     @classmethod
     def validate_non_empty_strings(cls, v: str) -> str:
         """Ensure all string fields are non-empty after stripping."""
@@ -76,6 +82,7 @@ class Project(BaseModel):
             Dictionary suitable for Qdrant point payload.
         """
         return {
+            "name": self.name,
             "content": self.text,
             "content_type": "project",
             "department": self.department,

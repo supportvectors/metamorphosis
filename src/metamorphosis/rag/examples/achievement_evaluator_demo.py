@@ -42,13 +42,14 @@ def main() -> bool:
     vector_db = EmbeddedVectorDB()
     embedder = SimpleTextEmbedder()
     evaluator = AchievementEvaluator(vector_db=vector_db, embedder=embedder)
-    evaluations = evaluator.contextualize(achievements=achievements, limit=3)
+    evaluations = evaluator.contextualize(achievements=achievements, limit=10)
 
     # Render results table
     table = Table(title="Achievement Evaluations")
     table.add_column("#", justify="right")
     table.add_column("Achievement")
     table.add_column("Contribution")
+    table.add_column("Name")
     table.add_column("Project (snippet)")
     table.add_column("Department")
     table.add_column("Impact")
@@ -61,6 +62,7 @@ def main() -> bool:
             str(idx),
             f"{ach.title}",
             ev.contribution,
+            proj.name,
             snippet,
             proj.department,
             proj.impact_category,

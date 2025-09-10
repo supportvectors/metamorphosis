@@ -82,7 +82,7 @@ class AchievementEvaluator:
              "achievements must be a non-empty AchievementsList")
     @ensure(lambda result: isinstance(result, list), "Must return a list")
     def contextualize(self, *, achievements: AchievementsList,
-                      limit: int = 5) -> List[AchievementEvaluation]:
+                      limit: int = 10) -> List[AchievementEvaluation]:
         """Map each achievement to projects and estimate contribution level.
 
         Args:
@@ -108,6 +108,7 @@ class AchievementEvaluator:
             top_hit = hits[0]
             payload = top_hit.payload or {}
             project_text = payload.get("content", "")
+            project_name = payload.get("name", "(unnamed)")
             top_k_texts = [h.payload.get("content", "") for h in hits if h.payload]
 
             context = self._format_context(achievement=ach, top_k_texts=top_k_texts)
@@ -116,6 +117,7 @@ class AchievementEvaluator:
             from metamorphosis.rag.corpus.project_data_models import Project  # local import
 
             project = Project(
+                name=project_name,
                 text=project_text,
                 department=payload.get("department", "Unknown"),
                 impact_category=payload.get("impact_category", "Medium Impact"),
