@@ -376,8 +376,7 @@ class TextModifiers:
         )
         return result
 
-    # =========================================================================
-
+   
     @validate_call
     def evaluate_review_text(self, *, text: Annotated[str, Field(min_length=1)]) -> ReviewScorecard:
         """Evaluate the writing quality of employee self-review text.
@@ -570,3 +569,4 @@ class TextModifiers:
 
 
 # Note: As per project preference, do not expose module-level factory functions here.
+# =========================================================================

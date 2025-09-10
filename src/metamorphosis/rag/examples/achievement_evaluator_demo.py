@@ -22,6 +22,7 @@ from metamorphosis.mcp.text_modifiers import TextModifiers
 from metamorphosis.rag.corpus.achievement_evaluator import AchievementEvaluator
 from metamorphosis.rag.vectordb.embedded_vectordb import EmbeddedVectorDB
 from metamorphosis.rag.vectordb.embedder import SimpleTextEmbedder
+from metamorphosis.rag.corpus.projects_rag import ProjectsRag
 
 
 def main() -> bool:
@@ -38,9 +39,18 @@ def main() -> bool:
     tm = TextModifiers()
     achievements = tm.extract_achievements(text=text)
 
-    # Evaluate against projects
+    # Ensure the collection is up-to-date with names in payload
     vector_db = EmbeddedVectorDB()
     embedder = SimpleTextEmbedder()
+    projects = ProjectsRag(vector_db=vector_db, embedder=embedder)
+    portfolio_path = repo_root / "project_documents" / "project_portfolio.jsonl"
+    try:
+        projects.recreate_collection()
+        projects.load_and_index(portfolio_path)
+    except Exception:
+        pass
+
+    # Evaluate against projects
     evaluator = AchievementEvaluator(vector_db=vector_db, embedder=embedder)
     evaluations = evaluator.contextualize(achievements=achievements, limit=10)
 
