@@ -40,3 +40,30 @@ text_modifier_models:
     max_tokens: 20000  # Sufficient for structured JSON output
     timeout: 300
 
+# Embeddings are used to convert text and images into vectors 
+# that can be used for similarity search.
+
+embeddings:
+  multimodal:
+    model: "ViT-B-16-SigLIP2"
+    size: 768
+    distance: "cosine"
+  text:
+    model: "all-MiniLM-L6-v2"
+    size: 384
+    distance: "cosine"
+  
+# Vector DB particulars
+vector_db:
+  type: "qdrant"
+  path: "qdrant_db"
+  text_only_basic:
+    collection_name: "text_only_basic"
+    vector_size: 384
+  multimodal_basic:
+    collection_name: "multimodal_basic"
+    vector_size: 768
+
+paths:
+  data: /Users/asifqamar/github/metamorphosis/data
+  

@@ -142,6 +142,26 @@ class ProjectsRag:
         if not ProjectsRag.PROJECTS_RAG_SYSTEM_PROMPT:
             ProjectsRag.PROJECTS_RAG_SYSTEM_PROMPT = self._load_system_prompt()
 
+        # Auto-bootstrap: if the collection is empty, try to load and index a default portfolio
+        try:
+            points_count = self.semantic_search.vector_db.count_points(
+                collection_name=self.collection_name
+            )
+            if points_count == 0:
+                default_file = self._find_default_portfolio_file()
+                if default_file is not None and default_file.exists():
+                    logger.info(
+                        f"Auto-bootstrap: indexing default project portfolio from {default_file}"
+                    )
+                    self.load_from_jsonl(default_file)
+                    self.index_all_projects()
+                else:
+                    logger.info(
+                        "Auto-bootstrap skipped: no default portfolio file found."
+                    )
+        except Exception as e:
+            logger.warning(f"Auto-bootstrap failed (continuing without data): {e}")
+
     def _load_system_prompt(self) -> str:
         """Load the AI system prompt from external configuration file.
         
@@ -153,6 +173,19 @@ class ProjectsRag:
         except Exception as e:
             logger.warning(f"Could not load system prompt: {e}")
             return ""
+
+    def _find_default_portfolio_file(self) -> Optional[Path]:
+        """Locate the default project portfolio JSONL file if present.
+
+        Returns:
+            Path to `project_documents/project_portfolio.jsonl` if it exists, else None.
+        """
+        try:
+            repo_root = Path(__file__).resolve().parents[4]
+            candidate = repo_root / "project_documents" / "project_portfolio.jsonl"
+            return candidate if candidate.exists() else None
+        except Exception:
+            return None
 
     
     # ----------------------------------------------------------------------------------------
@@ -334,7 +367,9 @@ class ProjectsRag:
             # Delete existing collection if it exists
             if self.semantic_search.vector_db.collection_exists(self.collection_name):
                 logger.info(f"Deleting existing collection '{self.collection_name}'")
-                self.semantic_search.vector_db.delete_collection(self.collection_name)
+                self.semantic_search.vector_db.delete_collection(
+                    collection_name=self.collection_name
+                )
             
             # Create new empty collection
             logger.info(f"Creating new empty collection '{self.collection_name}'")
@@ -533,7 +568,9 @@ class ProjectsRag:
         }
         
         if stats["collection_exists"]:
-            stats["point_count"] = self.semantic_search.vector_db.count_points(self.collection_name)
+            stats["point_count"] = self.semantic_search.vector_db.count_points(
+                collection_name=self.collection_name
+            )
         
         if self.wisdom:
             stats["loaded_projects"] = len(self.wisdom)

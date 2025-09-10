@@ -8,14 +8,14 @@
 # =============================================================================
 
 """
-Example: RAG (Retrieval Augmented Generation) with ProjectsRag Class
+Example: RAG (Retrieval Augmented Generation) with ProjectsRag
 
-This example demonstrates how to use the ProjectsRag class to:
-1. Search for relevant animal quotes
-2. Create RAG context for LLM input
-3. Display results in a beautiful table format
+This example shows two simple, project-relevant use cases:
+1) Find projects related to a specific topic (e.g., feature store rollout)
+2) Filter search by department (e.g., Data Platform) for targeted discovery
 
-The example uses the query "a friendship with projects" to show the complete workflow.
+ProjectsRag auto-bootstraps by loading and indexing
+`project_documents/project_portfolio.jsonl` if the collection is empty.
 """
 
 import sys
@@ -31,89 +31,43 @@ from loguru import logger
 
 
 def main():
-    """Main function demonstrating RAG with ProjectsRag class."""
-    
-    print("🎯 RAG with ProjectsRag Class Example")
-    print("=" * 50)
-    
-    # Initialize components
-    print("\n1️⃣ Initializing components...")
+    """Minimal, project-focused demo for ProjectsRag."""
+    print("🎯 RAG with ProjectsRag — Minimal Project Examples")
+    print("=" * 70)
+
+    # Initialize components (auto-bootstrap will index default portfolio if empty)
+    print("\n1️⃣ Initializing...")
     vector_db = EmbeddedVectorDB()
     embedder = SimpleTextEmbedder(model_name="sentence-transformers/all-MiniLM-L6-v2")
     projects = ProjectsRag(vector_db=vector_db, embedder=embedder)
-    
-    print("   ✅ Components initialized successfully")
-    
-    # Example user query
-    user_query = "a friendship with projects"
-    print(f"\n2️⃣ User Query: '{user_query}'")
-    
-    # Method 1: Search and display results
-    print("\n3️⃣ Searching for relevant quotes...")
-    search_results = projects.search(user_query, limit=5)
-    
-    # Display results in beautiful table
-    print("\n4️⃣ Displaying search results:")
+    print("   ✅ Ready")
+
+    # Example 1 — Topic search (feature store rollout)
+    print("\n2️⃣ Topic search: 'feature store real-time offers'")
+    topic_query = "feature store real-time offers"
+    results_topic = projects.search(query=topic_query, limit=5)
     projects.display_search_results(
-        results=search_results,
-        search_description="Project Collaboration Items",
-        max_text_length=80
+        results=results_topic,
+        search_description="Feature store related projects",
+        max_text_length=100,
     )
-    
-    # Method 2: Create RAG context
-    print("\n5️⃣ Creating RAG context for LLM...")
-    rag_context = projects.create_rag_context(
-        user_query=user_query,
-        search_results=search_results
+
+    # Example 2 — Department-filtered search (Data Platform)
+    print("\n3️⃣ Department-filtered search: 'data quality' in 'Data Platform'")
+    dept_query = "data quality"
+    results_dept = projects.search(
+        query=dept_query,
+        limit=5,
+        department="Data Platform",
     )
-    
-    # Display the RAG context
-    print("\n6️⃣ Generated RAG Context (LLM Input):")
-    print("-" * 60)
-    print(rag_context)
-    print("-" * 60)
-    
-    # Method 3: One-step RAG context creation
-    print("\n7️⃣ One-step RAG context creation:")
-    one_step_context = projects.search_and_create_rag_context(
-        user_query=user_query,
-        limit=3,
-        system_prompt=projects.SIMPLE_PROJECTS_PROMPT
+    projects.display_search_results(
+        results=results_dept,
+        search_description="Data Platform — data quality projects",
+        max_text_length=100,
     )
-    
-    print("   ✅ One-step context created successfully")
-    print(f"   📝 Context length: {len(one_step_context)} characters")
-    
-    # Method 4: Filtered search with RAG
-    print("\n8️⃣ Filtered search with RAG (Famous Literary Passages only):")
-    filtered_context = projects.search_and_create_rag_context(
-        user_query=user_query,
-        limit=3,
-        category="Famous Literary Passages"
-    )
-    
-    print("   ✅ Filtered context created successfully")
-    
-    # Summary
-    print("\n" + "=" * 50)
-    print("🎉 RAG Example Completed Successfully!")
-    print("\n📊 Summary:")
-    print(f"   • Original search results: {len(search_results)} quotes")
-    print(f"   • RAG context created: {len(rag_context)} characters")
-    print(f"   • One-step context: {len(one_step_context)} characters")
-    print(f"   • Filtered context: {len(filtered_context)} characters")
-    
-    print("\n💡 Next Steps:")
-    print("   • Use the generated RAG context as input to your LLM")
-    print("   • The LLM will generate thoughtful responses using the provided quotes")
-    print("   • All quotes are properly attributed to their authors")
-    
-    return {
-        "search_results": search_results,
-        "rag_context": rag_context,
-        "one_step_context": one_step_context,
-        "filtered_context": filtered_context
-    }
+
+    print("\n✅ Examples completed!")
+    return True
 
 
 def demonstrate_rag_context_structure():
@@ -151,12 +105,9 @@ def demonstrate_rag_context_structure():
 if __name__ == "__main__":
     try:
         # Run the main example
-        results = main()
-        
-        # Demonstrate context structure
-        demonstrate_rag_context_structure()
-        
-        print("\n✅ Example completed successfully!")
+        success = main()
+        if not success:
+            sys.exit(1)
         
     except Exception as e:
         logger.error(f"Example failed: {str(e)}")

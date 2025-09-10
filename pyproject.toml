@@ -24,6 +24,12 @@ dependencies = [
     "plotly>=5.17.0",
     "icontract>=2.7.1",
     "streamlit-ace>=0.1.1",
+    "qdrant-client>=1.15.1",
+    "openai>=1.107.0",
+    "pillow>=11.3.0",
+    "transformers>=4.56.1",
+    "torch>=2.8.0",
+    "open-clip-torch>=3.1.0",
 ]
 
 [build-system]

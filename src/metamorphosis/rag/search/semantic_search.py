@@ -203,7 +203,9 @@ class SemanticSearch:
             )
         
         # Get collection info
-        collection_info = self.vector_db.get_collection_info(self.collection_name)
+        collection_info = self.vector_db.get_collection_info(
+            collection_name=self.collection_name
+        )
         collection_vector_size = collection_info.config.params.vectors.size
         collection_distance = collection_info.config.params.vectors.distance
         
@@ -255,10 +257,17 @@ class SemanticSearch:
         """
         try:
             # Create embedding using the embedder
-            point = self.embedder.embed(text, metadata, point_id)
+            point = self.embedder.embed(
+                content=text,
+                metadata=metadata,
+                point_id=point_id,
+            )
             
             # Store in vector database
-            self.vector_db.upsert_points(self.collection_name, [point])
+            self.vector_db.upsert_points(
+                collection_name=self.collection_name,
+                points=[point]
+            )
             
             logger.debug(f"Indexed text (length: {len(text)}) with ID: {point.id}")
             return point.id
@@ -290,10 +299,17 @@ class SemanticSearch:
         """
         try:
             # Create embedding using the embedder
-            point = self.embedder.embed(image, metadata, point_id)
+            point = self.embedder.embed(
+                content=image,
+                metadata=metadata,
+                point_id=point_id,
+            )
             
             # Store in vector database
-            self.vector_db.upsert_points(self.collection_name, [point])
+            self.vector_db.upsert_points(
+                collection_name=self.collection_name,
+                points=[point]
+            )
             
             logger.debug(f"Indexed image (size: {image.size}) with ID: {point.id}")
             return point.id
@@ -329,7 +345,7 @@ class SemanticSearch:
         """
         try:
             # Create query embedding
-            query_point = self.embedder.embed(query_text)
+            query_point = self.embedder.embed(content=query_text)
             query_vector = query_point.vector
             
             # Convert numpy array to list if needed
@@ -378,7 +394,7 @@ class SemanticSearch:
         """
         try:
             # Create query embedding
-            query_point = self.embedder.embed(query_image)
+            query_point = self.embedder.embed(content=query_image)
             query_vector = query_point.vector
             
             # Convert numpy array to list if needed
@@ -447,12 +463,19 @@ class SemanticSearch:
                 metadata = metadata_list[i] if metadata_list else None
                 point_id = point_ids[i] if point_ids else None
                 
-                point = self.embedder.embed(text, metadata, point_id)
+                point = self.embedder.embed(
+                    content=text,
+                    metadata=metadata,
+                    point_id=point_id,
+                )
                 points.append(point)
                 indexed_ids.append(point.id)
             
             # Batch upsert to vector database
-            self.vector_db.upsert_points(self.collection_name, points)
+            self.vector_db.upsert_points(
+                collection_name=self.collection_name,
+                points=points
+            )
             
             logger.info(f"Indexed {len(texts)} texts into collection '{self.collection_name}'")
             return indexed_ids
@@ -508,12 +531,19 @@ class SemanticSearch:
                 metadata = metadata_list[i] if metadata_list else None
                 point_id = point_ids[i] if point_ids else None
                 
-                point = self.embedder.embed(image, metadata, point_id)
+                point = self.embedder.embed(
+                    content=image,
+                    metadata=metadata,
+                    point_id=point_id,
+                )
                 points.append(point)
                 indexed_ids.append(point.id)
             
             # Batch upsert to vector database
-            self.vector_db.upsert_points(self.collection_name, points)
+            self.vector_db.upsert_points(
+                collection_name=self.collection_name,
+                points=points
+            )
             
             logger.info(f"Indexed {len(images)} images into collection '{self.collection_name}'")
             return indexed_ids

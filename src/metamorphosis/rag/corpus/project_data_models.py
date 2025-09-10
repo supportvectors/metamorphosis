@@ -165,4 +165,21 @@ class ProjectPortfolio(BaseModel):
         return [project for project in self.projects if project.department == department]
 
 
+# ----------------------------------------------------------------------------------------
+#  Achievement Evaluation Models
+# ----------------------------------------------------------------------------------------
+ContributionLevelLiteral = Literal["Minor", "Medium", "Significant", "Critical"]
+
+
+class AchievementEvaluation(BaseModel):
+    """Evaluation result for a single achievement against a matched project."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    # Imported lazily in consumer to avoid circular imports
+    achievement: Any  # should be metamorphosis.datamodel.Achievement
+    project: Project
+    contribution: ContributionLevelLiteral
+    rationale: Optional[str] = None
+
 #============================================================================================ 

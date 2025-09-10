@@ -36,7 +36,7 @@ def main():
     queries = [
         "What do projects teach us about collaboration?",
         "How do departments view cross-team partnerships?",
-        "What is the wisdom about project ownership?"
+        "What signals demonstrate strong project ownership in mission-critical work?",
     ]
     
     # Initialize components with retry logic
@@ -114,7 +114,7 @@ def main():
         if result['search_results']:
             top_result = result['search_results'][0]
             print(f"   • Top score: {top_result.score:.3f}")
-            print(f"   • Top quote: '{top_result.payload.get('content', 'N/A')[:80]}...'")
+            print(f"   • Top project: '{top_result.payload.get('content', 'N/A')[:80]}...'")
         
     except Exception as e:
         print(f"   ❌ RAG pipeline failed: {str(e)}")
@@ -154,20 +154,20 @@ def main():
     print("="*60)
     
     query = queries[2]
-    print(f"\n📝 Query: '{query}' (filtered by 'Famous Literary Passages')")
+    print(f"\n📝 Query: '{query}' (filtered by 'High Impact')")
     
     try:
-        # Use the new rag() facade method with category filter
+        # Use the new rag() facade method with impact_category filter
         result = projects.rag(
             user_query=query,
             limit=5,
-            category="Famous Literary Passages",
+            impact_category="High Impact",
             response_type="structured"
         )
         
         print(f"\n✅ RAG pipeline completed successfully!")
         print(f"   📊 Found {result['query_info']['results_count']} search results")
-        print(f"   🏷️  Filtered by category: {result['query_info']['category_filter']}")
+        print(f"   🏷️  Filtered by impact_category: {result['query_info'].get('impact_category_filter')}")
         print(f"   🤖 Generated {result['query_info']['response_type']} LLM response")
         
         # Display the structured response
@@ -184,7 +184,7 @@ def main():
     print("4️⃣ ACCESSING RAG COMPONENTS")
     print("="*60)
     
-    query = "animal wisdom"
+    query = "feature engineering standards"
     print(f"\n📝 Query: '{query}'")
     
     try:

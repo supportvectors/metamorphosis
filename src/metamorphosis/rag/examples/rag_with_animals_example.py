@@ -89,7 +89,7 @@ def main():
     filtered_context = animals.search_and_create_rag_context(
         user_query=user_query,
         limit=3,
-        category="Famous Literary Passages"
+        impact_category="Famous Literary Passages"
     )
     
     print("   ✅ Filtered context created successfully")

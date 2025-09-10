@@ -460,7 +460,11 @@ class EmbeddedVectorDB:
     def _create_new_collection(self, collection_name: str, vector_size: int, 
                               distance: str) -> bool:
         """Helper to create a new collection."""
-        self.create_collection(collection_name, vector_size, distance)
+        self.create_collection(
+            collection_name=collection_name,
+            vector_size=vector_size,
+            distance=distance,
+        )
         return True
         
     def _ensure_existing_collection_matches(self, collection_name: str, 
@@ -495,7 +499,11 @@ class EmbeddedVectorDB:
             f"Found: size={existing_size}, distance={existing_distance}. "
             "Recreating collection."
         )
-        self.delete_collection(collection_name)
-        self.create_collection(collection_name, vector_size, distance)
+        self.delete_collection(collection_name=collection_name)
+        self.create_collection(
+            collection_name=collection_name,
+            vector_size=vector_size,
+            distance=distance,
+        )
 
 #============================================================================================
