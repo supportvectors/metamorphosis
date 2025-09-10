@@ -8,10 +8,10 @@
 <meta content="A simple example with AI Agents" name="description"/>
 <meta content="SupportVectors" name="author"/>
 <link href="https://supportvectors.ai/metamorphosis/examples/extract_achievements_usage/" rel="canonical"/>
-<link href="../" rel="prev"/>
-<link href="../../project-guide/tips-and-tricks/cuda-hell/" rel="next"/>
+<link href="../rationalize_usage/" rel="prev"/>
+<link href="../review_text_evaluator_usage/" rel="next"/>
 <link href="../../images/favicon.ico" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.6.18" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.19" name="generator"/>
 <title>Achievement Extraction - SupportVectors MetaMorphosis</title>
 <link href="../../assets/stylesheets/main.7e37652d.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
@@ -213,6 +213,32 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_2" id="__nav_3_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Self Reviewer
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_3_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_2">
+<span class="md-nav__icon md-icon"></span>
+            Self Reviewer
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../metamorphosis/agents/self_reviewer/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
 </ul>
 </nav>
 </li>
@@ -240,7 +266,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../metamorphosis/exceptions.md">
+<a class="md-nav__link" href="../../metamorphosis/exceptions/">
 <span class="md-ellipsis">
     Exceptions
     
@@ -248,7 +274,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../metamorphosis/utilities.md">
+<a class="md-nav__link" href="../../metamorphosis/utilities/">
 <span class="md-ellipsis">
     Utilities
     
@@ -256,9 +282,17 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../metamorphosis/model_registry.md">
+<a class="md-nav__link" href="../../metamorphosis/model_registry/">
 <span class="md-ellipsis">
     Model Registry
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../metamorphosis/init/">
+<span class="md-ellipsis">
+    Package Init
     
   </span>
 </a>
@@ -308,7 +342,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../summarizer_usage.md">
+<a class="md-nav__link" href="../summarizer_usage/">
 <span class="md-ellipsis">
     Summarizer Usage
     
@@ -316,7 +350,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../rationalize_usage.md">
+<a class="md-nav__link" href="../rationalize_usage/">
 <span class="md-ellipsis">
     Copy Editor Usage
     
@@ -366,20 +400,6 @@
 <a class="md-nav__link" href="#examples.extract_achievements_usage">
 <span class="md-ellipsis">
       extract_achievements_usage
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#examples.extract_achievements_usage.create_achievements_table">
-<span class="md-ellipsis">
-      create_achievements_table
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#examples.extract_achievements_usage.create_summary_panel">
-<span class="md-ellipsis">
-      create_summary_panel
     </span>
 </a>
 </li>
@@ -757,7 +777,7 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../review_text_evaluator_usage.md">
+<a class="md-nav__link" href="../review_text_evaluator_usage/">
 <span class="md-ellipsis">
     Quality Evaluation
     
@@ -783,7 +803,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../visualize_evaluation_radar.md">
+<a class="md-nav__link" href="../visualize_evaluation_radar/">
 <span class="md-ellipsis">
     Radar Charts
     
@@ -830,6 +850,48 @@
 <a class="md-nav__link" href="../../project-guide/tips-and-tricks/cuda-hell/">
 <span class="md-ellipsis">
     CUDA Issues
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Talk
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_2">
+<span class="md-nav__icon md-icon"></span>
+            Talk
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../project-guide/talk-outline/">
+<span class="md-ellipsis">
+    Outline
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../project-guide/speaker-notes/">
+<span class="md-ellipsis">
+    Speaker Notes
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../project-guide/slides/">
+<span class="md-ellipsis">
+    Slides
     
   </span>
 </a>
@@ -884,20 +946,6 @@
 <a class="md-nav__link" href="#examples.extract_achievements_usage">
 <span class="md-ellipsis">
       extract_achievements_usage
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#examples.extract_achievements_usage.create_achievements_table">
-<span class="md-ellipsis">
-      create_achievements_table
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#examples.extract_achievements_usage.create_summary_panel">
-<span class="md-ellipsis">
-      create_summary_panel
     </span>
 </a>
 </li>
@@ -1294,40 +1342,11 @@
 </details>
 <div class="doc doc-children">
 <div class="doc doc-object doc-function">
-<h2 class="doc doc-heading" id="examples.extract_achievements_usage.create_achievements_table">
-<code class="highlight language-python"><span class="n">create_achievements_table</span><span class="p">(</span><span class="n">achievements_list</span><span class="p">)</span></code>
-<a class="headerlink" href="#examples.extract_achievements_usage.create_achievements_table" title="Permanent link">¶</a></h2>
+<h2 class="doc doc-heading" id="examples.extract_achievements_usage.load_sample_review">
+<code class="highlight language-python"><span class="n">load_sample_review</span><span class="p">()</span></code>
+<a class="headerlink" href="#examples.extract_achievements_usage.load_sample_review" title="Permanent link">¶</a></h2>
 <div class="doc doc-contents">
-<p>Create a rich table displaying the extracted achievements.</p>
-<p><span class="doc-section-title">Parameters:</span></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="doc-section-item">
-<td>
-<code>achievements_list</code>
-</td>
-<td>
-<code><span title="metamorphosis.datamodel.AchievementsList">AchievementsList</span></code>
-</td>
-<td>
-<div class="doc-md-description">
-<p>The AchievementsList object containing extracted achievements.</p>
-</div>
-</td>
-<td>
-<em>required</em>
-</td>
-</tr>
-</tbody>
-</table>
+<p>Load the sample copy-edited review from sample_reviews directory.</p>
 <p><span class="doc-section-title">Returns:</span></p>
 <table>
 <thead>
@@ -1339,11 +1358,32 @@
 <tbody>
 <tr class="doc-section-item">
 <td>
-<code><span title="rich.table.Table">Table</span></code>
+<code><span title="str">str</span></code>
 </td>
 <td>
 <div class="doc-md-description">
-<p>A rich Table object formatted for display.</p>
+<p>The content of the copy_edited.md file.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><span class="doc-section-title">Raises:</span></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="doc-section-item">
+<td>
+<code><span title="FileNotFoundError">FileNotFoundError</span></code>
+</td>
+<td>
+<div class="doc-md-description">
+<p>If the sample review file doesn't exist.</p>
 </div>
 </td>
 </tr>
@@ -1351,23 +1391,50 @@
 </table>
 <details class="quote">
 <summary>Source code in <code>src/examples/extract_achievements_usage.py</code></summary>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_sample_review</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Load the sample copy-edited review from sample_reviews directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The content of the copy_edited.md file.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: If the sample review file doesn't exist.</span>
+<span class="sd">    """</span>
+    <span class="n">project_root</span> <span class="o">=</span> <span class="n">get_project_root</span><span class="p">()</span>
+    <span class="n">sample_file</span> <span class="o">=</span> <span class="n">project_root</span> <span class="o">/</span> <span class="s2">"sample_reviews"</span> <span class="o">/</span> <span class="s2">"copy_edited.md"</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sample review file not found: </span><span class="si">{</span><span class="n">sample_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sample_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-function">
+<h2 class="doc doc-heading" id="examples.extract_achievements_usage.main">
+<code class="highlight language-python"><span class="n">main</span><span class="p">()</span></code>
+<a class="headerlink" href="#examples.extract_achievements_usage.main" title="Permanent link">¶</a></h2>
+<div class="doc doc-contents">
+<p>Main function that demonstrates achievement extraction.</p>
+<details class="quote">
+<summary>Source code in <code>src/examples/extract_achievements_usage.py</code></summary>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 78</span>
 <span class="normal"> 79</span>
 <span class="normal"> 80</span>
 <span class="normal"> 81</span>
@@ -1424,402 +1491,17 @@
 <span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
-<span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_achievements_table</span><span class="p">(</span><span class="n">achievements_list</span><span class="p">:</span> <span class="n">AchievementsList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Create a rich table displaying the extracted achievements.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        achievements_list: The AchievementsList object containing extracted achievements.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A rich Table object formatted for display.</span>
-<span class="sd">    """</span>
-    <span class="c1"># Create the main table</span>
-    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
-        <span class="n">title</span><span class="o">=</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"🏆 Extracted Key Achievements "</span>
-            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">achievements_list</span><span class="o">.</span><span class="n">items</span><span class="p">)</span><span class="si">}</span><span class="s2"> items, ~</span><span class="si">{</span><span class="n">achievements_list</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> tokens)"</span>
-        <span class="p">),</span>
-        <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">ROUNDED</span><span class="p">,</span>
-        <span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">header_style</span><span class="o">=</span><span class="s2">"bold magenta"</span><span class="p">,</span>
-        <span class="n">title_style</span><span class="o">=</span><span class="s2">"bold blue"</span><span class="p">,</span>
-        <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Add columns</span>
-    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">"Title"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"bold cyan"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">"Outcome"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
-    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">"Impact Area"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"bold green"</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">"Metrics"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"bold yellow"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">"Details"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"dim white"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-
-    <span class="c1"># Add rows for each achievement</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">achievement</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">achievements_list</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="c1"># Format metrics as a comma-separated string</span>
-        <span class="n">metrics_text</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">metric_strings</span><span class="p">)</span> <span class="k">if</span> <span class="n">achievement</span><span class="o">.</span><span class="n">metric_strings</span> <span class="k">else</span> <span class="s2">"—"</span>
-
-        <span class="c1"># Format additional details (timeframe, scope, collaborators)</span>
-        <span class="n">details_parts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">achievement</span><span class="o">.</span><span class="n">timeframe</span><span class="p">:</span>
-            <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"⏰ </span><span class="si">{</span><span class="n">achievement</span><span class="o">.</span><span class="n">timeframe</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">achievement</span><span class="o">.</span><span class="n">ownership_scope</span><span class="p">:</span>
-            <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"👤 </span><span class="si">{</span><span class="n">achievement</span><span class="o">.</span><span class="n">ownership_scope</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">achievement</span><span class="o">.</span><span class="n">collaborators</span><span class="p">:</span>
-            <span class="n">collabs</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">collaborators</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Show first 2 collaborators</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">collaborators</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">collabs</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" +</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">collaborators</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="si">}</span><span class="s2">"</span>
-            <span class="n">details_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"🤝 </span><span class="si">{</span><span class="n">collabs</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-        <span class="n">details_text</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">details_parts</span><span class="p">)</span> <span class="k">if</span> <span class="n">details_parts</span> <span class="k">else</span> <span class="s2">"—"</span>
-
-        <span class="c1"># Color-code impact areas</span>
-        <span class="n">impact_colors</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"reliability"</span><span class="p">:</span> <span class="s2">"red"</span><span class="p">,</span>
-            <span class="s2">"performance"</span><span class="p">:</span> <span class="s2">"blue"</span><span class="p">,</span>
-            <span class="s2">"security"</span><span class="p">:</span> <span class="s2">"magenta"</span><span class="p">,</span>
-            <span class="s2">"cost"</span><span class="p">:</span> <span class="s2">"green"</span><span class="p">,</span>
-            <span class="s2">"revenue"</span><span class="p">:</span> <span class="s2">"bold green"</span><span class="p">,</span>
-            <span class="s2">"customer"</span><span class="p">:</span> <span class="s2">"cyan"</span><span class="p">,</span>
-            <span class="s2">"delivery_speed"</span><span class="p">:</span> <span class="s2">"yellow"</span><span class="p">,</span>
-            <span class="s2">"quality"</span><span class="p">:</span> <span class="s2">"white"</span><span class="p">,</span>
-            <span class="s2">"compliance"</span><span class="p">:</span> <span class="s2">"dim white"</span><span class="p">,</span>
-            <span class="s2">"team"</span><span class="p">:</span> <span class="s2">"bold blue"</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">impact_color</span> <span class="o">=</span> <span class="n">impact_colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">impact_area</span><span class="p">,</span> <span class="s2">"white"</span><span class="p">)</span>
-        <span class="n">impact_text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">impact_area</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">impact_color</span><span class="p">)</span>
-
-        <span class="c1"># Add the row</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">achievement</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-            <span class="n">achievement</span><span class="o">.</span><span class="n">outcome</span><span class="p">,</span>
-            <span class="n">impact_text</span><span class="p">,</span>
-            <span class="n">metrics_text</span><span class="p">,</span>
-            <span class="n">details_text</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">table</span>
-</code></pre></div></td></tr></table></div>
-</details>
-</div>
-</div>
-<div class="doc doc-object doc-function">
-<h2 class="doc doc-heading" id="examples.extract_achievements_usage.create_summary_panel">
-<code class="highlight language-python"><span class="n">create_summary_panel</span><span class="p">(</span><span class="n">achievements_list</span><span class="p">)</span></code>
-<a class="headerlink" href="#examples.extract_achievements_usage.create_summary_panel" title="Permanent link">¶</a></h2>
-<div class="doc doc-contents">
-<p>Create a summary panel with statistics about the achievements.</p>
-<p><span class="doc-section-title">Parameters:</span></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="doc-section-item">
-<td>
-<code>achievements_list</code>
-</td>
-<td>
-<code><span title="metamorphosis.datamodel.AchievementsList">AchievementsList</span></code>
-</td>
-<td>
-<div class="doc-md-description">
-<p>The AchievementsList object containing extracted achievements.</p>
-</div>
-</td>
-<td>
-<em>required</em>
-</td>
-</tr>
-</tbody>
-</table>
-<p><span class="doc-section-title">Returns:</span></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="doc-section-item">
-<td>
-<code><span title="rich.panel.Panel">Panel</span></code>
-</td>
-<td>
-<div class="doc-md-description">
-<p>A rich Panel object with summary statistics.</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-<details class="quote">
-<summary>Source code in <code>src/examples/extract_achievements_usage.py</code></summary>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_summary_panel</span><span class="p">(</span><span class="n">achievements_list</span><span class="p">:</span> <span class="n">AchievementsList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Create a summary panel with statistics about the achievements.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        achievements_list: The AchievementsList object containing extracted achievements.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A rich Panel object with summary statistics.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">achievements_list</span><span class="o">.</span><span class="n">items</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span>
-            <span class="s2">"No achievements were extracted from the review text."</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="s2">"📊 Summary"</span><span class="p">,</span>
-            <span class="n">style</span><span class="o">=</span><span class="s2">"dim red"</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="c1"># Count achievements by impact area</span>
-    <span class="n">impact_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">total_metrics</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">achievements_with_timeframes</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">achievements_with_collaborators</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">achievement</span> <span class="ow">in</span> <span class="n">achievements_list</span><span class="o">.</span><span class="n">items</span><span class="p">:</span>
-        <span class="n">impact_counts</span><span class="p">[</span><span class="n">achievement</span><span class="o">.</span><span class="n">impact_area</span><span class="p">]</span> <span class="o">=</span> <span class="n">impact_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">impact_area</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">total_metrics</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">achievement</span><span class="o">.</span><span class="n">metric_strings</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">achievement</span><span class="o">.</span><span class="n">timeframe</span><span class="p">:</span>
-            <span class="n">achievements_with_timeframes</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">achievement</span><span class="o">.</span><span class="n">collaborators</span><span class="p">:</span>
-            <span class="n">achievements_with_collaborators</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="c1"># Format the summary text</span>
-    <span class="n">summary_lines</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">"📈 Total Achievements: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">achievements_list</span><span class="o">.</span><span class="n">items</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"📊 Total Metrics Found: </span><span class="si">{</span><span class="n">total_metrics</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"⏰ With Timeframes: </span><span class="si">{</span><span class="n">achievements_with_timeframes</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"🤝 With Collaborators: </span><span class="si">{</span><span class="n">achievements_with_collaborators</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"🎯 Token Estimate: </span><span class="si">{</span><span class="n">achievements_list</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="s2">""</span><span class="p">,</span>
-        <span class="s2">"📋 Impact Areas:"</span><span class="p">,</span>
-    <span class="p">]</span>
-
-    <span class="c1"># Add impact area breakdown</span>
-    <span class="k">for</span> <span class="n">impact_area</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">impact_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-        <span class="n">summary_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  • </span><span class="si">{</span><span class="n">impact_area</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span>
-        <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">summary_lines</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="s2">"📊 Achievements Summary"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"dim blue"</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">SIMPLE</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-</details>
-</div>
-</div>
-<div class="doc doc-object doc-function">
-<h2 class="doc doc-heading" id="examples.extract_achievements_usage.load_sample_review">
-<code class="highlight language-python"><span class="n">load_sample_review</span><span class="p">()</span></code>
-<a class="headerlink" href="#examples.extract_achievements_usage.load_sample_review" title="Permanent link">¶</a></h2>
-<div class="doc doc-contents">
-<p>Load the sample copy-edited review from sample_reviews directory.</p>
-<p><span class="doc-section-title">Returns:</span></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="doc-section-item">
-<td>
-<code><span title="str">str</span></code>
-</td>
-<td>
-<div class="doc-md-description">
-<p>The content of the copy_edited.md file.</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-<p><span class="doc-section-title">Raises:</span></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="doc-section-item">
-<td>
-<code><span title="FileNotFoundError">FileNotFoundError</span></code>
-</td>
-<td>
-<div class="doc-md-description">
-<p>If the sample review file doesn't exist.</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-<details class="quote">
-<summary>Source code in <code>src/examples/extract_achievements_usage.py</code></summary>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_sample_review</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Load the sample copy-edited review from sample_reviews directory.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The content of the copy_edited.md file.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        FileNotFoundError: If the sample review file doesn't exist.</span>
-<span class="sd">    """</span>
-    <span class="n">project_root</span> <span class="o">=</span> <span class="n">get_project_root</span><span class="p">()</span>
-    <span class="n">sample_file</span> <span class="o">=</span> <span class="n">project_root</span> <span class="o">/</span> <span class="s2">"sample_reviews"</span> <span class="o">/</span> <span class="s2">"copy_edited.md"</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sample review file not found: </span><span class="si">{</span><span class="n">sample_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">sample_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-</details>
-</div>
-</div>
-<div class="doc doc-object doc-function">
-<h2 class="doc doc-heading" id="examples.extract_achievements_usage.main">
-<code class="highlight language-python"><span class="n">main</span><span class="p">()</span></code>
-<a class="headerlink" href="#examples.extract_achievements_usage.main" title="Permanent link">¶</a></h2>
-<div class="doc doc-contents">
-<p>Main function that demonstrates achievement extraction.</p>
-<details class="quote">
-<summary>Source code in <code>src/examples/extract_achievements_usage.py</code></summary>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Main function that demonstrates achievement extraction."""</span>
     <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
 
@@ -1944,23 +1626,23 @@
 </table>
 <details class="quote">
 <summary>Source code in <code>src/examples/extract_achievements_usage.py</code></summary>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_achievements_to_jsonl</span><span class="p">(</span><span class="n">achievements_list</span><span class="p">:</span> <span class="n">AchievementsList</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_achievements_to_jsonl</span><span class="p">(</span><span class="n">achievements_list</span><span class="p">:</span> <span class="n">AchievementsList</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Write the achievements to a JSONL file.</span>
 
 <span class="sd">    Args:</span>

@@ -5,6 +5,7 @@ The `metamorphosis` package is the core module that provides AI-powered text pro
 ## Package Architecture
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e0f2ff', 'edgeLabelBackground':'#ffffffaa', 'clusterBkg':'#f7fbff', 'fontFamily':'Inter'}}}%%
 graph TB
     subgraph "metamorphosis Package"
         A[__init__.py<br/>Configuration & Registry]
@@ -45,28 +46,21 @@ graph TB
 
 The package provides centralized configuration management through:
 
-- **Environment Variable Loading**: Automatic `.env` file processing
-- **YAML Configuration**: Structured configuration via `config.yaml`
-- **Model Registry**: Centralized LLM client management
-- **Project Root Resolution**: Dynamic project path detection
+- **Environment Variable Loading**: Simple `.env` style via `config.yaml`
+- **Model Registry**: Central place to get LLM clients
+- **Project Root Resolution**: Utility to resolve paths reliably
 
 ### Data Models
 
-Comprehensive Pydantic models for type-safe data handling:
+Type-safe Pydantic models for data handling:
 
-- **Processing Results**: Structured outputs for all text processing operations
-- **Request/Response Models**: API contract definitions
-- **Workflow State**: LangGraph state management schemas
-- **Configuration Models**: Type-safe configuration validation
+- **Processing Results**: Structured outputs for text processing
+- **Request/Response Models**: API contracts
+- **Workflow State**: LangGraph state schemas
 
 ### Error Handling
 
-Robust exception hierarchy with:
-
-- **Specific Error Types**: Granular error classification
-- **Context Preservation**: Rich error context for debugging
-- **Operation Tracking**: Error source identification
-- **Graceful Degradation**: Fallback mechanisms
+Clear exception types with helpful context. This keeps examples easy to debug and learn from.
 
 ## Module Documentation
 
@@ -85,10 +79,16 @@ Robust exception hierarchy with:
 | Package | Purpose | Documentation |
 |---------|---------|---------------|
 | [`mcp/`](mcp/index.md) | Model Context Protocol integration | [View Details →](mcp/index.md) |
-| [`agents/`](agents/index.md) | LangGraph agent workflows | [View Details →](agents/index.md) |
+| [`agents/`](agents/index.md) | LangGraph agent workflows (see `self_reviewer/`) | [View Details →](agents/index.md) |
 | [`ui/`](ui/index.md) | Streamlit user interfaces | [View Details →](ui/index.md) |
 
 ## Usage Patterns
+
+## Configuration
+
+- Ensure `OPENAI_API_KEY` is set in your environment (or `.env`).
+- Project configuration is loaded via `svlearn`'s `ConfigurationMixin`.
+- See `config.yaml` for model settings used by `ModelRegistry`.
 
 ### Basic Initialization
 
@@ -130,7 +130,7 @@ except PostconditionError as e:
 
 ### Singleton Registry
 
-The `ModelRegistry` implements a singleton pattern to ensure efficient resource usage:
+The `ModelRegistry` implements a lightweight singleton to keep code simple:
 
 ```python
 class ModelRegistry:
@@ -143,19 +143,9 @@ class ModelRegistry:
         return cls._instance
 ```
 
-### Factory Pattern
-
-Configuration loading uses a factory pattern with lazy initialization:
-
-```python
-def get_model_registry() -> ModelRegistry:
-    """Factory function for ModelRegistry singleton."""
-    return ModelRegistry()
-```
-
 ### Validation Decorators
 
-Consistent validation using Pydantic decorators:
+Pydantic `@validate_call` is used for friendly runtime checks in examples:
 
 ```python
 @validate_call
@@ -166,146 +156,19 @@ def process_text(
     # Implementation with automatic validation
 ```
 
-## Configuration Schema
-
-### Environment Variables
-
-```yaml
-# Required
-OPENAI_API_KEY: str  # OpenAI API key
-PROJECT_ROOT_DIR: str  # Project root directory
-
-# Optional
-MCP_SERVER_HOST: str = "localhost"
-MCP_SERVER_PORT: int = 8000
-FASTAPI_HOST: str = "0.0.0.0"
-FASTAPI_PORT: int = 8001
-```
-
-### YAML Configuration
-
-```yaml
-models:
-  summarizer:
-    model: str  # Model name (e.g., "gpt-4o")
-    temperature: float  # Sampling temperature
-    max_tokens: int  # Maximum output tokens
-    timeout: int  # Request timeout in seconds
-  
-  copy_editor:
-    model: str
-    temperature: float
-    max_tokens: int
-    timeout: int
-  
-  key_achievements:
-    model: str
-    temperature: float
-    max_tokens: int
-    timeout: int
-  
-  review_text_evaluator:
-    model: str
-    temperature: float
-    max_tokens: int
-    timeout: int
-```
-
-## Performance Considerations
-
-### Resource Management
-
-- **LLM Client Caching**: Singleton registry prevents multiple client instantiation
-- **Connection Pooling**: Efficient HTTP connection reuse
-- **Memory Management**: Proper cleanup of large text processing results
-
-### Optimization Strategies
-
-- **Lazy Loading**: Configuration and models loaded on-demand
-- **Caching**: LRU cache for expensive operations
-- **Parallel Processing**: Concurrent execution where possible
-
-## Testing
-
-### Unit Tests
-
-```python
-import pytest
-from metamorphosis import get_model_registry
-from metamorphosis.exceptions import ConfigurationError
-
-def test_model_registry_singleton():
-    registry1 = get_model_registry()
-    registry2 = get_model_registry()
-    assert registry1 is registry2
-
-def test_configuration_validation():
-    with pytest.raises(ConfigurationError):
-        # Test invalid configuration handling
-        pass
-```
-
-### Integration Tests
-
-```python
-def test_end_to_end_processing():
-    modifiers = TextModifiers()
-    result = modifiers.summarize(
-        text="Sample employee review text...",
-        max_words=50
-    )
-    assert isinstance(result, SummarizedText)
-    assert len(result.summarized_text) > 0
-```
-
-## Migration Guide
-
-### From v0.x to v1.0
-
-- Update import statements to use absolute imports
-- Replace manual configuration with `get_model_registry()`
-- Update exception handling to use new hierarchy
-- Migrate to new Pydantic v2 models
-
 ## Troubleshooting
 
-### Common Issues
-
-1. **Configuration Errors**:
-   - Verify `.env` file exists and contains required variables
-   - Check `config.yaml` syntax and structure
-   - Ensure OpenAI API key is valid
-
-2. **Import Errors**:
-   - Verify `PYTHONPATH` includes `src` directory
-   - Check for circular import issues
-   - Ensure all dependencies are installed
-
-3. **Model Loading Issues**:
-   - Verify OpenAI API connectivity
-   - Check rate limits and quotas
-   - Monitor token usage
-
-### Debug Mode
-
-Enable comprehensive logging:
-
-```python
-import logging
-from loguru import logger
-
-# Enable debug logging
-logger.add("debug.log", level="DEBUG")
-logging.basicConfig(level=logging.DEBUG)
-```
+- Make sure `PYTHONPATH` includes `src` (already set in MkDocs config)
+- Check that environment variables like `OPENAI_API_KEY` are available
+- Verify dependencies are installed
 
 ## See Also
 
 - [MCP Package Documentation](mcp/index.md) - Text processing tools
-- [Agents Package Documentation](agents/index.md) - Workflow orchestration
+- [Agents Package Documentation](agents/index.md) - Workflow orchestration (`self_reviewer/`)
 - [UI Package Documentation](ui/index.md) - User interfaces
 - [Examples](../examples/index.md) - Usage examples and tutorials
 
 ---
 
-*This documentation is automatically generated from the source code and kept in sync with the latest implementation.*
+This project is a learning‑friendly starter for exploring AI agents with LangGraph, MCP tools, and Streamlit. The goal is clarity over complexity.

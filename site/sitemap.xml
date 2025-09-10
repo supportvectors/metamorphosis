@@ -2,46 +2,118 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://supportvectors.ai/metamorphosis/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/architecture/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/examples/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/examples/extract_achievements_usage/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/examples/rationalize_usage/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/examples/review_text_evaluator_usage/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/examples/summarizer_usage/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/examples/visualize_evaluation_radar/</loc>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/metamorphosis/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/metamorphosis/datamodel/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/exceptions/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/init/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/model_registry/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/utilities/</loc>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/metamorphosis/agents/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/agents/self_reviewer/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/agents/self_reviewer/GraphBuilder/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/agents/self_reviewer/GraphState/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/agents/self_reviewer/MCPClientManager/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/agents/self_reviewer/WorkflowExecutor/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/agents/self_reviewer/WorkflowNodes/</loc>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/metamorphosis/mcp/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/metamorphosis/mcp/TextModifiers/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/metamorphosis/ui/</loc>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/notebooks/supportvectors-common/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/project-guide/slides/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/project-guide/speaker-notes/</loc>
+         <lastmod>2025-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://supportvectors.ai/metamorphosis/project-guide/talk-outline/</loc>
+         <lastmod>2025-09-08</lastmod>
     </url>
     <url>
          <loc>https://supportvectors.ai/metamorphosis/project-guide/tips-and-tricks/cuda-hell/</loc>
-         <lastmod>2025-09-05</lastmod>
+         <lastmod>2025-09-08</lastmod>
     </url>
 </urlset>

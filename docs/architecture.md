@@ -15,9 +15,10 @@ graph TB
     end
     
     subgraph "Orchestration Layer"
-        LG[LangGraph Workflows]
-        AG[Agent Coordinator]
-        SM[State Manager]
+        LG[LangGraph Workflows (self_reviewer)]
+        EX[WorkflowExecutor]
+        GB[GraphBuilder]
+        SM[GraphState]
     end
     
     subgraph "Processing Layer"
@@ -47,9 +48,10 @@ graph TB
     
     UI --> API
     CLI --> MCP
-    API --> LG
-    LG --> AG
-    AG --> SM
+    API --> EX
+    EX --> GB
+    GB --> LG
+    LG --> SM
     SM --> WF
     WF --> TM
     TM --> MCP

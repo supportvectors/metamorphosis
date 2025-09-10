@@ -49,7 +49,9 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          rendering:
+          paths:
+            - src
+          options:
             show_source: true
   - awesome-pages
   - mermaid2
@@ -94,11 +96,14 @@ nav:
       - TextModifiers: metamorphosis/mcp/TextModifiers.md
     - Agents Package:
       - Overview: metamorphosis/agents/index.md
+      - Self Reviewer:
+        - Overview: metamorphosis/agents/self_reviewer/index.md
     - Core Modules:
       - Data Models: metamorphosis/datamodel.md
       - Exceptions: metamorphosis/exceptions.md
       - Utilities: metamorphosis/utilities.md
       - Model Registry: metamorphosis/model_registry.md
+      - Package Init: metamorphosis/init.md
   - Examples:
     - Overview: examples/index.md
     - Basic Processing:
@@ -112,6 +117,10 @@ nav:
   - Project Guide:
     - Tips & Tricks:
       - CUDA Issues: project-guide/tips-and-tricks/cuda-hell.md
+    - Talk:
+      - Outline: project-guide/talk-outline.md
+      - Speaker Notes: project-guide/speaker-notes.md
+      - Slides: project-guide/slides.md
   - Notebooks:
     - Common Patterns: notebooks/supportvectors-common.ipynb
 

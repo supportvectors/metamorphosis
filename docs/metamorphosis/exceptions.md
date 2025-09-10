@@ -1,0 +1,6 @@
+### Exceptions
+
+::: metamorphosis.exceptions
+
+
+
