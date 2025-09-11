@@ -46,3 +46,40 @@ Create an MCP server, with some basic tools given above, and keeps many critical
 **Copy Editing Tool** Take a text and clean up the language minimally, fixing grammatical errors, but leaving the diction as that of the original text. (In other words, do not rewrite the structure of the text itself.)
 **Keywords-extraction tool** To create a word-cloud
 **Abstractive summarization**
+
+## Getting Started
+
+Follow these steps to run the **Employee Self-Review Wizard** application:
+
+### 1. Environment Setup
+First, update the environment configuration by copying the example file and updating relevant variables:
+```bash
+cp .env.example .env
+# Edit .env with your specific configuration values
+```
+
+### 2. Install Dependencies
+Create the virtual environment and install all dependencies:
+```bash
+uv sync
+```
+
+### 3. Start the MCP Tools Server
+Run the MCP tools server to provide the core functionality:
+```bash
+uv run ./src/metamorphosis/mcp/tools_server.py
+```
+
+### 4. Start the Agent Service
+In a separate terminal, run the FastAPI service that hosts the LangGraph agents:
+```bash
+uv run ./src/metamorphosis/agents/agent_service.py
+```
+
+### 5. Launch the User Interface
+Finally, start the Streamlit UI in another terminal:
+```bash
+streamlit run ./src/metamorphosis/ui/streamlit_ui.py
+```
+
+Once all services are running, you can access the application through the Streamlit interface in your web browser.
