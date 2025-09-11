@@ -1,15 +1,15 @@
 
-# Facebook Session
+# AI Agents Session
 
 ## Goal 
 
-Teach a bunch of semi-technical staff in Facebook HR Operations about AI Agents, and what it can do.
+Introduction on AI Agents, and what it can do.
 
 ### Proposed method
 
 #### Context
 
-In Facebook, every employee is expected to write a self-evaluation of their own performance, what they did and what contributions they brought. **There is a rubric of the key points – such as impact, that they must cover**. Unfortunately, employees write either too verbose, too generic or other ways imperfect self-evaluations.
+In a typical large organization, every employee is expected to write a self-evaluation of their own performance, what they did and what contributions they brought. **There is a rubric of the key points – such as impact, that they must cover**. Unfortunately, employees write either too verbose, too generic or other ways imperfect self-evaluations.
 
 #### AI Agents based Self-Evaluation Builder
 
