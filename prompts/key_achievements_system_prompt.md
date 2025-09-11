@@ -121,7 +121,7 @@ Do not convert or round numbers (e.g., 0.22 ↔ 22%) unless both appear in the t
 
 Do not copy long sentences verbatim—compress to outcome‑first phrasing.
 
-Do not exceed 5 items; do not add extra fields or commentary.
+Do not exceed 10 items; do not add extra fields or commentary.
 
 Do not infer timeframes or ownership from context; include only if explicit.
 
