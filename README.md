@@ -1,51 +1,211 @@
 
-# AI Agents Session
+# Metamorphosis: AI-Powered Self-Review Processing System
 
-## Goal 
+## Overview
 
-Introduction on AI Agents, and what it can do.
+**Metamorphosis** is a comprehensive AI-powered text processing system designed for employee self-review workflows. It leverages LangGraph orchestration, OpenAI's language models, and Model Context Protocol (MCP) integration to provide intelligent text processing capabilities including copy editing, summarization, achievement extraction, and quality evaluation.
 
-### Proposed method
+## Core Features
 
-#### Context
+### 🔄 **Multi-Stage Text Processing Pipeline**
+- **Copy Editing**: Grammar, spelling, and style improvements using OpenAI GPT models
+- **Summarization**: Abstractive summaries with configurable length (default 300 words)
+- **Achievement Extraction**: Structured extraction of key accomplishments with impact areas using LangGraph agents
+- **RAG Enhancement**: Achievement contextualization through project document retrieval and augmentation
+- **Quality Evaluation**: Comprehensive writing quality assessment with radar chart visualization using LangGraph agents
+- **Visualization**: Word cloud generation and evaluation radar charts
 
-In a typical large organization, every employee is expected to write a self-evaluation of their own performance, what they did and what contributions they brought. **There is a rubric of the key points – such as impact, that they must cover**. Unfortunately, employees write either too verbose, too generic or other ways imperfect self-evaluations.
+### 🤖 **AI Agent Orchestration**
+- **LangGraph Workflows**: State-based multi-agent processing with self-reviewer agent
+- **Direct Tool Access**: LangGraph agents directly access achievement extraction and evaluation tools (not via MCP)
+- **RAG Integration**: Achievement evaluator with vector database for project document retrieval
+- **Parallel Processing**: Concurrent execution of independent tasks
+- **Real-time Streaming**: Live updates via Server-Sent Events (SSE)
+- **State Persistence**: Thread-based conversation management
 
-#### AI Agents based Self-Evaluation Builder
+### 🛠️ **Hybrid Tool Integration**
+- **MCP Tools**: Copy editing, summarization, and word cloud generation via MCP server
+- **LangGraph Tools**: Achievement extraction and evaluation via direct agent tool access
+- **RAG System**: Vector database integration for project document retrieval and achievement contextualization
+- **Type Safety**: Pydantic models for structured outputs
+- **Error Handling**: Comprehensive exception management
 
-Build an application for self-evaluation during performance review cycles. It will contain a main text-area in the UI. As the user types, an ambient agent will be observing the text, and comparing it to the rubric, putting tick-marks and progress-bars around key elements of the rubric. Let us call this agent the “Observer Agent”. Then we can have another agent, whose job would be to suggest more powerful rewordings, or ask the user to elaborate on certain points to get more details. Let us call this agent “The Guide Agent”. When the user has completely entered all the text (with typos and grammatical errors), there will be another agent that will suggest rewordings “The Copy Editor Agent”. Finally, there will be a Reviewer agent that will ensure that the self-evaluation is complete with respect to the rubric, and will create extractions of the keywords (word-cloud), and a 100 word abstractive summarization.
+## Architecture
 
-All the collaborations will be mediated by an orchestration agent (Supervisor Agent)
+The system implements a sophisticated multi-layer architecture:
 
-##### The MCP Tools
+- **Presentation Layer**: Streamlit UI and FastAPI REST API
+- **Orchestration Layer**: LangGraph workflows with self-reviewer agent
+- **Processing Layer**: Hybrid approach with MCP tools server and direct LangGraph tool access
+- **RAG Layer**: Vector database and achievement evaluator for project document retrieval
+- **Model Layer**: Centralized model registry managing multiple OpenAI LLMs (GPT-4o-mini for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
+- **Data Layer**: Pydantic models and structured outputs
 
-* Copy editing tool
-* Keywords-extraction tool with Spacy
-* Abstractive summarizer
+### The Processing Tools
 
-##### User Interface
+The system provides a hybrid approach to text processing:
 
-For now, we will make the user-interface in Streamlit.
+**MCP Tools (3 tools):**
+1. **`copy_edit`**: Grammar and style improvements while preserving original voice
+2. **`abstractive_summarize`**: Intelligent summarization with configurable word limits
+3. **`word_cloud`**: Visual word cloud generation from text content
+
+**LangGraph Tools (2 tools):**
+4. **`extract_achievements`**: Structured extraction of key accomplishments with impact categorization
+5. **`evaluate_review_text`**: Comprehensive quality assessment with scoring metrics
+
+**RAG Enhancement:**
+- **Achievement Contextualization**: Extracted achievements are enhanced through Retrieval-Augmented Generation (RAG) by accessing relevant project documents to add contextual details and validate impact claims
+
+### User Interface
+
+The system provides a modern Streamlit-based web interface with:
+- Real-time text processing with live updates
+- Interactive controls for workflow execution
+- Debug information and event inspection
+- Session state management for conversation persistence
 
 
 
-## Action Items
+## Implementation Status
 
-* Build this application in LangGraph, and FastMCP
-* Create an architecture diagram for it
-* Next, take a copy of this application, gut out the “Agent prompts”, and make it a coding exercise, where the participants have to write the appropriate prompt to make it work.
-* Create a fill-in-the-blanks for a simple MCP tool, such as “Abstractive summarizer”
+✅ **Completed Features**
+- LangGraph-based workflow orchestration with self-reviewer agent
+- Hybrid tool architecture: MCP server (3 tools) + LangGraph direct tools (2 tools)
+- RAG system for achievement contextualization using project documents
+- Streamlit UI with real-time streaming capabilities
+- FastAPI REST API with SSE support
+- Comprehensive Pydantic data models
+- OpenAI GPT model integration with centralized registry (GPT-4o-mini for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
+- Word cloud and radar chart visualization
+- Achievement extraction with impact categorization and RAG enhancement
+- Quality evaluation with scoring metrics
 
+✅ **Architecture Documentation**
+- Complete system architecture diagrams
+- Component relationship documentation
+- API documentation with Swagger/ReDoc
+- Comprehensive code documentation
 
-====================
+## Technical Implementation
 
-## Steps
+The system is built using modern Python frameworks and design patterns:
 
-Create an MCP server, with some basic tools given above, and keeps many critical functionality outside LangGraph (so there is not that much vendor lockin)
+**Core Technologies:**
+- **LangGraph**: Multi-agent workflow orchestration with direct tool access
+- **FastMCP**: Model Context Protocol server implementation (3 tools)
+- **RAG System**: Vector database and retrieval for achievement contextualization
+- **Streamlit**: Interactive web interface
+- **FastAPI**: High-performance REST API
+- **Pydantic**: Type-safe data validation
+- **OpenAI GPT**: Language model integration (GPT-4o-mini for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
 
-**Copy Editing Tool** Take a text and clean up the language minimally, fixing grammatical errors, but leaving the diction as that of the original text. (In other words, do not rewrite the structure of the text itself.)
-**Keywords-extraction tool** To create a word-cloud
-**Abstractive summarization**
+**Key Design Principles:**
+- **Design-by-Contract**: Pre/post-condition validation with icontract
+- **Low Cognitive Complexity**: Functions limited to CC ≤ 10
+- **Type Safety**: Comprehensive type annotations throughout
+- **Error Handling**: Structured exception management
+- **Modular Architecture**: Clean separation of concerns
+
+## System Architecture
+
+```mermaid
+graph TB
+    subgraph "User Interface Layer"
+        UI[Streamlit UI<br/>Real-time Processing]
+        API[FastAPI REST API<br/>SSE Streaming]
+    end
+    
+    subgraph "Orchestration Layer"
+        LG[LangGraph Workflow<br/>Self-Reviewer Agent]
+        EX[WorkflowExecutor<br/>State Management]
+    end
+    
+    subgraph "Processing Layer"
+        MCP[MCP Tools Server<br/>3 Tools]
+        LGT[LangGraph Tools<br/>2 Tools]
+    end
+    
+    subgraph "MCP Tools"
+        CE[copy_edit]
+        AS[abstractive_summarize]
+        WC[word_cloud]
+    end
+    
+    subgraph "LangGraph Tools"
+        EA[extract_achievements]
+        EV[evaluate_review_text]
+    end
+    
+    subgraph "RAG System"
+        VE[Vector Database<br/>EmbeddedVectorDB]
+        AE[Achievement Evaluator<br/>Project Retrieval]
+        PD[Project Documents<br/>JSONL Corpus]
+    end
+    
+    subgraph "Model Layer"
+        MR[Model Registry<br/>Centralized LLM Management]
+        GPT1[GPT-4o-mini<br/>LangGraph Agents]
+        GPT2[GPT-4o<br/>MCP Tools]
+        GPT3[GPT-5<br/>Advanced Use Cases]
+    end
+    
+    subgraph "Data Layer"
+        DM[Pydantic Models<br/>Structured Outputs]
+        ST[State Storage<br/>Thread-based]
+    end
+    
+    %% User Interface Connections
+    UI --> API
+    API --> EX
+    EX --> LG
+    
+    %% Orchestration to Processing
+    LG --> MCP
+    LG --> LGT
+    
+    %% MCP Tool Connections
+    MCP --> CE
+    MCP --> AS
+    MCP --> WC
+    
+    %% LangGraph Tool Connections
+    LGT --> EA
+    LGT --> EV
+    
+    %% RAG Integration
+    EA --> AE
+    AE --> VE
+    VE --> PD
+    
+    %% Model Layer Connections
+    MCP --> MR
+    LGT --> MR
+    MR --> GPT1
+    MR --> GPT2
+    MR --> GPT3
+    
+    %% Data Flow
+    LG --> DM
+    MCP --> DM
+    LGT --> DM
+    EX --> ST
+    
+    %% Styling
+    classDef uiLayer fill:#e1f5fe
+    classDef orchestrationLayer fill:#f3e5f5
+    classDef processingLayer fill:#e8f5e8
+    classDef ragLayer fill:#fff3e0
+    classDef modelLayer fill:#fce4ec
+    classDef dataLayer fill:#f1f8e9
+    
+    class UI,API uiLayer
+    class LG,EX orchestrationLayer
+    class MCP,LGT,CE,AS,WC,EA,EV processingLayer
+    class VE,AE,PD ragLayer
+    class MR,GPT1,GPT2,GPT3 modelLayer
+    class DM,ST dataLayer
+```
 
 ## Getting Started
 
