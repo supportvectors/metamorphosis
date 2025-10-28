@@ -29,7 +29,7 @@ from icontract import require, ensure
 
 from metamorphosis.agents.self_reviewer.client import MCPClientManager
 from metamorphosis.agents.self_reviewer.state import GraphState
-from metamorphosis.agents.review_tools import extract_achievements, evaluate_review_text
+from metamorphosis.agents.self_reviewer.review_tools import extract_achievements, evaluate_review_text
 from metamorphosis.datamodel import AchievementsList, ReviewScorecard
 from metamorphosis.utilities import read_text_file, get_project_root
 from metamorphosis.exceptions import raise_postcondition_error
