@@ -136,11 +136,10 @@ class TextModifiers:
         if not isinstance(result, SummarizedText) or not result.summarized_text:
             raise_postcondition_error(
                 "Summarization output validation failed",
-                context={
-                    "result_type": type(result).__name__,
-                    "has_text": bool(getattr(result, "summarized_text", None)),
-                },
-                operation="summarize_validation",
+                function_name="summarize_validation",
+                expected="result to be SummarizedText with non-empty summarized_text",
+                actual=f"type={type(result).__name__}, "
+                f"has_text={bool(getattr(result, 'summarized_text', None))}",
             )
 
         logger.debug(
@@ -245,11 +244,10 @@ class TextModifiers:
         if not isinstance(result, CopyEditedText) or not result.copy_edited_text:
             raise_postcondition_error(
                 "Text rationalization output validation failed",
-                context={
-                    "result_type": type(result).__name__,
-                    "has_text": bool(getattr(result, "copy_edited_text", None)),
-                },
-                operation="rationalize_text_validation",
+                function_name="rationalize_text_validation",
+                expected="result to be CopyEditedText with non-empty copy_edited_text",
+                actual=f"type={type(result).__name__}, "
+                f"has_text={bool(getattr(result, 'copy_edited_text', None))}",
             )
 
         logger.debug(
@@ -362,11 +360,10 @@ class TextModifiers:
         if not isinstance(result, AchievementsList):
             raise_postcondition_error(
                 "Achievement extraction output validation failed",
-                context={
-                    "result_type": type(result).__name__,
-                    "has_items": bool(getattr(result, "items", None)),
-                },
-                operation="extract_achievements_validation",
+                function_name="extract_achievements_validation",
+                expected="result to be an AchievementsList instance",
+                actual=f"type={type(result).__name__}, "
+                f"has_items={bool(getattr(result, 'items', None))}",
             )
 
         logger.debug(
@@ -478,12 +475,13 @@ class TextModifiers:
         ):
             raise_postcondition_error(
                 "Review text evaluation output validation failed",
-                context={
-                    "result_type": type(result).__name__,
-                    "has_metrics": bool(getattr(result, "metrics", None)),
-                    "metrics_count": len(getattr(result, "metrics", [])),
-                },
-                operation="evaluate_review_text_validation",
+                function_name="evaluate_review_text_validation",
+                expected="result to be ReviewScorecard with exactly 6 metrics",
+                actual=(
+                    f"type={type(result).__name__}, "
+                    f"has_metrics={bool(getattr(result, 'metrics', None))}, "
+                    f"metrics_count={len(getattr(result, 'metrics', []))}"
+                ),
             )
 
         logger.debug(
