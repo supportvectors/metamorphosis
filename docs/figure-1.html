@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Semantic Manifold - Metropolis of Meanings</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #050816;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color: #eee;
+    }
+    #ui {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 10;
+      background: rgba(0,0,0,0.45);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      backdrop-filter: blur(8px);
+    }
+    #downloadBtn {
+      margin-top: 6px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #888;
+      background: #111;
+      color: #eee;
+      cursor: pointer;
+    }
+    #downloadBtn:hover {
+      background: #222;
+    }
+  </style>
+</head>
+<body>
+<div id="ui">
+  <div><strong>Semantic Manifold</strong><br>“Metropolis of meanings”</div>
+  <button id="downloadBtn">Download PNG</button>
+</div>
+<canvas id="scene"></canvas>
+
+<!-- three.js & OrbitControls from CDN -->
+<script src="https://unpkg.com/three@0.161.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.161.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050816);
+
+  // Camera
+  const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(8, 6, 8);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.07;
+  controls.target.set(0, 1, 0);
+
+  // Lights
+  const hemi = new THREE.HemisphereLight(0x88aaff, 0x000000, 0.8);
+  scene.add(hemi);
+  const dir = new THREE.DirectionalLight(0xffffff, 1.0);
+  dir.position.set(5, 10, 3);
+  scene.add(dir);
+
+  // Function defining the semantic surface z = f(x,z)
+  function semHeight(x, z) {
+    // multiple soft "hills"
+    const h1 = 1.2 * Math.exp(-0.25 * (x*x + 0.7*z*z));
+    const h2 = 0.8 * Math.exp(-0.35 * ((x-2.0)**2 + (z+1.0)**2));
+    const h3 = 0.7 * Math.exp(-0.3  * ((x+2.2)**2 + (z-1.6)**2));
+    const h4 = 0.5 * Math.exp(-0.45 * ((x+0.3)**2 + (z+2.4)**2));
+    return h1 + h2 + h3 + h4;
+  }
+
+  // Semantic manifold geometry
+  const size = 6;
+  const segments = 120; // dense, but GPU handles it fine
+  const geometry = new THREE.PlaneGeometry(size, size, segments, segments);
+  geometry.rotateX(-Math.PI / 2); // make it horizontal
+
+  const pos = geometry.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const z = pos.getZ(i);
+    const y = semHeight(x, z);
+    pos.setY(i, y);
+  }
+  geometry.computeVertexNormals();
+
+  // Color gradient across height
+  const colors = [];
+  const color = new THREE.Color();
+  let minY = Infinity, maxY = -Infinity;
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i);
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+  const range = maxY - minY;
+
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i);
+    const t = (y - minY) / range; // 0..1
+    // simple "viridis-like" blend
+    color.setHSL(0.58 - 0.2*t, 0.7, 0.35 + 0.25*t);
+    colors.push(color.r, color.g, color.b);
+  }
+
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+  const material = new THREE.MeshPhongMaterial({
+    vertexColors: true,
+    shininess: 30,
+    side: THREE.DoubleSide
+  });
+
+  const surface = new THREE.Mesh(geometry, material);
+  surface.position.y = 0.0;
+  scene.add(surface);
+
+  // Wireframe overlay (light grid)
+  const wireMat = new THREE.MeshBasicMaterial({
+    color: 0x335577,
+    wireframe: true,
+    opacity: 0.25,
+    transparent: true
+  });
+  const wire = new THREE.Mesh(geometry.clone(), wireMat);
+  wire.position.copy(surface.position);
+  scene.add(wire);
+
+  // "Districts" (concept hubs)
+  const districts = [
+    { x: -0.4, z:  0.2,  name: 'Concept hub' },
+    { x:  1.8, z: -0.3,  name: 'Code district' },
+    { x: -2.0, z:  1.4,  name: 'Physics quarter' },
+    { x:  2.2, z:  1.8,  name: 'Legal cluster' },
+    { x:  0.2, z: -2.2,  name: 'Colloquial basin' }
+  ];
+
+  const labelSprites = [];
+
+  function makeLabelSprite(text) {
+    const canvas = document.createElement('canvas');
+    const size = 256;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,size,size);
+    ctx.font = '28px system-ui';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 6;
+    ctx.fillText(text, size/2, size/2);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(1.8, 0.5, 1); // adjust label size
+    return sprite;
+  }
+
+  const hubGeom = new THREE.SphereGeometry(0.07, 24, 24);
+  const hubMat  = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x222244 });
+
+  districts.forEach(d => {
+    const y = semHeight(d.x, d.z);
+
+    const hub = new THREE.Mesh(hubGeom, hubMat);
+    hub.position.set(d.x, y + 0.05, d.z);
+    scene.add(hub);
+
+    // tower to indicate density
+    const towerGeom = new THREE.CylinderGeometry(0.02, 0.02, 0.5, 16);
+    const towerMat = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444488 });
+    const tower = new THREE.Mesh(towerGeom, towerMat);
+    tower.position.set(d.x, y + 0.25, d.z);
+    scene.add(tower);
+
+    const label = makeLabelSprite(d.name);
+    label.position.set(d.x + 0.1, y + 0.6, d.z);
+    scene.add(label);
+    labelSprites.push(label);
+  });
+
+  // Connect some districts with "semantic roads"
+  function addRoad(a, b) {
+    const steps = 50;
+    const points = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = a.x + (b.x - a.x) * t;
+      const z = a.z + (b.z - a.z) * t;
+      const y = semHeight(x, z) + 0.05;
+      points.push(new THREE.Vector3(x, y, z));
+    }
+    const roadGeom = new THREE.BufferGeometry().setFromPoints(points);
+    const roadMat = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.7, transparent: true });
+    const line = new THREE.Line(roadGeom, roadMat);
+    scene.add(line);
+  }
+
+  addRoad(districts[0], districts[1]);
+  addRoad(districts[0], districts[2]);
+  addRoad(districts[1], districts[3]);
+  addRoad(districts[1], districts[4]);
+
+  // Animation loop
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Handle resize
+  window.addEventListener('resize', () => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  });
+
+  // Download PNG button
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'semantic_manifold.png';
+    link.href = renderer.domElement.toDataURL('image/png');
+    link.click();
+  });
+</script>
+</body>
+</html>

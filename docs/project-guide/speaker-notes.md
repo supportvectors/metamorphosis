@@ -32,3 +32,7 @@ These notes are designed for a 20–25 minute session.
 - TextModifiers class: `metamorphosis/mcp/TextModifiers.md`
 
 
+
+
+
+
