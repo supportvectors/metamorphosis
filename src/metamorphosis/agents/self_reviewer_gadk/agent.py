@@ -148,7 +148,8 @@ class ReviewAgent(LlmAgent):
                 "4. Extracts achievements "
                 "5. Evaluates the reviewed text"
             ),
-            model=LiteLlm(model="gpt-4o-mini"),
+            # Disable LiteLLM callback logging to avoid async logging worker timeouts.
+            model=LiteLlm(model="gpt-4o-mini", **{"no-log": True}),
             tools=[
                 mcp_toolset,
                 update_state_from_mcp_output,
