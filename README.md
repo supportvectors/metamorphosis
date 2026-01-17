@@ -3,7 +3,7 @@
 
 ## Overview
 
-**Metamorphosis** is a comprehensive AI-powered text processing system designed for employee self-review workflows. It leverages LangGraph orchestration, OpenAI's language models, and Model Context Protocol (MCP) integration to provide intelligent text processing capabilities including copy editing, summarization, achievement extraction, and quality evaluation.
+**Metamorphosis** is an AI-powered text processing system designed for employee self-review workflows. It leverages LangGraph orchestration, OpenAI's language models, and Model Context Protocol (MCP) integration to provide intelligent text processing capabilities including copy editing, summarization, achievement extraction, and quality evaluation.
 
 ## Core Features
 
@@ -32,7 +32,7 @@
 
 ## Architecture
 
-The system implements a sophisticated multi-layer architecture:
+The system implements a multi-layer architecture:
 
 - **Presentation Layer**: Streamlit UI and FastAPI REST API
 - **Orchestration Layer**: LangGraph workflows with self-reviewer agent
@@ -51,6 +51,7 @@ The system provides a hybrid approach to text processing:
 3. **`word_cloud`**: Visual word cloud generation from text content
 
 **LangGraph Tools (2 tools):**
+
 4. **`extract_achievements`**: Structured extraction of key accomplishments with impact categorization
 5. **`evaluate_review_text`**: Comprehensive quality assessment with scoring metrics
 
@@ -59,7 +60,7 @@ The system provides a hybrid approach to text processing:
 
 ### User Interface
 
-The system provides a modern Streamlit-based web interface with:
+The system provides a Streamlit-based web interface with:
 - Real-time text processing with live updates
 - Interactive controls for workflow execution
 - Debug information and event inspection
@@ -89,7 +90,7 @@ The system provides a modern Streamlit-based web interface with:
 
 ## Technical Implementation
 
-The system is built using modern Python frameworks and design patterns:
+The system is built using Python frameworks and design patterns:
 
 **Core Technologies:**
 - **LangGraph**: Multi-agent workflow orchestration with direct tool access

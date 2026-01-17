@@ -1,20 +1,17 @@
 # =============================================================================
-#  Filename: adk_agents .py
+#  Filename: agent.py
 #
-#  Short Description: ADK agents for the periodic employee self-review process.
+#  Short Description: ADK agent and tool definitions for the periodic employee self-review process.
 #
 #  Creation date: 2025-10-27
 #  Author: Chandar L
 # =============================================================================
-import asyncio
 import logging
 import warnings
 from functools import lru_cache
 from google.adk.tools.tool_context import ToolContext
 from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
 from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
 
 from metamorphosis.mcp.text_modifiers import TextModifiers
@@ -58,7 +55,12 @@ mcp_toolset = McpToolset(
 # Function Tools (ADK-native)
 # ---------------------------------------------------------------------
 
-async def update_state_from_mcp_output(tool_context: ToolContext, mcp_tool_name: str, text_data: str) -> dict:
+async def update_state_from_mcp_output(
+    tool_context: ToolContext, 
+    mcp_tool_name: str, 
+    text_data: str,
+    original_text: str | None = None
+) -> dict:
     """
     Updates session state with data from MCP tool outputs.
     
@@ -66,12 +68,16 @@ async def update_state_from_mcp_output(tool_context: ToolContext, mcp_tool_name:
         tool_context: The tool context providing access to session and other services.
         mcp_tool_name: Name of the MCP tool that generated the output.
         text_data: The text data from the MCP tool response.
+        original_text: Optional original text (used when mcp_tool_name is 'copy_edit').
     
     Returns:
         dict: Confirmation that state was updated.
     """
     # Update the session state - the session object is mutable and persisted automatically
     if mcp_tool_name == "copy_edit":
+        # Store original_text if provided and not already set
+        if original_text and "original_text" not in tool_context.state:
+            tool_context.state["original_text"] = original_text
         tool_context.state["reviewed_text"] = text_data
     elif mcp_tool_name == "abstractive_summarize":
         tool_context.state["summarized_text"] = text_data
@@ -101,6 +107,9 @@ async def extract_achievements_tool(tool_context: ToolContext) -> dict:
     modifiers = _get_modifiers()
     achievements = modifiers.extract_achievements(text=reviewed)
     tool_context.state["achievements"] = achievements
+    # Set review_complete based on number of achievements extracted
+    achievement_count = len(achievements.items) if achievements and hasattr(achievements, "items") else 0
+    tool_context.state["review_complete"] = achievement_count >= 3
     return {"achievements": achievements}
 
 async def evaluate_text_tool(tool_context: ToolContext) -> dict:
@@ -148,8 +157,8 @@ class ReviewAgent(LlmAgent):
             ],
             instruction=(
                 "You are a text improvement assistant. For each input text:\n"
-                "1. Call the copy_edit MCP tool to fix grammar/typos.\n"
-                "2. IMMEDIATELY AFTER, call update_state_from_mcp_output with mcp_tool_name='copy_edit' and text_data=<the copy_edited_text from the result>.\n"
+                "1. Call the copy_edit MCP tool to fix grammar/typos (remember the original text you pass to it).\n"
+                "2. IMMEDIATELY AFTER, call update_state_from_mcp_output with mcp_tool_name='copy_edit', text_data=<the copy_edited_text from the result>, and original_text=<the original text you passed to copy_edit>.\n"
                 "3. Call abstractive_summarize MCP tool on the reviewed text.\n"
                 "4. IMMEDIATELY AFTER, call update_state_from_mcp_output with mcp_tool_name='abstractive_summarize' and text_data=<the summarized_text from the result>.\n"
                 "5. Call word_cloud MCP tool on the reviewed text.\n"
@@ -160,53 +169,3 @@ class ReviewAgent(LlmAgent):
             ),
             output_key="final_agent_response"
         )
-
-# ---------------------------------------------------------------------
-# Runner / Session orchestration
-# ---------------------------------------------------------------------
-async def main():
-    app_name = "self_reviewer_gadk"
-    user_id = "user_123"
-    session_id = "session_abc"
-
-    # Create a session service and session
-    session_service = InMemorySessionService()
-    await session_service.create_session(
-        app_name=app_name,
-        user_id=user_id,
-        session_id=session_id,
-        state={},
-    )
-
-    # Initialize agent and runner
-    agent = ReviewAgent()
-    runner = Runner(agent=agent, session_service=session_service, app_name=app_name)
-
-    # Provide input text
-    from google.genai import types
-    
-    user_input = types.Content(
-        parts=[types.Part(text="Ths is an exampel text with some typos and achievements like winning hackathon.")]
-    )
-
-    # Run the agent (the LLM will autonomously call the tools) - collect all events
-    # Use async context manager to ensure proper cleanup
-    events = []
-    async with runner:
-        async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_input):
-            events.append(event)
-        print("\n--- COLLECTED EVENTS ---")
-        for event in events:
-            print(f"Event type: {event.author}, content: {event.content}")
-
-    print("\n--- SESSION STATE ---")
-    final_session = await session_service.get_session(app_name=app_name,
-                                                        user_id= user_id,
-                                                        session_id=session_id)
-    print(final_session.state)
-
-    # Close the MCP toolset to prevent resource leaks
-    await mcp_toolset.close()
-
-if __name__ == "__main__":
-    asyncio.run(main())
