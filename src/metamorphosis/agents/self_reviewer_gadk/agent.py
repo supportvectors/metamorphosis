@@ -22,7 +22,7 @@ from metamorphosis.rag.corpus.achievement_evaluator import AchievementEvaluator
 from metamorphosis.rag.corpus.project_data_models import AchievementEvaluation
 from metamorphosis.rag.vectordb.embedded_vectordb import EmbeddedVectorDB
 from metamorphosis.rag.vectordb.embedder import SimpleTextEmbedder
-
+from typing import Literal, Any
 # Suppress authentication warnings from ADK tools
 warnings.filterwarnings("ignore", message=".*auth_config or auth_config.auth_scheme is missing.*")
 logging.getLogger("google_adk.google.adk.tools.base_authenticated_tool").setLevel(logging.ERROR)
@@ -112,36 +112,25 @@ mcp_toolset = McpToolset(
 # Function Tools (ADK-native)
 # ---------------------------------------------------------------------
 
-async def update_state_from_mcp_output(
+async def update_session_state(
     tool_context: ToolContext, 
-    mcp_tool_name: str, 
-    text_data: str,
-    original_text: str | None = None
+    session_state_key: Literal["original_text", "reviewed_text", "summarized_text", "wordcloud_path"], 
+    value: Any,
 ) -> dict:
     """
-    Updates session state with data from MCP tool outputs.
+    Updates session state with a key-value pair.
     
     Args:
         tool_context: The tool context providing access to session and other services.
-        mcp_tool_name: Name of the MCP tool that generated the output.
-        text_data: The text data from the MCP tool response.
-        original_text: Optional original text (used when mcp_tool_name is 'copy_edit').
+        session_state_key: Key of the session state to update.
+        value: Value to set for the session state key.
     
     Returns:
         dict: Confirmation that state was updated.
     """
+    print(f"Updating session state for key: {session_state_key} with value: {value}")
     # Update the session state - the session object is mutable and persisted automatically
-    if mcp_tool_name == "copy_edit":
-        # Store original_text if provided and not already set
-        if original_text and "original_text" not in tool_context.state:
-            tool_context.state["original_text"] = original_text
-        tool_context.state["reviewed_text"] = text_data
-    elif mcp_tool_name == "abstractive_summarize":
-        tool_context.state["summarized_text"] = text_data
-    elif mcp_tool_name == "word_cloud":
-        tool_context.state["wordcloud_path"] = text_data
-    else:
-        return {"status": "no_update"}
+    tool_context.state[session_state_key] = value
     
     return {"status": "updated"}
 
@@ -206,24 +195,35 @@ class ReviewAgent(LlmAgent):
                 "4. Extracts achievements "
                 "5. Evaluates the reviewed text"
             ),
-            model=LiteLlm(model="gpt-4o-mini"),
+            model=LiteLlm(model="gpt-4o"),
             tools=[
                 mcp_toolset,
-                update_state_from_mcp_output,
+                update_session_state,
                 extract_achievements_tool,
                 evaluate_text_tool,
             ],
             instruction=(
-                "You are a text improvement assistant. For each input text:\n"
-                "1. Call the copy_edit MCP tool to fix grammar/typos (remember the original text you pass to it).\n"
-                "2. IMMEDIATELY AFTER, call update_state_from_mcp_output with mcp_tool_name='copy_edit', text_data=<the copy_edited_text from the result>, and original_text=<the original text you passed to copy_edit>.\n"
-                "3. Call abstractive_summarize MCP tool on the reviewed text.\n"
-                "4. IMMEDIATELY AFTER, call update_state_from_mcp_output with mcp_tool_name='abstractive_summarize' and text_data=<the summarized_text from the result>.\n"
-                "5. Call word_cloud MCP tool on the reviewed text.\n"
-                "6. IMMEDIATELY AFTER, call update_state_from_mcp_output with mcp_tool_name='word_cloud' and text_data=<the wordcloud path from the result>.\n"
-                "7. Call extract_achievements_tool (reads from reviewed_text in state).\n"
-                "8. Call evaluate_text_tool (reads from reviewed_text in state).\n"
-                "Extract the text data from MCP tool responses and pass it to update_state_from_mcp_output."
+                '''
+                You are an intelligent self-reviewer assistant. 
+                
+                For each input text:
+                1. You will update the session state with the key 'original_text' having the value as the input text.
+                2. You will fix grammar/typos and update the session state with the key 'reviewed_text' having the value as the copy-edited text.
+                3. You will summarize the reviewed text and update the session state with the key 'summarized_text' having the value as the summarized text.
+                4. You will generate a wordcloud and update the session state with the key 'wordcloud_path' having the value as the path to the wordcloud image.
+                5. You will extract the achievements and update the session state with the key 'achievements' having the value as the extracted achievements.
+                6. You will evaluate the reviewed text and update the session state with the key 'evaluation' having the value as the evaluation results.
+                
+                Make sure to call the update_session_state tool at the beginning of the process to update
+                the session state for the "original_text" key. 
+                
+                Thereafter, as and when you call the respective MCP tools, you will also call the update_session_state tool
+                to update the session state for the "reviewed_text", "summarized_text", and "wordcloud_path" keys immediately after the 
+                MCP tool call.
+
+                For the "achievements" and "evaluation" keys, you will call the extract_achievements_tool and evaluate_text_tool 
+                respectively and they will internally update the session state for the "achievements" and "evaluation" keys.
+                '''
             ),
             output_key="final_agent_response"
         )
