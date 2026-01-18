@@ -167,14 +167,19 @@ def _convert_pydantic_to_dict(data: dict) -> dict:
         dict: Dictionary with all Pydantic objects converted to dictionaries.
     """
     from pydantic import BaseModel
-    
-    result = {}
-    for key, value in data.items():
+
+    def _normalize_value(value: object) -> object:
         if isinstance(value, BaseModel):
-            result[key] = value.model_dump()
-        else:
-            result[key] = value
-    return result
+            return value.model_dump()
+        if isinstance(value, dict):
+            return {key: _normalize_value(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [_normalize_value(item) for item in value]
+        if isinstance(value, tuple):
+            return tuple(_normalize_value(item) for item in value)
+        return value
+
+    return _normalize_value(data)
 
 
 def _map_session_state_to_response(state: dict) -> dict:
@@ -309,7 +314,7 @@ async def _generate_stream_events(
                         pass  # Continue even if state fetch fails
                 
                 serializable_ev = _convert_pydantic_to_dict(event_data)
-                yield f"data: {json.dumps(serializable_ev, default=str)}\n\n".encode("utf-8")
+                yield f"data: {json.dumps(serializable_ev)}\n\n".encode("utf-8")
                 
                 if await request.is_disconnected():
                     logger.info("Client disconnected during streaming (thread_id={})", thread_id)
@@ -317,7 +322,7 @@ async def _generate_stream_events(
         
     except Exception as e:
         error_data = {"error": str(e)}
-        yield f"data: {json.dumps(error_data, default=str)}\n\n".encode("utf-8")
+        yield f"data: {json.dumps(error_data)}\n\n".encode("utf-8")
 
 
 # =============================================================================

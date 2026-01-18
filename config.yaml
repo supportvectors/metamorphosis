@@ -21,21 +21,21 @@ text_modifier_models:
 
   # ---------------------------------------------------------
   summarizer:
-    model: gpt-5  # we need reasoning here
+    model: gpt-5.2  # we need reasoning here
     temperature: 0.0
     max_tokens: 20000  # Increased to handle longer summaries
     timeout: 300
 
   # ---------------------------------------------------------
   key_achievements:
-    model: gpt-5 
+    model: gpt-5.2 
     temperature: 0.0
     max_tokens: 20000  # Sufficient for structured JSON output
     timeout: 300
 
 # ---------------------------------------------------------
   review_text_evaluator:
-    model: gpt-5 
+    model: gpt-5.2 
     temperature: 0.0
     max_tokens: 20000  # Sufficient for structured JSON output
     timeout: 300

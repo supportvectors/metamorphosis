@@ -55,7 +55,9 @@ async def main():
     final_session = await session_service.get_session(app_name=app_name,
                                                         user_id= user_id,
                                                         session_id=session_id)
-    print(final_session.state)
+                                                        
+    from rich import print as rprint
+    rprint(final_session.state)
 
     # Close the MCP toolset to prevent resource leaks
     await mcp_toolset.close()

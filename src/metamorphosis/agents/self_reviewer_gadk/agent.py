@@ -6,19 +6,27 @@
 #  Creation date: 2025-10-27
 #  Author: Chandar L
 # =============================================================================
+import asyncio
 import logging
 import warnings
 from functools import lru_cache
+from typing import List
 from google.adk.tools.tool_context import ToolContext
 from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
 
 from metamorphosis.mcp.text_modifiers import TextModifiers
+from metamorphosis.datamodel import AchievementsList
+from metamorphosis.rag.corpus.achievement_evaluator import AchievementEvaluator
+from metamorphosis.rag.corpus.project_data_models import AchievementEvaluation
+from metamorphosis.rag.vectordb.embedded_vectordb import EmbeddedVectorDB
+from metamorphosis.rag.vectordb.embedder import SimpleTextEmbedder
 
 # Suppress authentication warnings from ADK tools
 warnings.filterwarnings("ignore", message=".*auth_config or auth_config.auth_scheme is missing.*")
 logging.getLogger("google_adk.google.adk.tools.base_authenticated_tool").setLevel(logging.ERROR)
+logger = logging.getLogger(__name__)
 ''' 
 **ADK Agents for the periodic employee self-review process.**
 
@@ -45,6 +53,55 @@ Create an ADK agent that will leverage the above MCP tools as well as the in-hou
 def _get_modifiers() -> TextModifiers:
     """Lazy, cached TextModifiers accessor for the ADK tools."""
     return TextModifiers()
+
+
+@lru_cache(maxsize=1)
+def _get_achievement_evaluator() -> AchievementEvaluator:
+    """Lazy, cached AchievementEvaluator accessor for contextualization."""
+    vector_db = EmbeddedVectorDB()
+    embedder = SimpleTextEmbedder()
+    return AchievementEvaluator(vector_db=vector_db, embedder=embedder)
+
+
+def _convert_achievement_evaluations_to_achievements(
+    achievement_evaluations: List[AchievementEvaluation],
+    size: int,
+    unit: str,
+) -> AchievementsList:
+    """Convert achievement evaluations to AchievementsList."""
+    updated_achievements = []
+    for achievement_evaluation in achievement_evaluations:
+        updated_achievement = achievement_evaluation.achievement
+        updated_achievement.contribution = achievement_evaluation.contribution
+        updated_achievement.rationale = achievement_evaluation.rationale
+        updated_achievement.project_name = achievement_evaluation.project.name
+        updated_achievement.project_text = achievement_evaluation.project.text
+        updated_achievement.project_department = achievement_evaluation.project.department
+        updated_achievement.project_impact_category = achievement_evaluation.project.impact_category
+        updated_achievement.project_effort_size = achievement_evaluation.project.effort_size
+        updated_achievements.append(updated_achievement)
+
+    return AchievementsList(items=updated_achievements, size=size, unit=unit)
+
+
+def _contextualize_achievements(achievements: AchievementsList) -> AchievementsList:
+    """Contextualize achievements with project metadata and contribution levels."""
+    if not achievements.items:
+        return achievements
+
+    evaluator = _get_achievement_evaluator()
+    try:
+        evaluations = evaluator.contextualize(achievements=achievements)
+        if not evaluations:
+            return achievements
+        return _convert_achievement_evaluations_to_achievements(
+            evaluations,
+            achievements.size,
+            achievements.unit,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Failed to contextualize achievements: %s", exc)
+        return achievements
 
 # ---- MCP Tools ----
 mcp_toolset = McpToolset(
@@ -105,7 +162,8 @@ async def extract_achievements_tool(tool_context: ToolContext) -> dict:
         return {"error": "reviewed_text not found in session state. Please call copy_edit tool first."}
     
     modifiers = _get_modifiers()
-    achievements = modifiers.extract_achievements(text=reviewed)
+    achievements = await asyncio.to_thread(modifiers.extract_achievements, text=reviewed)
+    achievements = await asyncio.to_thread(_contextualize_achievements, achievements)
     tool_context.state["achievements"] = achievements
     # Set review_complete based on number of achievements extracted
     achievement_count = len(achievements.items) if achievements and hasattr(achievements, "items") else 0
@@ -129,7 +187,7 @@ async def evaluate_text_tool(tool_context: ToolContext) -> dict:
         return {"error": "reviewed_text not found in session state. Please call copy_edit tool first."}
     
     modifiers = _get_modifiers()
-    evaluation = modifiers.evaluate_review_text(text=reviewed)
+    evaluation = await asyncio.to_thread(modifiers.evaluate_review_text, text=reviewed)
     tool_context.state["evaluation"] = evaluation
     return {"evaluation": evaluation}
 
