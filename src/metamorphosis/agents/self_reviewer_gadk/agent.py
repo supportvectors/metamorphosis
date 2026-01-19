@@ -22,6 +22,7 @@ from metamorphosis.rag.corpus.achievement_evaluator import AchievementEvaluator
 from metamorphosis.rag.corpus.project_data_models import AchievementEvaluation
 from metamorphosis.rag.vectordb.embedded_vectordb import EmbeddedVectorDB
 from metamorphosis.rag.vectordb.embedder import SimpleTextEmbedder
+from metamorphosis.rag.corpus.projects_rag import ProjectsRag
 from typing import Literal, Any
 # Suppress authentication warnings from ADK tools
 warnings.filterwarnings("ignore", message=".*auth_config or auth_config.auth_scheme is missing.*")
@@ -59,7 +60,8 @@ def _get_modifiers() -> TextModifiers:
 def _get_achievement_evaluator() -> AchievementEvaluator:
     """Lazy, cached AchievementEvaluator accessor for contextualization."""
     vector_db = EmbeddedVectorDB()
-    embedder = SimpleTextEmbedder()
+    projects_rag = ProjectsRag(vector_db=vector_db)
+    embedder = projects_rag.embedder
     return AchievementEvaluator(vector_db=vector_db, embedder=embedder)
 
 
@@ -181,7 +183,7 @@ async def evaluate_text_tool(tool_context: ToolContext) -> dict:
     return {"evaluation": evaluation}
 
 # ---------------------------------------------------------------------
-# LLM Agent — uses GPT-4o-mini to decide tool invocation order
+# LLM Agent — uses GPT-4o to decide tool invocation order
 # ---------------------------------------------------------------------
 class ReviewAgent(LlmAgent):
     def __init__(self):

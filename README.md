@@ -38,7 +38,7 @@ The system implements a multi-layer architecture:
 - **Orchestration Layer**: LangGraph workflows with self-reviewer agent
 - **Processing Layer**: Hybrid approach with MCP tools server and direct LangGraph tool access
 - **RAG Layer**: Vector database and achievement evaluator for project document retrieval
-- **Model Layer**: Centralized model registry managing multiple OpenAI LLMs (GPT-4o-mini for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
+- **Model Layer**: Centralized model registry managing multiple OpenAI LLMs (GPT-4o-mini/GPT-4o for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
 - **Data Layer**: Pydantic models and structured outputs
 
 ### The Processing Tools
@@ -77,7 +77,7 @@ The system provides a Streamlit-based web interface with:
 - Streamlit UI with real-time streaming capabilities
 - FastAPI REST API with SSE support
 - Comprehensive Pydantic data models
-- OpenAI GPT model integration with centralized registry (GPT-4o-mini for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
+- OpenAI GPT model integration with centralized registry (GPT-4o-mini/GPT-4o for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
 - Word cloud and radar chart visualization
 - Achievement extraction with impact categorization and RAG enhancement
 - Quality evaluation with scoring metrics
@@ -99,7 +99,7 @@ The system is built using Python frameworks and design patterns:
 - **Streamlit**: Interactive web interface
 - **FastAPI**: High-performance REST API
 - **Pydantic**: Type-safe data validation
-- **OpenAI GPT**: Language model integration (GPT-4o-mini for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
+- **OpenAI GPT**: Language model integration (GPT-4o-mini/GPT-4o for agents, GPT-4o for MCP tools, GPT-5 for advanced use cases)
 
 **Key Design Principles:**
 - **Design-by-Contract**: Pre/post-condition validation with icontract
@@ -146,7 +146,7 @@ graph TB
     
     subgraph "Model Layer"
         MR[Model Registry<br/>Centralized LLM Management]
-        GPT1[GPT-4o-mini<br/>LangGraph Agents]
+        GPT1[GPT-4o-mini/GPT-4o<br/>LangGraph/G-ADK Agents]
         GPT2[GPT-4o<br/>MCP Tools]
         GPT3[GPT-5<br/>Advanced Use Cases]
     end
