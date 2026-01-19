@@ -232,9 +232,11 @@ uv run ./src/metamorphosis/mcp/tools_server.py
 ```
 
 ### 4. Start the Agent Service
-In a separate terminal, run the FastAPI service that hosts the LangGraph agents:
+In a separate terminal, run the FastAPI service that hosts the LangGraph agents (or G-ADK agent):
 ```bash
 uv run ./src/metamorphosis/agents/agent_service.py
+(or)
+uv run ./src/metamorphosis/agents/agent_service_gadk.py
 ```
 
 ### 5. Launch the User Interface
@@ -242,5 +244,7 @@ Finally, start the Streamlit UI in another terminal:
 ```bash
 streamlit run ./src/metamorphosis/ui/streamlit_ui.py
 ```
+If you ran the `agent_service_gadk.py` in the previous step, make sure to modify the `SERVICE_BASE` in `streamlit_ui.py`
+to point to `http://localhost:8001`.  Otherwise keep it as `http://localhost:8000`.
 
 Once all services are running, you can access the application through the Streamlit interface in your web browser.
