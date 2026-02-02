@@ -453,7 +453,7 @@ if __name__ == "__main__":
     """
     
     host = os.getenv("FASTAPI_HOST", "localhost")
-    port = int(os.getenv("FASTAPI_PORT", "8001"))  # Different port to avoid conflicts
+    port = int(os.getenv("FASTAPI_PORT", "8000"))  
     
     logger.info("Starting ADK Agent FastAPI service on {}:{}", host, port)
     logger.info("API documentation available at: http://{}:{}/docs", host, port)

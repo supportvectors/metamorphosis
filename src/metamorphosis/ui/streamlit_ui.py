@@ -62,8 +62,7 @@ load_dotenv()
 
 # Base URL for the FastAPI backend service that runs LangGraph workflows / G-ADK Agent service
 # This should match the host and port where the agent_service.py is running
-# Use 8000 for LangGraph workflows and 8001 for G-ADK Agent service
-SERVICE_BASE = "http://localhost:8001"
+SERVICE_BASE = "http://localhost:8000"
 # Endpoint for streaming Server-Sent Events (SSE) from the LangGraph execution
 # This connects to the /stream endpoint in the FastAPI service
 STREAM_URL = f"{SERVICE_BASE}/stream"
