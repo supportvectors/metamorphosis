@@ -91,11 +91,15 @@ def create_word_cloud(text: Annotated[str, Field(min_length=1)]) -> str:
 
     # Ensure word_clouds directory exists
     output_dir = Path("./word_clouds")
+    output_dir2 = Path("./agui/public/word_clouds")
     output_dir.mkdir(exist_ok=True)
 
     # Generate unique filename
-    word_cloud_path = output_dir / f"word_cloud_{uuid.uuid4()}.png"
+    unique_id = uuid.uuid4()
+    word_cloud_path = output_dir / f"word_cloud_{unique_id}.png"
     word_cloud.to_file(str(word_cloud_path))
+    word_cloud_path2 = output_dir2 / f"word_cloud_{unique_id}.png"
+    word_cloud.to_file(str(word_cloud_path2))
 
     # Postcondition (O(1)): ensure file was created
     if not word_cloud_path.exists():

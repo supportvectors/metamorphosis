@@ -4,3 +4,67 @@
 /src/metamorphosis/agents/__pycache__
 /word_clouds
 *.pyc
+
+
+#AG-UI gitignores
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+agui/node_modules
+agui/.pnp
+agui/.pnp.*
+agui/.yarn/*
+agui/.yarn/patches
+agui/.yarn/plugins
+agui/.yarn/releases
+agui/.yarn/versions
+
+# testing
+agui/coverage
+
+# next.js
+agui/.next/
+agui/out/
+
+# production
+agui/build
+
+# misc
+agui/.DS_Store
+agui/*.pem
+
+# debug
+agui/npm-debug.log*
+agui/yarn-debug.log*
+agui/yarn-error.log*
+agui/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+agui/.env*
+
+# vercel
+agui/.vercel
+
+# typescript
+agui/*.tsbuildinfo
+agui/next-env.d.ts
+
+agui/.mastra/
+
+# lock files
+agui/package-lock.json
+agui/yarn.lock
+agui/pnpm-lock.yaml
+agui/bun.lockb
+
+# python
+agent/venv/
+agent/__pycache__/
+agent/.venv/
+
+agui/data/
+
+data/
+
+.DS_Store

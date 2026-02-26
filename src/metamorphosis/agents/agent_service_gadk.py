@@ -47,6 +47,7 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
+from ag_ui_adk import ADKAgent, add_adk_fastapi_endpoint
 from metamorphosis.agents.self_reviewer_gadk.agent import ReviewAgent, mcp_toolset
 from metamorphosis.datamodel import InvokeRequest, StreamRequest, InvokeResponse
 
@@ -110,6 +111,25 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+# =============================================================================
+# AG-UI ENDPOINT FOR COPILOTKIT / AG-UI CLIENTS
+# =============================================================================
+
+adk_agent = ADKAgent(
+    adk_agent=agent,
+    app_name=app_name,
+    user_id="demo_user",
+    session_timeout_seconds=3600,
+    use_in_memory_services=True,
+)
+
+add_adk_fastapi_endpoint(
+    app=app,
+    agent=adk_agent,
+    path="/agui",
+)
+
 
 # =============================================================================
 # MIDDLEWARE CONFIGURATION
