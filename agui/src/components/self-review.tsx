@@ -291,18 +291,18 @@ export function SelfReviewInterface({ state, setState }: SelfReviewProps) {
               <h2 className="text-2xl font-bold tracking-tight text-primary">
                 Extracted Achievements <span className="ml-2 text-muted-foreground text-lg font-normal">({state.achievements?.items?.length || 0})</span>
               </h2>
-              {/* Review Complete Status Badge */}
-              {state.review_complete !== undefined && (
+              {/* Review Complete Status Badge — only shown after agent finishes */}
+              {!isLoading && state.review_complete !== undefined && (
                 <div
                   className={`px-4 py-1.5 rounded-full border text-sm font-medium flex items-center gap-2 ${state.review_complete
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-red-50 text-red-700 border-red-200"
                     }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${state.review_complete ? "bg-emerald-500" : "bg-amber-500"}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${state.review_complete ? "bg-emerald-500" : "bg-red-500"}`}></span>
                   {state.review_complete
                     ? "Assessment Complete"
-                    : "Review In Progress"}
+                    : "Issues Found — Too Few Achievements"}
                 </div>
               )}
             </div>

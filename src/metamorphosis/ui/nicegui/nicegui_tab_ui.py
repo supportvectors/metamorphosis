@@ -322,8 +322,12 @@ async def main_page():
             with progress_column:
                 for step in state.progress_steps:
                     with ui.row().classes('items-center gap-2'):
-                        ui.icon('check_circle', color='positive', size='xs')
-                        ui.label(step.replace('✅ ', '')).classes('text-sm text-gray-700')
+                        if step.startswith('❌'):
+                            ui.icon('error', color='negative', size='xs')
+                            ui.label(step.replace('❌ ', '')).classes('text-sm text-negative font-medium')
+                        else:
+                            ui.icon('check_circle', color='positive', size='xs')
+                            ui.label(step.replace('✅ ', '')).classes('text-sm text-gray-700')
             
             # Button States
             if state.running:
@@ -339,8 +343,21 @@ async def main_page():
                 retry_btn.classes(remove='hidden')
                 editor.enable()
             elif state.state:
-                status_label.text = "Analysis Complete"
-                status_label.classes(replace='text-positive font-bold')
+                # Check review_complete to provide specific status
+                curr = state.state
+                all_keys = ["copy_edited_text", "summary", "word_cloud_path",
+                            "achievements", "review_scorecard", "review_complete"]
+                graph_all_completed = all(k in curr for k in all_keys)
+
+                if graph_all_completed and not curr.get("review_complete"):
+                    status_label.text = "Issues Found — Please Fix"
+                    status_label.classes(replace='text-negative font-bold')
+                elif graph_all_completed:
+                    status_label.text = "Analysis Complete ✓"
+                    status_label.classes(replace='text-positive font-bold')
+                else:
+                    status_label.text = "Partially Complete"
+                    status_label.classes(replace='text-warning font-bold')
                 state.progress_value = 1.0
                 start_btn.enable()
                 retry_btn.classes(add='hidden')
@@ -427,6 +444,14 @@ async def main_page():
                 if curr.get("review_scorecard"):
                     steps.append("✅ Scorecard")
                     count += 1
+                # Only show the review_complete status after all 5 processing
+                # steps are done, so "issues found" doesn't flash mid-processing.
+                if count >= 5 and "review_complete" in curr:
+                    if curr["review_complete"]:
+                        steps.append("✅ Review Complete")
+                    else:
+                        steps.append("❌ Review has issues — too few achievements")
+                    count += 1
                 
                 state.progress_steps = steps
                 state.progress_value = count / 5.0
@@ -437,7 +462,24 @@ async def main_page():
                 state.running = False
                 state.last_error = None  # Clear error on success
                 update_ui()
-                ui.notify("Analysis finished successfully", type='positive')
+
+                # Check review completion status (mirrors Streamlit UI logic)
+                curr = state.state
+                all_keys = ["copy_edited_text", "summary", "word_cloud_path",
+                            "achievements", "review_scorecard", "review_complete"]
+                graph_all_completed = all(k in curr for k in all_keys)
+
+                if graph_all_completed:
+                    if curr["review_complete"]:
+                        ui.notify("✅ Self-Reviewer Wizard completed successfully!", type='positive', position='top', timeout=5000)
+                    else:
+                        ui.notify("❌ There were issues found with the self-review text. Please study and fix these:", type='negative', position='top', timeout=8000)
+                        ui.notify("⚠️ Issue: There were too few achievements found.", type='warning', position='top', timeout=8000)
+                        ui.notify("💡 Solution: Elaborate on the details and add measurable achievements. Then try again.", type='warning', position='top', timeout=8000)
+                elif any(k in curr for k in all_keys):
+                    ui.notify("❌ Some steps of the Self-Reviewer Wizard did not complete successfully", type='negative', position='top', timeout=5000)
+                else:
+                    ui.notify("Analysis finished", type='info')
             
         except requests.exceptions.ConnectionError:
             state.running = False
