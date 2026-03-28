@@ -68,3 +68,4 @@ agui/data/
 data/
 
 .DS_Store
+/agui

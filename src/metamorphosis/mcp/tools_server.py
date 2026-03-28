@@ -92,7 +92,8 @@ def create_word_cloud(text: Annotated[str, Field(min_length=1)]) -> str:
     # Ensure word_clouds directory exists
     output_dir = Path("./word_clouds")
     output_dir2 = Path("./agui/public/word_clouds")
-    output_dir.mkdir(exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir2.mkdir(parents=True, exist_ok=True)
 
     # Generate unique filename
     unique_id = uuid.uuid4()
