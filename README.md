@@ -284,7 +284,7 @@ pnpm dev
 
 
 Windows:
-
+> Note: You need **WSL** to run this
 ```powershell
 cd agui
 pnpm dev
