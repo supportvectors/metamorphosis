@@ -191,7 +191,7 @@ async def main_page():
                          validation_label = ui.label().classes('text-sm text-negative font-medium')
                     
                     editor = ui.textarea(placeholder='Enter your review text here......').bind_value(state, 'review_text') \
-                        .props('outlined rounded outlined input-class="font-mono text-sm"').classes('w-full shadow-inner bg-white')
+                        .props('outlined rounded input-class="font-mono text-sm" rows=18').classes('w-full shadow-inner bg-white')
 
                 # --- TAB 2: RATIONALIZED TEXT ---
                 with ui.tab_panel(t2):

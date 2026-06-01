@@ -265,3 +265,29 @@ uv run ./src/metamorphosis/ui/nicegui/nicegui_continuous_ui.py
 ```bash
 uv run ./src/metamorphosis/ui/nicegui/nicegui_tab_ui.py
 ```
+
+#### AG-UI
+
+> 
+> To use AG-UI you need node.js and pnpm. to install this refer:
+> [Node.JS](https://nodejs.org/en/download)
+> [pnpm](https://pnpm.io/installation)
+
+
+
+Linux/macOS:
+> Note: Steps 3 and 4 do not need to be run separately, as they will be executed **automatically** by the commands below. If you have already started those steps, please stop them and proceed with the following commands instead. This is only for Mac and Linix machines.
+```bash
+cd agui
+pnpm dev
+```
+
+
+Windows:
+
+```powershell
+cd agui
+pnpm dev
+```
+
+> For more info on AG-UI refer [here](./agui/SETUP.md)

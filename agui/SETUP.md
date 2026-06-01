@@ -16,7 +16,7 @@ This Next.js application connects to your ADK-based self-review agent service vi
 - **Node.js** 18+ and a package manager (`pnpm` recommended). 
 
   <details>
-    <summary>Click here for macos steps to install Node.js and pnpm</summary>
+    <summary>Click here for MacOS steps to install Node.js and pnpm</summary>
 
     ```bash
     # Download and install nvm:
