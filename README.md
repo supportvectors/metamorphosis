@@ -276,7 +276,7 @@ uv run ./src/metamorphosis/ui/nicegui/nicegui_tab_ui.py
 
 
 Linux/macOS:
-> Note: Steps 3 and 4 do not need to be run separately, as they will be executed **automatically** by the commands below. If you have already started those steps, please stop them and proceed with the following commands instead. This is only for Mac and Linix machines.
+> Note: Steps 3 and 4 do not need to be run separately, as they will be executed automatically by the commands below. If you have already started those steps, please stop them and proceed with the following commands instead. These commands will also start the Google ADK agent service (agent_service_gadk). This setup is supported only on macOS and Linux machines.
 ```bash
 cd agui
 pnpm dev
